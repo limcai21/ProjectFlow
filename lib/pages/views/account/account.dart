@@ -1,0 +1,138 @@
+import 'package:ProjectFlow/pages/global/constants.dart';
+import 'package:ProjectFlow/pages/global/contacts_launcher.dart';
+import 'package:ProjectFlow/pages/global/scaffold.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import 'about-us.dart';
+
+class Account extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    const t = 1.0;
+
+    return CustomScaffold(
+      title: "Account",
+      subtitle: "Manage all your information here",
+      layout: 2,
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.only(bottom: 20),
+              physics: BouncingScrollPhysics(),
+              children: [
+                ProfileCard(),
+                ListViewHeader(title: 'My Info'),
+                CustomListTile(
+                  title: "Email",
+                  subtitle: "Update your email address",
+                  t: t,
+                  icon: FluentIcons.mail_24_filled,
+                  trailingIcon: FluentIcons.chevron_right_24_regular,
+                  bgColor: Colors.orange,
+                  onTap: () => print("a"),
+                ),
+                CustomListTile(
+                  title: "Password",
+                  subtitle: "Change your password",
+                  t: t,
+                  icon: FluentIcons.password_24_filled,
+                  trailingIcon: FluentIcons.chevron_right_24_regular,
+                  bgColor: Colors.brown,
+                  onTap: () => print("a"),
+                ),
+                CustomListTile(
+                  title: "Delete Account",
+                  subtitle: "Once you delete, it's gone",
+                  t: t,
+                  icon: FluentIcons.delete_24_filled,
+                  bgColor: Colors.red,
+                  onTap: () => print("a"),
+                ),
+                CustomListTile(
+                  title: "Logout",
+                  subtitle: "Change your password",
+                  t: t,
+                  icon: FluentIcons.sign_out_24_filled,
+                  bgColor: Colors.blueGrey,
+                  onTap: () => print("a"),
+                ),
+                ListViewHeader(title: 'Company'),
+                CustomListTile(
+                  title: 'About Us',
+                  subtitle: 'Find out more about us',
+                  t: t,
+                  icon: FluentIcons.info_24_filled,
+                  trailingIcon: FluentIcons.chevron_right_24_filled,
+                  bgColor: Colors.green,
+                  onTap: () => Get.to(AboutUs()),
+                ),
+                CustomListTile(
+                  title: 'Feedback',
+                  subtitle: 'Tell us if you encounter something odd',
+                  t: t,
+                  icon: FluentIcons.person_feedback_24_filled,
+                  trailingIcon: FluentIcons.open_24_filled,
+                  bgColor: Colors.purple,
+                  onTap: () => launchEmail(
+                    company_feedback_email,
+                    'Feedback on ProjectFlow',
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ProfileCard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    Color bgColor =
+        Color.lerp(Colors.white, Theme.of(context).primaryColor, 0.125);
+    String accountName = "John Doe";
+    String accountSubtitle = "johndoe@example.com";
+
+    return Container(
+      padding: EdgeInsets.all(20),
+      color: bgColor,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                accountName,
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: Theme.of(context).textTheme.headline6.fontSize,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                accountSubtitle,
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  fontSize: Theme.of(context).textTheme.bodyText1.fontSize,
+                ),
+              ),
+            ],
+          ),
+          CircleAvatar(
+            radius: 30,
+            backgroundColor: Colors.transparent,
+            backgroundImage: AssetImage("images/defaultProfilePic.png"),
+          ),
+        ],
+      ),
+    );
+  }
+}
