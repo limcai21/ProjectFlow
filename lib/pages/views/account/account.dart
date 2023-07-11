@@ -1,6 +1,7 @@
 import 'package:ProjectFlow/pages/global/constants.dart';
 import 'package:ProjectFlow/pages/global/contacts_launcher.dart';
 import 'package:ProjectFlow/pages/global/scaffold.dart';
+import 'package:ProjectFlow/services/auth.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -11,6 +12,7 @@ class Account extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const t = 1.0;
+    var user = Auth().getCurrentUser();
 
     return CustomScaffold(
       title: "Account",
@@ -24,7 +26,7 @@ class Account extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 20),
               physics: BouncingScrollPhysics(),
               children: [
-                ProfileCard(),
+                ProfileCard(name: user.displayName ?? "", email: user.email),
                 ListViewHeader(title: 'My Info'),
                 CustomListTile(
                   title: "Email",
@@ -92,12 +94,14 @@ class Account extends StatelessWidget {
 }
 
 class ProfileCard extends StatelessWidget {
+  final String name;
+  final String email;
+  ProfileCard({@required this.name, @required this.email});
+
   @override
   Widget build(BuildContext context) {
     Color bgColor =
         Color.lerp(Colors.white, Theme.of(context).primaryColor, 0.125);
-    String accountName = "John Doe";
-    String accountSubtitle = "johndoe@example.com";
 
     return Container(
       padding: EdgeInsets.all(20),
@@ -110,7 +114,7 @@ class ProfileCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                accountName,
+                name,
                 style: TextStyle(
                   color: Colors.black,
                   fontSize: Theme.of(context).textTheme.headline6.fontSize,
@@ -118,7 +122,7 @@ class ProfileCard extends StatelessWidget {
                 ),
               ),
               Text(
-                accountSubtitle,
+                email,
                 style: TextStyle(
                   color: Colors.grey[600],
                   fontSize: Theme.of(context).textTheme.bodyText1.fontSize,

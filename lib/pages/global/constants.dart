@@ -15,6 +15,9 @@ const company_name = "arnet";
 const company_developer = 'Lim Cai';
 const company_website = "arnet.com.sg";
 
+// PROJECT
+const project_existed = 'Project exists. Please try another name';
+
 const color_list = [
   {'title': 'Aqua', 'hex': 0xFF00FFFF},
   {'title': 'Black', 'hex': 0xFF000000},
@@ -32,6 +35,15 @@ const color_list = [
   {'title': 'Teal', 'hex': 0xFF008080},
   {'title': 'Yellow', 'hex': 0xFFFFFF00},
 ];
+
+int getHexValue(String colorTitle) {
+  for (var color in color_list) {
+    if (color['title'] == colorTitle) {
+      return color['hex'];
+    }
+  }
+  return null;
+}
 
 class CustomLeadingIcon extends StatelessWidget {
   final IconData icon;
@@ -140,6 +152,7 @@ class CustomTextFormField extends StatelessWidget {
   final int maxLines;
   final int maxLength;
   final TextInputType keyboardType;
+  final Function(String value) onChanged;
 
   CustomTextFormField({
     this.controller,
@@ -153,6 +166,7 @@ class CustomTextFormField extends StatelessWidget {
     this.readOnly = false,
     this.maxLines = 1,
     this.maxLength,
+    this.onChanged,
     this.keyboardType = TextInputType.text,
   });
 
@@ -166,6 +180,7 @@ class CustomTextFormField extends StatelessWidget {
       onTap: onTap,
       controller: controller,
       maxLength: maxLength,
+      onChanged: (v) => onChanged(v),
       // initialValue: initalValue,
       decoration: InputDecoration(
         suffixIcon: Icon(icon),
@@ -178,7 +193,7 @@ class CustomTextFormField extends StatelessWidget {
           if (value == null || value.isEmpty) {
             return empty_fields;
           } else {
-            validator(value);
+            return validator(value);
           }
         }
         return null;
@@ -191,19 +206,41 @@ simpleDialog({
   @required String title,
   @required BuildContext context,
   @required List<Widget> children,
-}) {}
+}) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return SimpleDialog(
+        titlePadding: const EdgeInsets.all(0),
+        contentPadding: const EdgeInsets.symmetric(vertical: 10),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+        ),
+        title: Container(
+          padding: const EdgeInsets.fromLTRB(20, 30, 20, 10),
+          child: Text(title, style: TextStyle(color: Colors.white)),
+          decoration: BoxDecoration(
+            color: Theme.of(context).primaryColor,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(10),
+              topRight: Radius.circular(10),
+            ),
+          ),
+        ),
+        children: children,
+      );
+    },
+  );
+}
 
 simpleDialogOption({
   @required Widget child,
   @required Function onPressed,
 }) {
   return SimpleDialogOption(
-    padding: const EdgeInsets.symmetric(
-      vertical: 10,
-      horizontal: 20,
-    ),
     child: child,
     onPressed: () => onPressed(),
+    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
   );
 }
 

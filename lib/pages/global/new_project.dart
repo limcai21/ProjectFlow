@@ -1,18 +1,23 @@
 import 'package:ProjectFlow/pages/global/constants.dart';
 import 'package:ProjectFlow/pages/global/scaffold.dart';
+import 'package:ProjectFlow/services/auth.dart';
+import 'package:ProjectFlow/services/firestore.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 
-import 'controller.dart';
+class NewProject extends StatefulWidget {
+  @override
+  State<NewProject> createState() => _NewProjectState();
+}
 
-class NewProject extends StatelessWidget {
+class _NewProjectState extends State<NewProject> {
   @override
   Widget build(BuildContext context) {
     final formKey = GlobalKey<FormState>();
     final pTitleController = TextEditingController();
     final pColorConroller = TextEditingController();
-    final Controller controller = Get.find<Controller>();
     List<Map> temp = [];
 
     color_list.forEach((element) {
@@ -24,7 +29,12 @@ class NewProject extends StatelessWidget {
       if (!isValid) {
         return;
       } else {
-        print("Create Project (In submit_form())");
+        var userID = Auth().getCurrentUser().uid;
+        Firestore()
+            .createProject(pTitleController.text, pColorConroller.text, userID);
+        Fluttertoast.showToast(
+            msg: 'Project Created!', gravity: ToastGravity.TOP);
+        Get.back();
       }
     }
 
@@ -42,46 +52,40 @@ class NewProject extends StatelessWidget {
                 controller: pTitleController,
                 icon: project_icon,
                 labelText: 'Project Title',
-                validator: (value) => {
-                  // CHECK IF PROJECT EXIST
-                  print("check if project exist")
-                },
               ),
-              Obx(
-                () => CustomTextFormField(
-                  initalValue: controller.selectedNewProjectTheme.toString(),
-                  controller: pColorConroller,
-                  icon: FluentIcons.color_24_regular,
-                  labelText: 'Theme',
-                  readOnly: true,
-                  onTap: () => simpleDialog(
-                    context: context,
-                    title: "Select Theme",
-                    children: color_list.map<Widget>((element) {
-                      String title = element['title'].toString();
-                      int hex = element['hex'];
-                      return simpleDialogOption(
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 15,
-                              height: 15,
-                              decoration: BoxDecoration(
-                                color: Color(hex),
-                                borderRadius: BorderRadius.circular(5),
-                              ),
+              CustomTextFormField(
+                initalValue: 'Blue',
+                controller: pColorConroller,
+                icon: FluentIcons.color_24_regular,
+                labelText: 'Theme',
+                readOnly: true,
+                onTap: () => simpleDialog(
+                  context: context,
+                  title: "Select Theme",
+                  children: color_list.map<Widget>((element) {
+                    String title = element['title'].toString();
+                    int hex = element['hex'];
+                    return simpleDialogOption(
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 15,
+                            height: 15,
+                            decoration: BoxDecoration(
+                              color: Color(hex),
+                              borderRadius: BorderRadius.circular(5),
                             ),
-                            SizedBox(width: 10),
-                            Text(title),
-                          ],
-                        ),
-                        onPressed: () => {
-                          Navigator.pop(context),
-                          controller.setNewProjectTheme(title),
-                        },
-                      );
-                    }).toList(),
-                  ),
+                          ),
+                          SizedBox(width: 10),
+                          Text(title),
+                        ],
+                      ),
+                      onPressed: () => {
+                        pColorConroller.text = title,
+                        Navigator.pop(context),
+                      },
+                    );
+                  }).toList(),
                 ),
               ),
               Container(

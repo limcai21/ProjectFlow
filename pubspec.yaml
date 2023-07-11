@@ -25,7 +25,12 @@ dependencies:
     sdk: flutter
   get:
   intl:
+  lottie:
+  fluttertoast:
   url_launcher:
+  firebase_core:
+  firebase_auth:
+  cloud_firestore:
   date_time_picker:
   salomon_bottom_bar:
   fluentui_system_icons:
