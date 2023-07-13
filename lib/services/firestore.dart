@@ -1,7 +1,5 @@
 import 'package:ProjectFlow/model/project.dart';
-import 'package:ProjectFlow/pages/global/constants.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 class Firestore {
   final CollectionReference projectCollection =

@@ -1,12 +1,16 @@
 import 'package:ProjectFlow/pages/views/skeleton.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:lottie/lottie.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'pages/global/controller.dart';
-import 'pages/views/loginAndRegister.dart';
+import 'pages/views/login.dart';
+import 'pages/views/signup.dart';
 
 void main() async {
   // INIT FIREBASE
@@ -31,11 +35,11 @@ void main() async {
 class MyApp extends StatelessWidget {
   void navigateToMainSkeleton() {
     Future.delayed(Duration(seconds: 1), () {
-      const login = true;
+      const login = false;
       if (login) {
         Get.off(() => MainSkeleton());
       } else {
-        Get.off(() => LoginAndRegister());
+        Get.off(() => Home());
       }
     });
   }
@@ -50,8 +54,117 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'ProjectFlow',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(primaryColor: Color.fromRGBO(0, 87, 146, 1)),
-      home: Scaffold(body: Text("Loading")),
+      theme: ThemeData(primaryColor: Colors.grey[850]),
+      home: Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      ),
+    );
+  }
+}
+
+class Home extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        fit: StackFit.expand,
+        alignment: Alignment.bottomCenter,
+        children: [
+          // BACKGROUND
+          Lottie.asset(
+            "images/lottie/bg.json",
+            fit: BoxFit.cover,
+            frameRate: FrameRate(30),
+          ),
+          // Container(
+          //   width: MediaQuery.of(context).size.width,
+          //   height: MediaQuery.of(context).size.height,
+          //   color: Theme.of(context).primaryColor,
+          // ),
+          // LOGIN/SIGN UP BTN
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                SvgPicture.asset(
+                  'images/icons/text.svg',
+                  semanticsLabel: 'ProjectFlow',
+                  height: 30,
+                ),
+                SizedBox(height: 30),
+                FractionallySizedBox(
+                  widthFactor: 0.7,
+                  child: ElevatedButton.icon(
+                    onPressed: () => Get.to(() => Login()),
+                    icon: Icon(
+                      FluentIcons.mail_24_filled,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                    label: Text(
+                      'Login with Email',
+                      style: TextStyle(color: Theme.of(context).primaryColor),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.white,
+                      onPrimary: Theme.of(context).primaryColor,
+                      minimumSize: Size(200, 45),
+                      side: const BorderSide(width: 1.0, color: Colors.white),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 5),
+                FractionallySizedBox(
+                  widthFactor: 0.7,
+                  child: OutlinedButton.icon(
+                    onPressed: () => Get.to(() => Login()),
+                    icon: Icon(
+                      FluentIcons.store_microsoft_24_filled,
+                      color: Colors.white,
+                    ),
+                    label: Text(
+                      'Continue with Google',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: Size(200, 45),
+                      onPrimary: Colors.white,
+                      side: const BorderSide(width: 1.0, color: Colors.white),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 10),
+                FractionallySizedBox(
+                  widthFactor: 0.7,
+                  child: ElevatedButton(
+                    onPressed: () => Get.to(() => SignUp()),
+                    child: Text(
+                      'Sign Up',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: Size(200, 45),
+                      primary: Colors.transparent,
+                      onPrimary: Colors.white,
+                      shadowColor: Colors.transparent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 30),
+              ],
+            ),
+          )
+        ],
+      ),
     );
   }
 }

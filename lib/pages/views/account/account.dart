@@ -6,6 +6,7 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../main.dart';
 import 'about-us.dart';
 
 class Account extends StatelessWidget {
@@ -60,7 +61,10 @@ class Account extends StatelessWidget {
                   t: t,
                   icon: FluentIcons.sign_out_24_filled,
                   bgColor: Colors.blueGrey,
-                  onTap: () => print("a"),
+                  onTap: () async => {
+                    await Auth().logout(),
+                    Get.off(() => Home()),
+                  },
                 ),
                 ListViewHeader(title: 'Company'),
                 CustomListTile(

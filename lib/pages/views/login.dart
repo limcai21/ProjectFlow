@@ -5,14 +5,12 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class LoginAndRegister extends StatefulWidget {
+class Login extends StatefulWidget {
   @override
-  State<LoginAndRegister> createState() => _LoginAndRegisterState();
+  State<Login> createState() => _LoginState();
 }
 
-class _LoginAndRegisterState extends State<LoginAndRegister> {
-  bool login = true;
-
+class _LoginState extends State<Login> {
   final formKey = GlobalKey<FormState>();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -20,10 +18,8 @@ class _LoginAndRegisterState extends State<LoginAndRegister> {
   @override
   Widget build(BuildContext context) {
     return CustomScaffold(
-      title: login ? "Login" : "Sign Up",
-      subtitle: login
-          ? "Sign in to view all your projects"
-          : "Start getting productivity",
+      title: "Login",
+      subtitle: "Sign in to view all your projects",
       layout: 2,
       body: SingleChildScrollView(
         physics: BouncingScrollPhysics(),
@@ -35,6 +31,7 @@ class _LoginAndRegisterState extends State<LoginAndRegister> {
             children: [
               TextFormField(
                 controller: emailController,
+                keyboardType: TextInputType.emailAddress,
                 // initialValue: 'test@example.com',
                 decoration: InputDecoration(
                   icon: Icon(FluentIcons.mail_24_filled),
@@ -65,14 +62,17 @@ class _LoginAndRegisterState extends State<LoginAndRegister> {
               ),
               SizedBox(height: 30),
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   if (formKey.currentState.validate()) {
-                    var loginResult = Auth().login(
+                    var loginResult = await Auth().login(
                       email: emailController.text,
                       password: passwordController.text,
                     );
 
-                    if (loginResult != null) Get.off(() => MainSkeleton());
+                    if (loginResult != null) {
+                      Get.back();
+                      Get.off(() => MainSkeleton());
+                    }
                   }
                 },
                 style: ButtonStyle(
