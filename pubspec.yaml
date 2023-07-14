@@ -31,8 +31,10 @@ dependencies:
   url_launcher:
   firebase_core:
   firebase_auth:
+  google_sign_in:
   cloud_firestore:
   date_time_picker:
+  flutter_speed_dial:
   salomon_bottom_bar:
   fluentui_system_icons:
   flutter_local_notifications:

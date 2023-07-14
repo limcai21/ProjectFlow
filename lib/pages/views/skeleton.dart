@@ -5,7 +5,7 @@ import 'package:ProjectFlow/pages/views/watches.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 
-import 'projects.dart';
+import 'home.dart';
 
 class MainSkeleton extends StatefulWidget {
   @override

@@ -1,10 +1,14 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 
+const dateFormat = 'dd MMM yyyy, h:mm a';
 const empty_fields = "Field cannot be empty";
 const something_wrong_validation = "Something wrong with validation";
 const project_icon = FluentIcons.dock_panel_left_24_regular;
 const task_icon = FluentIcons.note_24_regular;
+const topic_icon = FluentIcons.tag_24_regular;
 
 // COMPANY
 const app_brief_long =
@@ -15,9 +19,69 @@ const company_name = "arnet";
 const company_developer = 'Lim Cai';
 const company_website = "arnet.com.sg";
 
+// REGISTER
+const registerFailTitle = 'Error';
+const registerDoneTitle = 'Complete';
+const registerDoneDescription = 'You can now proceed to login';
+
+// LOGIN
+const loginFailTitle = "Error";
+const loginFailDescription = "Invalid Username or Password";
+
+// ACCOUNT DELETE
+const accountDeletedTitle = "Account Deleted";
+const accountDeletedDescription =
+    "Tell us what we can do better by sending us a feedback if you don't mind";
+
+// DELETE ACCOUNT
+const deleteAccountTitle = "Delete Account";
+const deleteAccountDescription =
+    "Are you sure you want to delete your account?";
+
+// LOGOUT
+const logoutTitle = 'Logout';
+const logoutDescription = "Are you sure you want to logout?";
+
 // PROJECT
 const project_existed = 'Project exists. Please try another name';
+const projectEmptyNull = 'Project Title cannot be empty';
 
+// TOPIC
+const topicEmptyNull = 'Topic cannot be empty';
+
+// EMAIL
+const emailEmptyNull = 'Email cannot be empty';
+const emailInvalid = 'Email is not valid';
+const emailRegex =
+    r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+";
+const emailUpdateTitle = 'Updated!';
+const emailUpdateDescription = "Your Email Address is updated!";
+const emailUpdateSameEmail =
+    "New email is the same as the current email. No update needed";
+
+// NAME
+const nameEmptyNull = 'Name cannot be empty';
+
+// PASSWORD
+const passwordEmptyNull = 'Password cannot be empty';
+const retpyePasswordEmptyNull = 'Retype Password cannot be empty';
+const passwordAndRetypePasswordDifferent =
+    'Password & Retype Password must match';
+
+// NEW PASSWORD
+const currentPasswordEmptyNull = 'Current Password cannot be empty';
+const newPasswordEmptyNull = 'New Password cannot be empty';
+const retpyeNewPasswordEmptyNull = 'Retype New Password cannot be empty';
+const newPasswordAndRetypeNewPasswordDifferent =
+    'New Password & Retype New Password must match';
+const passwordChangedTitle = 'Password Changed!';
+const passwordChangedDescription = 'You will are now logout.\nPlease sign in';
+const currentPasswordIncorrect = 'Current Password incorrect';
+
+// DATE
+const dateEmptyNull = 'Date cannot be empty';
+
+// COLORS THEME
 const color_list = [
   {'title': 'Aqua', 'hex': 0xFF00FFFF},
   {'title': 'Black', 'hex': 0xFF000000},
@@ -36,6 +100,7 @@ const color_list = [
   {'title': 'Yellow', 'hex': 0xFFFFFF00},
 ];
 
+// FUNCTIONS AND WIDGET
 int getHexValue(String colorTitle) {
   for (var color in color_list) {
     if (color['title'] == colorTitle) {
@@ -202,6 +267,26 @@ class CustomTextFormField extends StatelessWidget {
   }
 }
 
+class Loading extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SvgPicture.asset(
+            "images/rocket.svg",
+            color: Theme.of(context).primaryColor,
+          ),
+          SizedBox(height: 20),
+          Text("Loading"),
+        ],
+      ),
+    );
+  }
+}
+
 simpleDialog({
   @required String title,
   @required BuildContext context,
@@ -241,6 +326,51 @@ simpleDialogOption({
     child: child,
     onPressed: () => onPressed(),
     padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+  );
+}
+
+normalAlertDialog({
+  @required String title,
+  @required String description,
+  @required BuildContext context,
+  TextButton additionalActions,
+  String closeTitle = 'CLOSE',
+  bool goBackTwice = false,
+}) {
+  return showDialog(
+    context: context,
+    barrierDismissible: false, // user must tap button!
+    builder: (BuildContext context) {
+      return AlertDialog(
+        insetPadding: const EdgeInsets.all(20),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+        ),
+        titlePadding: const EdgeInsets.fromLTRB(20, 30, 20, 0),
+        contentPadding: const EdgeInsets.fromLTRB(20, 2, 20, 20),
+        actionsPadding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
+        title: Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
+        content: SingleChildScrollView(child: Text(description)),
+        actions: [
+          additionalActions,
+          TextButton(
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all(
+                Theme.of(context).primaryColor,
+              ),
+              overlayColor: MaterialStateProperty.all(
+                Color.lerp(Colors.white, Theme.of(context).primaryColor, 0.9),
+              ),
+            ),
+            child: Text(
+              closeTitle.toUpperCase(),
+              style: TextStyle(color: Colors.white),
+            ),
+            onPressed: () => {Get.back(), if (goBackTwice) Get.back()},
+          ),
+        ],
+      );
+    },
   );
 }
 

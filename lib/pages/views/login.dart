@@ -1,3 +1,4 @@
+import 'package:ProjectFlow/pages/global/constants.dart';
 import 'package:ProjectFlow/pages/global/scaffold.dart';
 import 'package:ProjectFlow/pages/views/skeleton.dart';
 import 'package:ProjectFlow/services/auth.dart';
@@ -39,7 +40,9 @@ class _LoginState extends State<Login> {
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter Username';
+                    return emailEmptyNull;
+                  } else if (!RegExp(emailRegex).hasMatch(value)) {
+                    return emailInvalid;
                   }
                   return null;
                 },
@@ -55,7 +58,7 @@ class _LoginState extends State<Login> {
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter Password';
+                    return passwordEmptyNull;
                   }
                   return null;
                 },
@@ -64,14 +67,20 @@ class _LoginState extends State<Login> {
               ElevatedButton(
                 onPressed: () async {
                   if (formKey.currentState.validate()) {
-                    var loginResult = await Auth().login(
+                    Map loginResult = await Auth().login(
                       email: emailController.text,
                       password: passwordController.text,
                     );
 
-                    if (loginResult != null) {
+                    if (loginResult['status']) {
                       Get.back();
                       Get.off(() => MainSkeleton());
+                    } else {
+                      normalAlertDialog(
+                        context: context,
+                        title: loginFailTitle,
+                        description: loginResult['data'],
+                      );
                     }
                   }
                 },

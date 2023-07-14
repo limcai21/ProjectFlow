@@ -1,32 +1,41 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:ProjectFlow/pages/global/constants.dart';
 
 class Auth {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  Future<User> login({
+  Future<Map> login({
     @required String email,
     @required String password,
   }) async {
     try {
-      UserCredential uc = await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      User user = uc.user;
+      await _auth.signInWithEmailAndPassword(email: email, password: password);
       print("Succesfully Login");
-      return user;
+      return {'status': true, 'data': 'Succesfully Login'};
     } on FirebaseAuthException catch (e) {
-      Fluttertoast.showToast(msg: e.message, gravity: ToastGravity.TOP);
-      return null;
+      return {'status': false, 'data': e.message};
+    } catch (e) {
+      print(e.message);
+      return {'status': false, 'data': e.message};
+    }
+  }
+
+  Future<User> loginWithGoogle() async {
+    GoogleAuthProvider authProvider = GoogleAuthProvider();
+
+    try {
+      UserCredential uc = await _auth.signInWithPopup(authProvider);
+      User user = uc.user;
+
+      return user;
     } catch (e) {
       print(e.message);
       return null;
     }
   }
 
-  Future<User> signUp({
+  Future<Map> signUp({
     @required String email,
     @required String password,
     @required String name,
@@ -39,15 +48,29 @@ class Auth {
 
       User user = uc.user;
       await user.updateProfile(displayName: name);
-
-      print('Sign Up Succesfull!');
-      return user;
+      return {'status': true, 'data': registerDoneDescription};
     } on FirebaseAuthException catch (e) {
-      Fluttertoast.showToast(msg: e.message, gravity: ToastGravity.TOP);
-      return null;
+      return {'status': false, 'data': e.message};
     } catch (e) {
       print(e.message);
-      return null;
+      return {'status': false, 'data': e.message};
+    }
+  }
+
+  Future<Map> updateEmail({@required String newEmail}) async {
+    try {
+      User currentUser = getCurrentUser();
+      if (currentUser.email == newEmail) {
+        return {'status': false, 'data': emailUpdateSameEmail};
+      }
+      await currentUser.updateEmail(newEmail);
+      print('Email Updated!');
+      return {'status': true, 'data': emailUpdateDescription};
+    } on FirebaseAuthException catch (e) {
+      return {'status': false, 'data': e.message};
+    } catch (e) {
+      print(e.message);
+      return {'status': false, 'data': e.message};
     }
   }
 

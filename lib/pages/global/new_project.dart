@@ -15,26 +15,41 @@ class NewProject extends StatefulWidget {
 class _NewProjectState extends State<NewProject> {
   @override
   Widget build(BuildContext context) {
-    final formKey = GlobalKey<FormState>();
+    var formKey = GlobalKey<FormState>();
     final pTitleController = TextEditingController();
-    final pColorConroller = TextEditingController();
-    List<Map> temp = [];
+    final pColorController = TextEditingController();
 
+    List<Map> temp = [];
     color_list.forEach((element) {
       temp.add(element);
     });
 
-    void submitForm() {
+    Future submitForm() async {
       final isValid = formKey.currentState.validate();
       if (!isValid) {
         return;
       } else {
         var userID = Auth().getCurrentUser().uid;
-        Firestore()
-            .createProject(pTitleController.text, pColorConroller.text, userID);
-        Fluttertoast.showToast(
-            msg: 'Project Created!', gravity: ToastGravity.TOP);
-        Get.back();
+        var result = await Firestore().createProject(
+          title: pTitleController.text,
+          theme: pColorController.text,
+          userID: userID,
+        );
+
+        if (result['status']) {
+          normalAlertDialog(
+            title: 'Created!',
+            context: context,
+            description: result['data'],
+            goBackTwice: true,
+          );
+        } else {
+          normalAlertDialog(
+            title: 'Error',
+            context: context,
+            description: result['data'],
+          );
+        }
       }
     }
 
@@ -48,14 +63,22 @@ class _NewProjectState extends State<NewProject> {
           key: formKey,
           child: Column(
             children: [
-              CustomTextFormField(
+              TextFormField(
                 controller: pTitleController,
-                icon: project_icon,
-                labelText: 'Project Title',
+                decoration: InputDecoration(
+                  suffixIcon: Icon(project_icon),
+                  labelText: 'Project Title',
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return projectEmptyNull;
+                  }
+                  return null;
+                },
               ),
               CustomTextFormField(
                 initalValue: 'Blue',
-                controller: pColorConroller,
+                controller: pColorController,
                 icon: FluentIcons.color_24_regular,
                 labelText: 'Theme',
                 readOnly: true,
@@ -81,7 +104,7 @@ class _NewProjectState extends State<NewProject> {
                         ],
                       ),
                       onPressed: () => {
-                        pColorConroller.text = title,
+                        pColorController.text = title,
                         Navigator.pop(context),
                       },
                     );

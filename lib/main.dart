@@ -1,4 +1,6 @@
+import 'package:ProjectFlow/pages/global/constants.dart';
 import 'package:ProjectFlow/pages/views/skeleton.dart';
+import 'package:ProjectFlow/services/auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
@@ -36,11 +38,8 @@ class MyApp extends StatelessWidget {
   void navigateToMainSkeleton() {
     Future.delayed(Duration(seconds: 1), () {
       const login = false;
-      if (login) {
-        Get.off(() => MainSkeleton());
-      } else {
-        Get.off(() => Home());
-      }
+      // const login = true;
+      login ? Get.off(() => MainSkeleton()) : Get.off(() => Home());
     });
   }
 
@@ -48,16 +47,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     // ignore: unused_local_variable
     final Controller controller = Get.put(Controller());
-
     navigateToMainSkeleton();
-
     return GetMaterialApp(
       title: 'ProjectFlow',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(primaryColor: Colors.grey[850]),
-      home: Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      ),
+      home: Scaffold(body: Loading()),
     );
   }
 }
@@ -120,7 +115,7 @@ class Home extends StatelessWidget {
                 FractionallySizedBox(
                   widthFactor: 0.7,
                   child: OutlinedButton.icon(
-                    onPressed: () => Get.to(() => Login()),
+                    onPressed: () async => await Auth().loginWithGoogle(),
                     icon: Icon(
                       FluentIcons.store_microsoft_24_filled,
                       color: Colors.white,

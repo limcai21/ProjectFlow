@@ -1,11 +1,11 @@
 import 'package:ProjectFlow/pages/global/constants.dart';
 import 'package:ProjectFlow/pages/global/contacts_launcher.dart';
 import 'package:ProjectFlow/pages/global/scaffold.dart';
+import 'package:ProjectFlow/pages/views/account/update-email.dart';
 import 'package:ProjectFlow/services/auth.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import '../../../main.dart';
 import 'about-us.dart';
 
@@ -36,7 +36,9 @@ class Account extends StatelessWidget {
                   icon: FluentIcons.mail_24_filled,
                   trailingIcon: FluentIcons.chevron_right_24_regular,
                   bgColor: Colors.orange,
-                  onTap: () => print("a"),
+                  onTap: () => Get.to(
+                    () => UpdateEmail(currentEmail: user.email),
+                  ),
                 ),
                 CustomListTile(
                   title: "Password",
@@ -45,7 +47,7 @@ class Account extends StatelessWidget {
                   icon: FluentIcons.password_24_filled,
                   trailingIcon: FluentIcons.chevron_right_24_regular,
                   bgColor: Colors.brown,
-                  onTap: () => print("a"),
+                  // onTap: () => Get.to(()=>UpdatePassword(currentPassword: user.updatePassword(newPassword))),
                 ),
                 CustomListTile(
                   title: "Delete Account",
@@ -57,7 +59,7 @@ class Account extends StatelessWidget {
                 ),
                 CustomListTile(
                   title: "Logout",
-                  subtitle: "Change your password",
+                  subtitle: "You can always sign back in",
                   t: t,
                   icon: FluentIcons.sign_out_24_filled,
                   bgColor: Colors.blueGrey,

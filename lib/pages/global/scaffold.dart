@@ -7,14 +7,18 @@ class CustomScaffold extends StatelessWidget {
   final List<Widget> actionBtn;
   final String backgroundColor;
   final int layout;
+  final Widget fab;
+  final bool tab;
 
   CustomScaffold({
+    @required this.layout,
     @required this.title,
-    this.subtitle,
     @required this.body,
+    this.subtitle,
     this.actionBtn,
     this.backgroundColor,
-    @required this.layout,
+    this.fab,
+    this.tab,
   });
 
   titleWidget(title, context) {
@@ -52,6 +56,7 @@ class CustomScaffold extends StatelessWidget {
             ? backgroundColor
             : Theme.of(context).primaryColor,
       ),
+      floatingActionButton: fab,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

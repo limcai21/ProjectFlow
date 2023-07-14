@@ -1,10 +1,8 @@
 import 'package:ProjectFlow/pages/global/scaffold.dart';
-import 'package:ProjectFlow/pages/views/skeleton.dart';
 import 'package:ProjectFlow/services/auth.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:get/get.dart';
+import 'package:ProjectFlow/pages/global/constants.dart';
 
 class SignUp extends StatefulWidget {
   @override
@@ -18,6 +16,17 @@ class _SignUpState extends State<SignUp> {
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController =
       TextEditingController();
+
+  checkRetypePasswordAndPasswordAreSame() {
+    final password =
+        passwordController.text != null ? passwordController.text : "";
+    final retypePassword = confirmPasswordController.text != null
+        ? confirmPasswordController.text
+        : "";
+    if (password != retypePassword) {
+      return passwordAndRetypePasswordDifferent;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,11 +46,11 @@ class _SignUpState extends State<SignUp> {
                 controller: nameController,
                 decoration: InputDecoration(
                   icon: Icon(FluentIcons.person_24_filled),
-                  labelText: 'Display Name',
+                  labelText: 'Name',
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter Name';
+                    return nameEmptyNull;
                   }
                   return null;
                 },
@@ -54,7 +63,9 @@ class _SignUpState extends State<SignUp> {
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter Username';
+                    return emailEmptyNull;
+                  } else if (!RegExp(emailRegex).hasMatch(value)) {
+                    return emailInvalid;
                   }
                   return null;
                 },
@@ -69,9 +80,10 @@ class _SignUpState extends State<SignUp> {
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter Password';
+                    return passwordEmptyNull;
+                  } else {
+                    return checkRetypePasswordAndPasswordAreSame();
                   }
-                  return null;
                 },
               ),
               TextFormField(
@@ -83,9 +95,10 @@ class _SignUpState extends State<SignUp> {
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please Retype your Password';
+                    return retpyePasswordEmptyNull;
+                  } else {
+                    return checkRetypePasswordAndPasswordAreSame();
                   }
-                  return null;
                 },
               ),
               SizedBox(height: 30),
@@ -98,12 +111,19 @@ class _SignUpState extends State<SignUp> {
                       name: nameController.text,
                     );
 
-                    if (signUpResult != null) {
-                      Fluttertoast.showToast(
-                        msg: "Sign Up Complete! You can now process to Login",
-                        gravity: ToastGravity.TOP,
+                    if (signUpResult['status']) {
+                      normalAlertDialog(
+                        title: registerDoneTitle,
+                        context: context,
+                        description: signUpResult['data'],
+                        goBackTwice: true,
                       );
-                      Get.back();
+                    } else {
+                      normalAlertDialog(
+                        title: registerFailTitle,
+                        context: context,
+                        description: signUpResult['data'],
+                      );
                     }
                   }
                 },
