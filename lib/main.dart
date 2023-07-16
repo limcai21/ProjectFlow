@@ -45,8 +45,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ignore: unused_local_variable
-    final Controller controller = Get.put(Controller());
+    // final Controller controller = Get.put(Controller());
     navigateToMainSkeleton();
     return GetMaterialApp(
       title: 'ProjectFlow',
@@ -115,7 +114,8 @@ class Home extends StatelessWidget {
                 FractionallySizedBox(
                   widthFactor: 0.7,
                   child: OutlinedButton.icon(
-                    onPressed: () async => await Auth().loginWithGoogle(),
+                    onPressed: null,
+                    // onPressed: () async => await Auth().loginWithGoogle(),
                     icon: Icon(
                       FluentIcons.store_microsoft_24_filled,
                       color: Colors.white,

@@ -45,9 +45,13 @@ const logoutDescription = "Are you sure you want to logout?";
 // PROJECT
 const project_existed = 'Project exists. Please try another name';
 const projectEmptyNull = 'Project Title cannot be empty';
+const themeEmptyNull = 'Theme cannot be empty';
 
 // TOPIC
 const topicEmptyNull = 'Topic cannot be empty';
+
+// TASK
+const taskEmptyNull = 'Task Title cannot be empty';
 
 // EMAIL
 const emailEmptyNull = 'Email cannot be empty';
@@ -204,84 +208,13 @@ class ListViewHeader extends StatelessWidget {
   }
 }
 
-class CustomTextFormField extends StatelessWidget {
-  final TextEditingController controller;
-  final String labelText;
-  final Function(String value) validator;
-  final String initalValue;
-  final IconData icon;
-  final String hintText;
-  final Function onTap;
-  final bool enabled;
-  final bool readOnly;
-  final int maxLines;
-  final int maxLength;
-  final TextInputType keyboardType;
-  final Function(String value) onChanged;
-
-  CustomTextFormField({
-    this.controller,
-    this.labelText,
-    this.validator,
-    this.initalValue = '',
-    this.icon,
-    this.hintText,
-    this.onTap,
-    this.enabled = true,
-    this.readOnly = false,
-    this.maxLines = 1,
-    this.maxLength,
-    this.onChanged,
-    this.keyboardType = TextInputType.text,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    controller.text = initalValue;
-    return TextFormField(
-      keyboardType: keyboardType,
-      maxLines: maxLines,
-      readOnly: readOnly,
-      onTap: onTap,
-      controller: controller,
-      maxLength: maxLength,
-      onChanged: (v) => onChanged(v),
-      // initialValue: initalValue,
-      decoration: InputDecoration(
-        suffixIcon: Icon(icon),
-        enabled: enabled,
-        hintText: hintText,
-        labelText: labelText,
-      ),
-      validator: (value) {
-        if (!readOnly) {
-          if (value == null || value.isEmpty) {
-            return empty_fields;
-          } else {
-            return validator(value);
-          }
-        }
-        return null;
-      },
-    );
-  }
-}
-
 class Loading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          SvgPicture.asset(
-            "images/rocket.svg",
-            color: Theme.of(context).primaryColor,
-          ),
-          SizedBox(height: 20),
-          Text("Loading"),
-        ],
+      child: SvgPicture.asset(
+        "images/clock.svg",
+        color: Theme.of(context).primaryColor,
       ),
     );
   }
@@ -336,6 +269,7 @@ normalAlertDialog({
   TextButton additionalActions,
   String closeTitle = 'CLOSE',
   bool goBackTwice = false,
+  dynamic backResult,
 }) {
   return showDialog(
     context: context,
@@ -366,7 +300,11 @@ normalAlertDialog({
               closeTitle.toUpperCase(),
               style: TextStyle(color: Colors.white),
             ),
-            onPressed: () => {Get.back(), if (goBackTwice) Get.back()},
+            onPressed: () {
+              print(backResult);
+              if (goBackTwice) Get.back();
+              Get.back(result: backResult);
+            },
           ),
         ],
       );

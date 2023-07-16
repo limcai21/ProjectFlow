@@ -1,11 +1,10 @@
 import 'package:get/get.dart';
 
 class Controller extends GetxController {
-  final _selectedNewProjectTheme = "Blue".obs;
+  final _refreshHomePage = false.obs;
+  get refreshHomePage => _refreshHomePage;
 
-  get selectedNewProjectTheme => _selectedNewProjectTheme;
-
-  void setNewProjectTheme(String color) {
-    _selectedNewProjectTheme.value = color;
+  void setRefreshHomePage(bool v) {
+    _refreshHomePage.value = v;
   }
 }

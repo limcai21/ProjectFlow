@@ -1,7 +1,10 @@
 import 'package:ProjectFlow/model/project.dart';
 import 'package:ProjectFlow/model/topic.dart';
+import 'package:ProjectFlow/model/task.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/data/latest.dart' as tz;
 
 class Firestore {
   final CollectionReference projectCollection =
@@ -21,10 +24,15 @@ class Firestore {
       var docRef = Firestore().projectCollection.doc();
       print("Create Project docRef:" + docRef.id);
 
+      tz.initializeTimeZones();
+      final singapore = tz.getLocation('Asia/Singapore');
+      final now = tz.TZDateTime.now(singapore);
+
       await projectCollection.doc(docRef.id).set({
         'title': title,
         'theme': theme,
         'userID': userID,
+        'createdDateTime': now,
       });
 
       return {'status': true, 'data': 'Project Created'};
@@ -94,5 +102,62 @@ class Firestore {
       }
     });
     return topicList;
+  }
+
+  // TASK
+  Future<Map> createTask({
+    @required String title,
+    @required String description,
+    @required Timestamp startDateTime,
+    @required Timestamp endDateTime,
+    @required String topicID,
+    @required String projectID,
+  }) async {
+    try {
+      var docRef = Firestore().taskCollection.doc();
+      print("Create Task docRef:" + docRef.id);
+
+      await taskCollection.doc(docRef.id).set({
+        'title': title,
+        'description': description,
+        'startDateTime': startDateTime,
+        'endDateTime': endDateTime,
+        'topicID': topicID,
+        'projectID': projectID,
+      });
+
+      return {'status': true, 'data': 'Task Created'};
+    } catch (e) {
+      print(e.message);
+      return {'status': true, 'data': e.message};
+    }
+  }
+
+  Future<List<Task>> getTaskByProjectID({@required String id}) async {
+    List<Task> output = [];
+    QuerySnapshot snapshot = await taskCollection.get();
+    snapshot.docs.forEach((doc) {
+      Task task = Task.fromMap(doc.data());
+      if (task.projectID == id) {
+        task.id = doc.id;
+        output.add(task);
+      }
+    });
+
+    return output;
+  }
+
+  Future<List<Task>> getTaskByTopicID({@required String id}) async {
+    List<Task> output = [];
+    QuerySnapshot snapshot = await taskCollection.get();
+    snapshot.docs.forEach((doc) {
+      Task task = Task.fromMap(doc.data());
+      if (task.topicID == id) {
+        task.id = doc.id;
+        output.add(task);
+      }
+    });
+
+    return output;
   }
 }

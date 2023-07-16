@@ -27,7 +27,6 @@ dependencies:
   intl:
   lottie:
   flutter_svg:
-  fluttertoast:
   url_launcher:
   firebase_core:
   firebase_auth:

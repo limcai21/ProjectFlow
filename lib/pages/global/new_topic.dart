@@ -13,16 +13,22 @@ class NewTopic extends StatelessWidget {
     final tTitleController = TextEditingController();
 
     submitForm() async {
-      Map result = await Firestore().createTopic(
-        title: tTitleController.text,
-        projectID: id,
-      );
-      normalAlertDialog(
-        title: result['status'] ? 'Created!' : 'Error',
-        description: result['data'],
-        context: context,
-        goBackTwice: result['status'] ? true : false,
-      );
+      final isValid = formKey.currentState.validate();
+      if (isValid) {
+        Map result = await Firestore().createTopic(
+          title: tTitleController.text,
+          projectID: id,
+        );
+        normalAlertDialog(
+          title: result['status'] ? 'Created!' : 'Error',
+          description: result['data'],
+          context: context,
+          goBackTwice: result['status'] ? true : false,
+          backResult: result['status'] ? 'reload' : null,
+        );
+      } else {
+        return null;
+      }
     }
 
     return CustomScaffold(
@@ -35,10 +41,12 @@ class NewTopic extends StatelessWidget {
           key: formKey,
           child: Column(
             children: [
-              CustomTextFormField(
-                labelText: 'Topic',
+              TextFormField(
                 controller: tTitleController,
-                icon: topic_icon,
+                decoration: InputDecoration(
+                  labelText: 'Topic',
+                  suffixIcon: Icon(topic_icon),
+                ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return topicEmptyNull;

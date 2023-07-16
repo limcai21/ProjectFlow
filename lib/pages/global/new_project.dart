@@ -4,8 +4,6 @@ import 'package:ProjectFlow/services/auth.dart';
 import 'package:ProjectFlow/services/firestore.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:get/get.dart';
 
 class NewProject extends StatefulWidget {
   @override
@@ -42,6 +40,7 @@ class _NewProjectState extends State<NewProject> {
             context: context,
             description: result['data'],
             goBackTwice: true,
+            backResult: 'reload',
           );
         } else {
           normalAlertDialog(
@@ -76,12 +75,19 @@ class _NewProjectState extends State<NewProject> {
                   return null;
                 },
               ),
-              CustomTextFormField(
-                initalValue: 'Blue',
+              TextFormField(
                 controller: pColorController,
-                icon: FluentIcons.color_24_regular,
-                labelText: 'Theme',
+                decoration: InputDecoration(
+                  labelText: 'Theme',
+                  suffixIcon: Icon(FluentIcons.color_24_regular),
+                ),
                 readOnly: true,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return themeEmptyNull;
+                  }
+                  return null;
+                },
                 onTap: () => simpleDialog(
                   context: context,
                   title: "Select Theme",

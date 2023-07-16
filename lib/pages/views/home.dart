@@ -4,14 +4,37 @@ import 'package:ProjectFlow/pages/global/new_project.dart';
 import 'package:ProjectFlow/pages/global/new_task.dart';
 import 'package:ProjectFlow/pages/global/new_topic.dart';
 import 'package:ProjectFlow/pages/global/scaffold.dart';
-import 'package:ProjectFlow/pages/views/project.dart';
+import 'package:ProjectFlow/pages/views/project/project.dart';
+import 'package:ProjectFlow/services/auth.dart';
 import 'package:ProjectFlow/services/firestore.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 
-class Projects extends StatelessWidget {
+class Projects extends StatefulWidget {
+  @override
+  State<Projects> createState() => _ProjectsState();
+}
+
+class _ProjectsState extends State<Projects> {
+  Future<List<Project>> projectFuture;
+
+  Future<List<Project>> fetchProjects() async {
+    final projects =
+        await Firestore().getProjectByUserID(id: Auth().getCurrentUser().uid);
+    // final projects = await Firestore().getProjectByUserID(
+    //   id: 'Ba01ymc1JsdGifUlRGF1GvM20VW2',
+    // );
+    return projects;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    projectFuture = fetchProjects();
+  }
+
   @override
   Widget build(BuildContext context) {
     var primaryColor = Theme.of(context).primaryColor;
@@ -22,15 +45,19 @@ class Projects extends StatelessWidget {
       subtitle: "Manage your project",
       actionBtn: [
         IconButton(
-          onPressed: () => Get.to(() => NewProject()),
+          onPressed: () async {
+            final result = await Get.to(() => NewProject());
+            if (result == 'reload') {
+              setState(() {
+                projectFuture = fetchProjects();
+              });
+            }
+          },
           icon: Icon(FluentIcons.add_24_filled),
         )
       ],
       body: FutureBuilder<List<Project>>(
-        // future: Firestore().getAllProject(Auth().getCurrentUser().uid),
-        future: Firestore().getProjectByUserID(
-          id: 'Ba01ymc1JsdGifUlRGF1GvM20VW2',
-        ),
+        future: projectFuture,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             if (snapshot.data.length > 0) {

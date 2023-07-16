@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ProjectFlow/pages/global/constants.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class Auth {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -21,17 +22,29 @@ class Auth {
     }
   }
 
-  Future<User> loginWithGoogle() async {
-    GoogleAuthProvider authProvider = GoogleAuthProvider();
-
+  Future<void> loginWithGoogle() async {
     try {
-      UserCredential uc = await _auth.signInWithPopup(authProvider);
-      User user = uc.user;
+      final GoogleSignIn _googleSignIn = GoogleSignIn();
+      final GoogleSignInAccount googleUser = await _googleSignIn.signIn();
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
 
-      return user;
-    } catch (e) {
-      print(e.message);
-      return null;
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      // Use the `credential` to sign in to your Firebase project if you are using Firebase.
+      // For other authentication mechanisms, refer to the relevant documentation.
+
+      // Example of using Firebase Auth:
+      // final UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+      // final User? user = userCredential.user;
+
+      // Perform further actions after successful sign-in
+
+    } catch (error) {
+      print('Error signing in with Google: $error');
     }
   }
 
