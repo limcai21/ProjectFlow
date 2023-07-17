@@ -84,7 +84,10 @@ class _ProjectPageState extends State<ProjectPage> {
               FluentIcons.settings_24_regular,
               color: Colors.white,
             ),
-            onPressed: () => Get.to(() => ProjectSettings(id: widget.id)),
+            onPressed: () async {
+              var result = await Get.to(() => ProjectSettings(id: widget.id));
+              if (result == 'reload') startup();
+            },
           ),
       ],
       fab: loading

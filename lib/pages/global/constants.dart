@@ -46,6 +46,7 @@ const logoutDescription = "Are you sure you want to logout?";
 const project_existed = 'Project exists. Please try another name';
 const projectEmptyNull = 'Project Title cannot be empty';
 const themeEmptyNull = 'Theme cannot be empty';
+const projectNameSame = 'Project name cannot be the same';
 
 // TOPIC
 const topicEmptyNull = 'Topic cannot be empty';

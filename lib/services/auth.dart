@@ -22,32 +22,6 @@ class Auth {
     }
   }
 
-  Future<void> loginWithGoogle() async {
-    try {
-      final GoogleSignIn _googleSignIn = GoogleSignIn();
-      final GoogleSignInAccount googleUser = await _googleSignIn.signIn();
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
-
-      final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      // Use the `credential` to sign in to your Firebase project if you are using Firebase.
-      // For other authentication mechanisms, refer to the relevant documentation.
-
-      // Example of using Firebase Auth:
-      // final UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
-      // final User? user = userCredential.user;
-
-      // Perform further actions after successful sign-in
-
-    } catch (error) {
-      print('Error signing in with Google: $error');
-    }
-  }
-
   Future<Map> signUp({
     @required String email,
     @required String password,

@@ -1,6 +1,6 @@
 import 'package:ProjectFlow/pages/global/constants.dart';
+import 'package:ProjectFlow/pages/views/home.dart';
 import 'package:ProjectFlow/pages/views/skeleton.dart';
-import 'package:ProjectFlow/services/auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +10,6 @@ import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
-import 'pages/global/controller.dart';
 import 'pages/views/login.dart';
 import 'pages/views/signup.dart';
 
@@ -37,8 +36,8 @@ void main() async {
 class MyApp extends StatelessWidget {
   void navigateToMainSkeleton() {
     Future.delayed(Duration(seconds: 1), () {
-      const login = false;
-      // const login = true;
+      // const login = false;
+      const login = true;
       login ? Get.off(() => MainSkeleton()) : Get.off(() => Home());
     });
   }

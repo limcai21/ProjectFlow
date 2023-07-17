@@ -71,6 +71,29 @@ class Firestore {
     return output;
   }
 
+  Future<Map> updateProjectTitle({
+    @required String id,
+    @required String title,
+  }) async {
+    try {
+      await projectCollection.doc(id).update({'title': title});
+      return {'status': true, 'data': 'Project Title Updated'};
+    } catch (e) {
+      print(e.message);
+      return {'status': true, 'data': e.message};
+    }
+  }
+
+  Future<Map> deleteProject({@required String id}) async {
+    try {
+      await projectCollection.doc(id).delete();
+      return {'status': true, 'data': 'Project Deleted'};
+    } catch (e) {
+      print(e.message);
+      return {'status': true, 'data': e.message};
+    }
+  }
+
   // TOPIC
   Future<Map> createTopic({
     @required String title,
