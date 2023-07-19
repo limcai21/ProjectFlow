@@ -3,8 +3,6 @@ import 'package:ProjectFlow/model/task.dart';
 import 'package:ProjectFlow/model/topic.dart';
 import 'package:ProjectFlow/pages/global/constants.dart';
 import 'package:ProjectFlow/pages/global/scaffold.dart';
-import 'package:ProjectFlow/pages/views/home.dart';
-import 'package:ProjectFlow/pages/views/project/project.dart';
 import 'package:ProjectFlow/pages/views/project/update-title.dart';
 import 'package:ProjectFlow/pages/views/skeleton.dart';
 import 'package:ProjectFlow/services/firestore.dart';
@@ -70,7 +68,7 @@ class _ProjectSettingsState extends State<ProjectSettings> {
                         title: "Title",
                         subtitle: projectDetails.title,
                         t: t,
-                        icon: FluentIcons.text_24_regular,
+                        icon: FluentIcons.rename_24_regular,
                         trailingIcon: FluentIcons.chevron_right_24_regular,
                         borderRadius: br,
                         iconColor: Colors.white,

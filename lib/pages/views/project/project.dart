@@ -2,8 +2,8 @@ import 'package:ProjectFlow/model/project.dart';
 import 'package:ProjectFlow/model/task.dart';
 import 'package:ProjectFlow/model/topic.dart';
 import 'package:ProjectFlow/pages/global/constants.dart';
-import 'package:ProjectFlow/pages/global/new_task.dart';
-import 'package:ProjectFlow/pages/global/new_topic.dart';
+import 'package:ProjectFlow/pages/global/new_edit_task.dart';
+import 'package:ProjectFlow/pages/global/new_edit_topic.dart';
 import 'package:ProjectFlow/pages/global/scaffold.dart';
 import 'package:ProjectFlow/pages/views/project/setting.dart';
 import 'package:ProjectFlow/services/firestore.dart';
@@ -106,7 +106,12 @@ class _ProjectPageState extends State<ProjectPage> {
                     labelStyle: TextStyle(color: Colors.white),
                     child: Icon(task_icon),
                     onTap: () async {
-                      final result = await Get.to(() => NewTask(id: widget.id));
+                      final result = await Get.to(
+                        () => NewTask(
+                          id: widget.id,
+                          edit: false,
+                        ),
+                      );
                       if (result == 'reload') startup();
                     },
                   ),
@@ -174,6 +179,15 @@ class _ProjectPageState extends State<ProjectPage> {
                                       ),
                                       title: Text(content.title),
                                       subtitle: Text(subtitle),
+                                      onTap: () {
+                                        Get.to(
+                                          () => NewTask(
+                                            id: content.projectID,
+                                            edit: true,
+                                            taskData: content,
+                                          ),
+                                        );
+                                      },
                                     );
                                   },
                                 );

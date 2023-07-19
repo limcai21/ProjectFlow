@@ -1,8 +1,8 @@
 import 'package:ProjectFlow/model/project.dart';
 import 'package:ProjectFlow/pages/global/constants.dart';
-import 'package:ProjectFlow/pages/global/new_project.dart';
-import 'package:ProjectFlow/pages/global/new_task.dart';
-import 'package:ProjectFlow/pages/global/new_topic.dart';
+import 'package:ProjectFlow/pages/global/new_edit_project.dart';
+import 'package:ProjectFlow/pages/global/new_edit_task.dart';
+import 'package:ProjectFlow/pages/global/new_edit_topic.dart';
 import 'package:ProjectFlow/pages/global/scaffold.dart';
 import 'package:ProjectFlow/pages/views/project/project.dart';
 import 'package:ProjectFlow/services/auth.dart';
@@ -80,7 +80,10 @@ class _ProjectsState extends State<Projects> {
                         children: [
                           simpleDialogOption(
                             onPressed: () => Get.to(
-                              () => NewTask(id: snapshot.data[index].id),
+                              () => NewTask(
+                                id: snapshot.data[index].id,
+                                edit: false,
+                              ),
                             ),
                             child: Row(
                               children: [

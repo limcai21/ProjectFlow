@@ -1,5 +1,4 @@
 import 'package:ProjectFlow/pages/global/constants.dart';
-import 'package:ProjectFlow/pages/views/home.dart';
 import 'package:ProjectFlow/pages/views/skeleton.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';

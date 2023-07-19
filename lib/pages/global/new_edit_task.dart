@@ -1,3 +1,4 @@
+import 'package:ProjectFlow/model/task.dart';
 import 'package:ProjectFlow/model/topic.dart';
 import 'package:ProjectFlow/services/firestore.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -9,7 +10,9 @@ import 'scaffold.dart';
 
 class NewTask extends StatefulWidget {
   final String id;
-  NewTask({@required this.id});
+  final bool edit;
+  final Task taskData;
+  NewTask({@required this.id, @required this.edit, this.taskData});
 
   @override
   State<NewTask> createState() => _NewTaskState();
@@ -17,13 +20,36 @@ class NewTask extends StatefulWidget {
 
 class _NewTaskState extends State<NewTask> {
   bool loading = true;
+  bool readOnlyTopic = false;
   List<Topic> projectTopic = [];
+  final formKey = GlobalKey<FormState>();
+  final tTopicController = TextEditingController();
+  final tTitleController = TextEditingController();
+  final tDescriptionController = TextEditingController();
+  final tStartDateController = TextEditingController();
+  final tEndDateController = TextEditingController();
 
   startup() async {
     projectTopic = await Firestore().getTopicByProjectID(id: widget.id);
     setState(() {
       loading = false;
     });
+
+    if (widget.edit) {
+      var data = widget.taskData;
+      tTitleController.text = data.title;
+      tDescriptionController.text = data.description;
+      tStartDateController.text = data.startDateTime.toDate().toString();
+      tEndDateController.text = data.endDateTime.toDate().toString();
+      projectTopic.forEach((v) {
+        if (v.id == widget.taskData.topicID) {
+          tTopicController.text = v.title;
+          readOnlyTopic = true;
+        }
+      });
+    } else {
+      readOnlyTopic = true;
+    }
   }
 
   @override
@@ -34,13 +60,6 @@ class _NewTaskState extends State<NewTask> {
 
   @override
   Widget build(BuildContext context) {
-    final formKey = GlobalKey<FormState>();
-    final tTopicController = TextEditingController();
-    final tTitleController = TextEditingController();
-    final tDescriptionController = TextEditingController();
-    final tStartDateController = TextEditingController();
-    final tEndDateController = TextEditingController();
-
     Future onSubmit() async {
       if (formKey.currentState.validate()) {
         final topic = projectTopic.firstWhere(
@@ -80,8 +99,10 @@ class _NewTaskState extends State<NewTask> {
     }
 
     return CustomScaffold(
-      title: "New Task",
-      subtitle: "Create task and add them to your topic",
+      title: widget.edit ? 'Edit Task' : "New Task",
+      subtitle: widget.edit
+          ? 'Make some adjustment to your task'
+          : "Create task and add them to your topic",
       layout: 2,
       body: loading
           ? Loading()
@@ -95,7 +116,7 @@ class _NewTaskState extends State<NewTask> {
                     // TOPIC
                     TextFormField(
                       controller: tTopicController,
-                      readOnly: true,
+                      readOnly: readOnlyTopic,
                       decoration: InputDecoration(
                         labelText: 'Select Topic',
                         suffixIcon: Icon(topic_icon),
@@ -202,7 +223,7 @@ class _NewTaskState extends State<NewTask> {
                       padding: const EdgeInsets.symmetric(vertical: 20),
                       child: ElevatedButton(
                         onPressed: () => onSubmit(),
-                        child: Text('Create'),
+                        child: Text(widget.edit ? 'Save' : 'Create'),
                         style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all(
                             Theme.of(context).primaryColor,

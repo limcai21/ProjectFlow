@@ -87,6 +87,18 @@ class Firestore {
   Future<Map> deleteProject({@required String id}) async {
     try {
       await projectCollection.doc(id).delete();
+      QuerySnapshot topicSnapshot = await topicCollection.get();
+      topicSnapshot.docs.forEach((doc) async {
+        Topic topic = Topic.fromMap(doc.data());
+        if (topic.projectID == id) await topicCollection.doc(doc.id).delete();
+      });
+
+      QuerySnapshot taskSnapshot = await taskCollection.get();
+      taskSnapshot.docs.forEach((doc) async {
+        Task task = Task.fromMap(doc.data());
+        if (task.projectID == id) await taskCollection.doc(doc.id).delete();
+      });
+
       return {'status': true, 'data': 'Project Deleted'};
     } catch (e) {
       print(e.message);
