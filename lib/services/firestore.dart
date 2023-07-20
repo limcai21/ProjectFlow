@@ -74,9 +74,10 @@ class Firestore {
   Future<Map> updateProjectTitle({
     @required String id,
     @required String title,
+    @required String theme,
   }) async {
     try {
-      await projectCollection.doc(id).update({'title': title});
+      await projectCollection.doc(id).update({'title': title, 'theme': theme});
       return {'status': true, 'data': 'Project Title Updated'};
     } catch (e) {
       print(e.message);
@@ -139,6 +140,36 @@ class Firestore {
     return topicList;
   }
 
+  Future<Map> updateTopic({
+    @required String id,
+    @required String title,
+  }) async {
+    try {
+      await topicCollection.doc(id).update({'title': title});
+      return {'status': true, 'data': 'Topic Updated'};
+    } catch (e) {
+      print(e.message);
+      return {'status': true, 'data': e.message};
+    }
+  }
+
+  Future<Map> deleteTopic({@required String id}) async {
+    try {
+      await topicCollection.doc(id).delete();
+
+      QuerySnapshot taskSnapshot = await taskCollection.get();
+      taskSnapshot.docs.forEach((doc) async {
+        Task task = Task.fromMap(doc.data());
+        if (task.topicID == id) await taskCollection.doc(doc.id).delete();
+      });
+
+      return {'status': true, 'data': 'Topic Deleted'};
+    } catch (e) {
+      print(e.message);
+      return {'status': true, 'data': e.message};
+    }
+  }
+
   // TASK
   Future<Map> createTask({
     @required String title,
@@ -194,5 +225,38 @@ class Firestore {
     });
 
     return output;
+  }
+
+  Future<Map> updateTask({
+    @required String id,
+    @required String title,
+    @required String description,
+    @required Timestamp startDateTime,
+    @required Timestamp endDateTime,
+    @required String topicID,
+  }) async {
+    try {
+      await taskCollection.doc(id).update({
+        'title': title,
+        'description': description,
+        'startDateTime': startDateTime,
+        'endDateTime': endDateTime,
+        'topicID': topicID,
+      });
+      return {'status': true, 'data': 'Task Updated'};
+    } catch (e) {
+      print(e.message);
+      return {'status': true, 'data': e.message};
+    }
+  }
+
+  Future<Map> deleteTask({@required String id}) async {
+    try {
+      await taskCollection.doc(id).delete();
+      return {'status': true, 'data': 'Task Deleted'};
+    } catch (e) {
+      print(e.message);
+      return {'status': true, 'data': e.message};
+    }
   }
 }

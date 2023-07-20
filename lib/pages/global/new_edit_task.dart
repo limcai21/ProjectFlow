@@ -8,17 +8,17 @@ import 'package:flutter/material.dart';
 import 'constants.dart';
 import 'scaffold.dart';
 
-class NewTask extends StatefulWidget {
+class NewEditTask extends StatefulWidget {
   final String id;
   final bool edit;
   final Task taskData;
-  NewTask({@required this.id, @required this.edit, this.taskData});
+  NewEditTask({@required this.id, @required this.edit, this.taskData});
 
   @override
-  State<NewTask> createState() => _NewTaskState();
+  State<NewEditTask> createState() => _NewEditTaskState();
 }
 
-class _NewTaskState extends State<NewTask> {
+class _NewEditTaskState extends State<NewEditTask> {
   bool loading = true;
   bool readOnlyTopic = false;
   List<Topic> projectTopic = [];
@@ -62,38 +62,64 @@ class _NewTaskState extends State<NewTask> {
   Widget build(BuildContext context) {
     Future onSubmit() async {
       if (formKey.currentState.validate()) {
-        final topic = projectTopic.firstWhere(
-          (t) => t.title == tTopicController.text,
-          orElse: () => null,
-        );
-
-        final topicID = topic?.id ?? 0;
-
-        if (topicID != 0) {
+        if (widget.edit) {
           final sDateTime = DateTime.parse(tStartDateController.text);
           final eDateTime = DateTime.parse(tEndDateController.text);
-          final result = await Firestore().createTask(
+          final topic = projectTopic.firstWhere(
+            (t) => t.title == tTopicController.text,
+            orElse: () => null,
+          );
+
+          final result = await Firestore().updateTask(
+            id: widget.taskData.id,
             title: tTitleController.text,
             description: tDescriptionController.text,
             startDateTime: Timestamp.fromDate(sDateTime),
             endDateTime: Timestamp.fromDate(eDateTime),
-            topicID: topicID,
-            projectID: widget.id,
+            topicID: topic.id,
           );
 
           normalAlertDialog(
-            title: result['status'] ? 'Created!' : 'Error',
+            title: result['status'] ? 'Updated!' : 'Error',
             description: result['data'],
             context: context,
             goBackTwice: result['status'] ? true : false,
             backResult: result['status'] ? 'reload' : null,
           );
         } else {
-          normalAlertDialog(
-            title: 'Error',
-            description: 'Fail to get topic',
-            context: context,
+          final topic = projectTopic.firstWhere(
+            (t) => t.title == tTopicController.text,
+            orElse: () => null,
           );
+
+          final topicID = topic?.id ?? 0;
+
+          if (topicID != 0) {
+            final sDateTime = DateTime.parse(tStartDateController.text);
+            final eDateTime = DateTime.parse(tEndDateController.text);
+            final result = await Firestore().createTask(
+              title: tTitleController.text,
+              description: tDescriptionController.text,
+              startDateTime: Timestamp.fromDate(sDateTime),
+              endDateTime: Timestamp.fromDate(eDateTime),
+              topicID: topicID,
+              projectID: widget.id,
+            );
+
+            normalAlertDialog(
+              title: result['status'] ? 'Created!' : 'Error',
+              description: result['data'],
+              context: context,
+              goBackTwice: result['status'] ? true : false,
+              backResult: result['status'] ? 'reload' : null,
+            );
+          } else {
+            normalAlertDialog(
+              title: 'Error',
+              description: 'Fail to get topic',
+              context: context,
+            );
+          }
         }
       }
     }

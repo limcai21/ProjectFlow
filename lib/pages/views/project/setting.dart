@@ -2,8 +2,8 @@ import 'package:ProjectFlow/model/project.dart';
 import 'package:ProjectFlow/model/task.dart';
 import 'package:ProjectFlow/model/topic.dart';
 import 'package:ProjectFlow/pages/global/constants.dart';
+import 'package:ProjectFlow/pages/global/new_edit_project.dart';
 import 'package:ProjectFlow/pages/global/scaffold.dart';
-import 'package:ProjectFlow/pages/views/project/update-title.dart';
 import 'package:ProjectFlow/pages/views/skeleton.dart';
 import 'package:ProjectFlow/services/firestore.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
@@ -75,9 +75,10 @@ class _ProjectSettingsState extends State<ProjectSettings> {
                         bgColor: Theme.of(context).primaryColor,
                         onTap: () async {
                           var result = await Get.to(
-                            () => UpdateProjectTitle(
-                              projectID: projectDetails.id,
-                              currentProjectName: projectDetails.title,
+                            () => NewEditProject(
+                              id: projectDetails.id,
+                              edit: true,
+                              projectData: projectDetails,
                             ),
                           );
                           if (result == "reload") startup();
@@ -92,7 +93,7 @@ class _ProjectSettingsState extends State<ProjectSettings> {
                         borderRadius: br,
                         iconColor: Colors.white,
                         bgColor: Theme.of(context).primaryColor,
-                        onTap: () => {},
+                        onTap: () => Get.back(result: 'reload'),
                       ),
                       CustomListTile(
                         title: "Task",

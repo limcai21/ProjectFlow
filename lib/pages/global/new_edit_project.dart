@@ -1,3 +1,4 @@
+import 'package:ProjectFlow/model/project.dart';
 import 'package:ProjectFlow/pages/global/constants.dart';
 import 'package:ProjectFlow/pages/global/scaffold.dart';
 import 'package:ProjectFlow/services/auth.dart';
@@ -5,18 +6,33 @@ import 'package:ProjectFlow/services/firestore.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 
-class NewProject extends StatefulWidget {
+class NewEditProject extends StatefulWidget {
+  final bool edit;
+  final String id;
+  final Project projectData;
+  NewEditProject({@required this.edit, this.id, this.projectData});
+
   @override
-  State<NewProject> createState() => _NewProjectState();
+  State<NewEditProject> createState() => _NewEditProjectState();
 }
 
-class _NewProjectState extends State<NewProject> {
+class _NewEditProjectState extends State<NewEditProject> {
+  var formKey = GlobalKey<FormState>();
+  final pTitleController = TextEditingController();
+  final pColorController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.edit) {
+      pTitleController.text = widget.projectData.title;
+      pColorController.text = widget.projectData.theme;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    var formKey = GlobalKey<FormState>();
-    final pTitleController = TextEditingController();
-    final pColorController = TextEditingController();
-
     List<Map> temp = [];
     color_list.forEach((element) {
       temp.add(element);
@@ -27,34 +43,51 @@ class _NewProjectState extends State<NewProject> {
       if (!isValid) {
         return;
       } else {
-        var userID = Auth().getCurrentUser().uid;
-        var result = await Firestore().createProject(
-          title: pTitleController.text,
-          theme: pColorController.text,
-          userID: userID,
-        );
-
-        if (result['status']) {
+        if (widget.edit) {
+          var result = await Firestore().updateProjectTitle(
+            id: widget.id,
+            title: pTitleController.text,
+            theme: pColorController.text,
+          );
           normalAlertDialog(
-            title: 'Created!',
-            context: context,
+            title: result['status'] ? 'Done' : 'Error',
             description: result['data'],
-            goBackTwice: true,
+            context: context,
+            goBackTwice: result['status'] ? true : null,
             backResult: 'reload',
           );
         } else {
-          normalAlertDialog(
-            title: 'Error',
-            context: context,
-            description: result['data'],
+          var userID = Auth().getCurrentUser().uid;
+          var result = await Firestore().createProject(
+            title: pTitleController.text,
+            theme: pColorController.text,
+            userID: userID,
           );
+
+          if (result['status']) {
+            normalAlertDialog(
+              title: 'Created!',
+              context: context,
+              description: result['data'],
+              goBackTwice: true,
+              backResult: 'reload',
+            );
+          } else {
+            normalAlertDialog(
+              title: 'Error',
+              context: context,
+              description: result['data'],
+            );
+          }
         }
       }
     }
 
     return CustomScaffold(
-      title: "New Project",
-      subtitle: "Start a new project here",
+      title: widget.edit ? 'Edit Project' : "New Project",
+      subtitle: widget.edit
+          ? 'Make some adjustment to your project'
+          : "Start a new project here",
       layout: 2,
       body: Padding(
         padding: const EdgeInsets.all(20),
@@ -122,7 +155,7 @@ class _NewProjectState extends State<NewProject> {
                 padding: const EdgeInsets.symmetric(vertical: 20),
                 child: ElevatedButton(
                   onPressed: () => submitForm(),
-                  child: Text('Create'),
+                  child: Text(widget.edit ? 'Update' : 'Create'),
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.all(
                       Theme.of(context).primaryColor,

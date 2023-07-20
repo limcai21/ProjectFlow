@@ -85,8 +85,8 @@ class _ProjectPageState extends State<ProjectPage> {
               color: Colors.white,
             ),
             onPressed: () async {
-              var result = await Get.to(() => ProjectSettings(id: widget.id));
-              if (result == 'reload') startup();
+              await Get.to(() => ProjectSettings(id: widget.id));
+              startup();
             },
           ),
       ],
@@ -107,7 +107,7 @@ class _ProjectPageState extends State<ProjectPage> {
                     child: Icon(task_icon),
                     onTap: () async {
                       final result = await Get.to(
-                        () => NewTask(
+                        () => NewEditTask(
                           id: widget.id,
                           edit: false,
                         ),
@@ -120,7 +120,12 @@ class _ProjectPageState extends State<ProjectPage> {
                   labelStyle: TextStyle(color: Colors.white),
                   child: Icon(topic_icon),
                   onTap: () async {
-                    final result = await Get.to(() => NewTopic(id: widget.id));
+                    final result = await Get.to(
+                      () => NewEditTopic(
+                        id: widget.id,
+                        edit: false,
+                      ),
+                    );
                     if (result == 'reload') startup();
                   },
                 )
@@ -144,7 +149,37 @@ class _ProjectPageState extends State<ProjectPage> {
                           onTap: (i) => tabIndex = i,
                           tabs: List.generate(
                             projectTopics.length,
-                            (i) => Tab(text: projectTopics[i].title),
+                            (i) => GestureDetector(
+                              child: Tab(text: projectTopics[i].title),
+                              onLongPress: () {
+                                return simpleDialog(
+                                  title: 'Quick Actions',
+                                  context: context,
+                                  children: [
+                                    simpleDialogOption(
+                                      icon: FluentIcons.edit_24_regular,
+                                      child: Text('Edit Topic'),
+                                      onPressed: () async {
+                                        Get.back();
+                                        final result = await Get.to(
+                                          () => NewEditTopic(
+                                            id: widget.id,
+                                            edit: true,
+                                            topicData: projectTopics[i],
+                                          ),
+                                        );
+                                        if (result == 'reload') startup();
+                                      },
+                                    ),
+                                    simpleDialogOption(
+                                      icon: FluentIcons.delete_24_regular,
+                                      child: Text('Delete Topic'),
+                                      onPressed: null,
+                                    )
+                                  ],
+                                );
+                              },
+                            ),
                           ),
                         ),
                       ),
@@ -179,13 +214,52 @@ class _ProjectPageState extends State<ProjectPage> {
                                       ),
                                       title: Text(content.title),
                                       subtitle: Text(subtitle),
-                                      onTap: () {
-                                        Get.to(
-                                          () => NewTask(
+                                      onTap: () async {
+                                        var result = await Get.to(
+                                          () => NewEditTask(
                                             id: content.projectID,
                                             edit: true,
                                             taskData: content,
                                           ),
+                                        );
+
+                                        if (result == 'reload') startup();
+                                      },
+                                      onLongPress: () {
+                                        return simpleDialog(
+                                          title: 'Quick Actions',
+                                          context: context,
+                                          children: [
+                                            simpleDialogOption(
+                                              icon: FluentIcons
+                                                  .eye_show_24_regular,
+                                              child: Text('Watch Task'),
+                                              onPressed: null,
+                                            ),
+                                            simpleDialogOption(
+                                                icon:
+                                                    FluentIcons.edit_24_regular,
+                                                child: Text('Edit Task'),
+                                                onPressed: () async {
+                                                  Get.back();
+                                                  var result = await Get.to(
+                                                    () => NewEditTask(
+                                                      id: content.projectID,
+                                                      edit: true,
+                                                      taskData: content,
+                                                    ),
+                                                  );
+
+                                                  if (result == 'reload')
+                                                    startup();
+                                                }),
+                                            simpleDialogOption(
+                                              icon:
+                                                  FluentIcons.delete_24_regular,
+                                              child: Text('Delete Task'),
+                                              onPressed: null,
+                                            )
+                                          ],
                                         );
                                       },
                                     );

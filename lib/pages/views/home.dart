@@ -29,10 +29,17 @@ class _ProjectsState extends State<Projects> {
     return projects;
   }
 
+  startup() async {
+    var temp = fetchProjects();
+    setState(() {
+      projectFuture = temp;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
-    projectFuture = fetchProjects();
+    startup();
   }
 
   @override
@@ -46,7 +53,7 @@ class _ProjectsState extends State<Projects> {
       actionBtn: [
         IconButton(
           onPressed: () async {
-            final result = await Get.to(() => NewProject());
+            final result = await Get.to(() => NewEditProject(edit: false));
             if (result == 'reload') {
               setState(() {
                 projectFuture = fetchProjects();
@@ -70,9 +77,11 @@ class _ProjectsState extends State<Projects> {
                 crossAxisSpacing: 10,
                 children: List.generate(snapshot.data.length, (index) {
                   return GestureDetector(
-                    onTap: () => Get.to(
-                      () => ProjectPage(id: snapshot.data[index].id),
-                    ),
+                    onTap: () async {
+                      await Get.to(
+                          () => ProjectPage(id: snapshot.data[index].id));
+                      startup();
+                    },
                     onLongPress: () => {
                       simpleDialog(
                         title: 'Quick Actions',
@@ -80,40 +89,28 @@ class _ProjectsState extends State<Projects> {
                         children: [
                           simpleDialogOption(
                             onPressed: () => Get.to(
-                              () => NewTask(
+                              () => NewEditTask(
                                 id: snapshot.data[index].id,
                                 edit: false,
                               ),
                             ),
-                            child: Row(
-                              children: [
-                                Icon(task_icon, size: 18),
-                                SizedBox(width: 10),
-                                Text('Add Task'),
-                              ],
-                            ),
+                            icon: task_icon,
+                            child: Text('Add Task'),
                           ),
                           simpleDialogOption(
                             onPressed: () => Get.to(
-                              () => NewTopic(id: snapshot.data[index].id),
+                              () => NewEditTopic(
+                                id: snapshot.data[index].id,
+                                edit: false,
+                              ),
                             ),
-                            child: Row(
-                              children: [
-                                Icon(topic_icon, size: 18),
-                                SizedBox(width: 10),
-                                Text('Add Topic'),
-                              ],
-                            ),
+                            icon: topic_icon,
+                            child: Text('Add Topic'),
                           ),
                           simpleDialogOption(
                             onPressed: () => print("Delete Project"),
-                            child: Row(
-                              children: [
-                                Icon(FluentIcons.delete_24_regular, size: 18),
-                                SizedBox(width: 10),
-                                Text('Delete Project'),
-                              ],
-                            ),
+                            icon: FluentIcons.delete_24_regular,
+                            child: Text('Delete Project'),
                           ),
                         ],
                       )

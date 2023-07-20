@@ -253,11 +253,14 @@ simpleDialog({
 }
 
 simpleDialogOption({
+  IconData icon,
   @required Widget child,
   @required Function onPressed,
 }) {
   return SimpleDialogOption(
-    child: child,
+    child: icon != null
+        ? Row(children: [Icon(icon, size: 18), SizedBox(width: 10), child])
+        : child,
     onPressed: () => onPressed(),
     padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
   );
