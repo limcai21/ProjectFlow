@@ -3,6 +3,7 @@ import 'package:ProjectFlow/pages/global/contacts_launcher.dart';
 import 'package:ProjectFlow/pages/global/scaffold.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class AboutUs extends StatelessWidget {
   @override
@@ -40,12 +41,11 @@ class AboutUsContent extends StatelessWidget {
                   Container(
                     width: 60,
                     height: 60,
+                    padding: const EdgeInsets.all(12),
+                    child: SvgPicture.asset("images/icons/logo.svg"),
                     decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor,
                       borderRadius: BorderRadius.circular(5),
-                      image: DecorationImage(
-                        fit: BoxFit.cover,
-                        image: AssetImage("images/icon.png"),
-                      ),
                     ),
                   ),
                   SizedBox(

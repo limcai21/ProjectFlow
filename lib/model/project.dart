@@ -7,7 +7,6 @@ class Project {
   String theme;
   String userID;
   Timestamp createdDateTime;
-
   Project({
     this.id,
     @required this.title,

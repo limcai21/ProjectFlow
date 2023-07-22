@@ -7,15 +7,24 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
 Future<void> scheduleNotification({
-  @required int id,
+  @required String id,
+  @required String projectID,
   @required String title,
+  @required String endDate,
   @required String description,
 }) async {
+  int intID = int.parse(id.replaceAll(new RegExp(r'[^0-9]'), ''));
+  DateTime dateTime = DateTime.parse(endDate);
+  tz.TZDateTime tzDateTime = tz.TZDateTime.from(
+    dateTime,
+    tz.getLocation('Asia/Singapore'),
+  );
+
   AndroidNotificationDetails androidPlatformChannelSpecifics =
       AndroidNotificationDetails(
-    "project_id",
-    'project_name',
-    'project_description',
+    projectID,
+    'ProjectFlow',
+    "",
     importance: Importance.max,
     priority: Priority.high,
   );
@@ -23,23 +32,27 @@ Future<void> scheduleNotification({
       NotificationDetails(android: androidPlatformChannelSpecifics);
 
   await flutterLocalNotificationsPlugin.zonedSchedule(
-    id, // A unique ID for the notification
+    intID,
     title,
     description,
-    tz.TZDateTime.now(tz.local).add(const Duration(seconds: 5)),
+    tzDateTime.subtract(Duration(days: 1)),
     platformChannelSpecifics,
     androidAllowWhileIdle: true,
     uiLocalNotificationDateInterpretation:
         UILocalNotificationDateInterpretation.absoluteTime,
   );
+
+  print("Notification Scheduled");
 }
 
 Future<List<PendingNotificationRequest>> getScheduledNotifications() async {
   return await flutterLocalNotificationsPlugin.pendingNotificationRequests();
 }
 
-Future<void> cancelNotification({@required int id}) async {
-  await flutterLocalNotificationsPlugin.cancel(id);
+Future<void> cancelNotification({@required String id}) async {
+  int intID = int.parse(id.replaceAll(new RegExp(r'[^0-9]'), ''));
+  await flutterLocalNotificationsPlugin.cancel(intID);
+  print("Notification Cancelled");
 }
 
 Future<void> cancelAllNotification() async {

@@ -2,6 +2,7 @@ import 'package:ProjectFlow/pages/global/constants.dart';
 import 'package:ProjectFlow/pages/global/contacts_launcher.dart';
 import 'package:ProjectFlow/pages/global/scaffold.dart';
 import 'package:ProjectFlow/pages/views/account/update-email.dart';
+import 'package:ProjectFlow/pages/views/account/update-password.dart';
 import 'package:ProjectFlow/services/auth.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
@@ -47,7 +48,7 @@ class Account extends StatelessWidget {
                   icon: FluentIcons.password_24_filled,
                   trailingIcon: FluentIcons.chevron_right_24_regular,
                   bgColor: Colors.brown,
-                  // onTap: () => Get.to(()=>UpdatePassword(currentPassword: user.updatePassword(newPassword))),
+                  onTap: () => Get.to(() => UpdatePassword()),
                 ),
                 CustomListTile(
                   title: "Delete Account",

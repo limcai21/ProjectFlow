@@ -4,7 +4,6 @@ class Topic {
   String id;
   String title;
   String projectID;
-
   Topic({this.id, @required this.title, @required this.projectID});
 
   Topic.fromMap(Map<String, dynamic> data) {

@@ -68,11 +68,7 @@ class Home extends StatelessWidget {
             fit: BoxFit.cover,
             frameRate: FrameRate(30),
           ),
-          // Container(
-          //   width: MediaQuery.of(context).size.width,
-          //   height: MediaQuery.of(context).size.height,
-          //   color: Theme.of(context).primaryColor,
-          // ),
+
           // LOGIN/SIGN UP BTN
           Padding(
             padding: const EdgeInsets.all(20),

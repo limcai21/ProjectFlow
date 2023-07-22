@@ -1,6 +1,7 @@
 import 'package:ProjectFlow/model/project.dart';
 import 'package:ProjectFlow/model/topic.dart';
 import 'package:ProjectFlow/model/task.dart';
+import 'package:ProjectFlow/model/watch.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:timezone/timezone.dart' as tz;
@@ -13,6 +14,8 @@ class Firestore {
       FirebaseFirestore.instance.collection('topic');
   final CollectionReference taskCollection =
       FirebaseFirestore.instance.collection('task');
+  final CollectionReference watchesCollection =
+      FirebaseFirestore.instance.collection('watches');
 
   // PROJECT
   Future<Map> createProject({
@@ -40,6 +43,22 @@ class Firestore {
       print(e.message);
       return {'status': true, 'data': e.message};
     }
+  }
+
+  Future<Project> getProject({@required String id}) async {
+    Project output;
+    QuerySnapshot snapshot = await projectCollection.get();
+
+    for (var doc in snapshot.docs) {
+      Project project = Project.fromMap(doc.data());
+      if (doc.id == id) {
+        project.id = doc.id;
+        output = project;
+        break;
+      }
+    }
+
+    return output;
   }
 
   Future<List<Project>> getProjectByUserID({@required String id}) async {
@@ -227,6 +246,22 @@ class Firestore {
     return output;
   }
 
+  Future<Task> getTask({@required String id}) async {
+    Task output;
+    QuerySnapshot snapshot = await taskCollection.get();
+
+    for (var doc in snapshot.docs) {
+      Task task = Task.fromMap(doc.data());
+      if (doc.id == id) {
+        task.id = doc.id;
+        output = task;
+        break;
+      }
+    }
+
+    return output;
+  }
+
   Future<Map> updateTask({
     @required String id,
     @required String title,
@@ -254,6 +289,67 @@ class Firestore {
     try {
       await taskCollection.doc(id).delete();
       return {'status': true, 'data': 'Task Deleted'};
+    } catch (e) {
+      print(e.message);
+      return {'status': true, 'data': e.message};
+    }
+  }
+
+  // WATCHES
+  Future<List<WatchModel>> getWatchesByUserID({@required String id}) async {
+    List<WatchModel> watchList = [];
+    QuerySnapshot snapshot = await watchesCollection.get();
+
+    for (var doc in snapshot.docs) {
+      WatchModel watch = WatchModel.fromMap(doc.data());
+      if (watch.userID == id) {
+        watch.id = doc.id;
+        watch.task = await getTask(id: watch.taskID);
+        watch.project = await getProject(id: watch.projectID);
+        watchList.add(watch);
+      }
+    }
+
+    return watchList;
+  }
+
+  Future<Map> getWatchesByTaskID({@required String id}) async {
+    Map output = {'status': false};
+    QuerySnapshot snapshot = await watchesCollection.get();
+
+    snapshot.docs.forEach((doc) {
+      WatchModel watch = WatchModel.fromMap(doc.data());
+      if (watch.taskID == id) {
+        output = {'status': true, 'id': doc.id};
+      }
+    });
+    return output;
+  }
+
+  Future<Map> watchTask({
+    @required String projectID,
+    @required String taskID,
+    @required String userID,
+  }) async {
+    try {
+      var docRef = Firestore().watchesCollection.doc();
+      print("Create Watch docRef:" + docRef.id);
+
+      await watchesCollection.doc(docRef.id).set(
+        {'taskID': taskID, 'userID': userID, 'projectID': projectID},
+      );
+
+      return {'status': true, 'data': 'Added to watch list'};
+    } catch (e) {
+      print(e.message);
+      return {'status': true, 'data': e.message};
+    }
+  }
+
+  Future<Map> unwatchTask({@required String id}) async {
+    try {
+      await watchesCollection.doc(id).delete();
+      return {'status': true, 'data': 'Remove from watch list!'};
     } catch (e) {
       print(e.message);
       return {'status': true, 'data': e.message};

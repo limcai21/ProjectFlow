@@ -89,81 +89,84 @@ class _NewEditProjectState extends State<NewEditProject> {
           ? 'Make some adjustment to your project'
           : "Start a new project here",
       layout: 2,
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Form(
-          key: formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: pTitleController,
-                decoration: InputDecoration(
-                  suffixIcon: Icon(project_icon),
-                  labelText: 'Project Title',
+      body: SingleChildScrollView(
+        physics: BouncingScrollPhysics(),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Form(
+            key: formKey,
+            child: Column(
+              children: [
+                TextFormField(
+                  controller: pTitleController,
+                  decoration: InputDecoration(
+                    suffixIcon: Icon(project_icon),
+                    labelText: 'Project Title',
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return projectEmptyNull;
+                    }
+                    return null;
+                  },
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return projectEmptyNull;
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: pColorController,
-                decoration: InputDecoration(
-                  labelText: 'Theme',
-                  suffixIcon: Icon(FluentIcons.color_24_regular),
-                ),
-                readOnly: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return themeEmptyNull;
-                  }
-                  return null;
-                },
-                onTap: () => simpleDialog(
-                  context: context,
-                  title: "Select Theme",
-                  children: color_list.map<Widget>((element) {
-                    String title = element['title'].toString();
-                    int hex = element['hex'];
-                    return simpleDialogOption(
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 15,
-                            height: 15,
-                            decoration: BoxDecoration(
-                              color: Color(hex),
-                              borderRadius: BorderRadius.circular(5),
+                TextFormField(
+                  controller: pColorController,
+                  decoration: InputDecoration(
+                    labelText: 'Theme',
+                    suffixIcon: Icon(FluentIcons.color_24_regular),
+                  ),
+                  readOnly: true,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return themeEmptyNull;
+                    }
+                    return null;
+                  },
+                  onTap: () => simpleDialog(
+                    context: context,
+                    title: "Select Theme",
+                    children: color_list.map<Widget>((element) {
+                      String title = element['title'].toString();
+                      int hex = element['hex'];
+                      return simpleDialogOption(
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 15,
+                              height: 15,
+                              decoration: BoxDecoration(
+                                color: Color(hex),
+                                borderRadius: BorderRadius.circular(5),
+                              ),
                             ),
-                          ),
-                          SizedBox(width: 10),
-                          Text(title),
-                        ],
-                      ),
-                      onPressed: () => {
-                        pColorController.text = title,
-                        Navigator.pop(context),
-                      },
-                    );
-                  }).toList(),
+                            SizedBox(width: 10),
+                            Text(title),
+                          ],
+                        ),
+                        onPressed: () => {
+                          pColorController.text = title,
+                          Navigator.pop(context),
+                        },
+                      );
+                    }).toList(),
+                  ),
                 ),
-              ),
-              Container(
-                alignment: Alignment.centerLeft,
-                padding: const EdgeInsets.symmetric(vertical: 20),
-                child: ElevatedButton(
-                  onPressed: () => submitForm(),
-                  child: Text(widget.edit ? 'Update' : 'Create'),
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all(
-                      Theme.of(context).primaryColor,
+                Container(
+                  alignment: Alignment.centerLeft,
+                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  child: ElevatedButton(
+                    onPressed: () => submitForm(),
+                    child: Text(widget.edit ? 'Update' : 'Create'),
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(
+                        Theme.of(context).primaryColor,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

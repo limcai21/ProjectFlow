@@ -9,7 +9,6 @@ class Task {
   String projectID;
   Timestamp startDateTime;
   Timestamp endDateTime;
-
   Task({
     this.id,
     @required this.title,

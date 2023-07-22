@@ -85,7 +85,10 @@ const currentPasswordIncorrect = 'Current Password incorrect';
 
 // DATE
 const dateEmptyNull = 'Date cannot be empty';
-
+const startDateAfterEndDate =
+    'Start Date & Time has to be before End Date & Time';
+const startDateSameAsEndDate =
+    'Start Date & Time cannot be the same as End Date & Time';
 // COLORS THEME
 const color_list = [
   {'title': 'Aqua', 'hex': 0xFF00FFFF},

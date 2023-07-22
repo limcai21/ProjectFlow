@@ -69,39 +69,42 @@ class _NewEditTopicState extends State<NewEditTopic> {
       subtitle: widget.edit
           ? 'Make some adjustment to your topic'
           : 'Create topic to add task inside',
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Form(
-          key: formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: tTitleController,
-                decoration: InputDecoration(
-                  labelText: 'Topic',
-                  suffixIcon: Icon(topic_icon),
+      body: SingleChildScrollView(
+        physics: BouncingScrollPhysics(),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Form(
+            key: formKey,
+            child: Column(
+              children: [
+                TextFormField(
+                  controller: tTitleController,
+                  decoration: InputDecoration(
+                    labelText: 'Topic',
+                    suffixIcon: Icon(topic_icon),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return topicEmptyNull;
+                    }
+                    return null;
+                  },
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return topicEmptyNull;
-                  }
-                  return null;
-                },
-              ),
-              Container(
-                alignment: Alignment.centerLeft,
-                padding: const EdgeInsets.symmetric(vertical: 20),
-                child: ElevatedButton(
-                  onPressed: () => submitForm(),
-                  child: Text(widget.edit ? 'Update' : 'Create'),
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all(
-                      Theme.of(context).primaryColor,
+                Container(
+                  alignment: Alignment.centerLeft,
+                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  child: ElevatedButton(
+                    onPressed: () => submitForm(),
+                    child: Text(widget.edit ? 'Update' : 'Create'),
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(
+                        Theme.of(context).primaryColor,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

@@ -6,6 +6,7 @@ import 'package:date_time_picker/date_time_picker.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'constants.dart';
+import 'notification.dart';
 import 'scaffold.dart';
 
 class NewEditTask extends StatefulWidget {
@@ -79,6 +80,25 @@ class _NewEditTaskState extends State<NewEditTask> {
             topicID: topic.id,
           );
 
+          var temp = await getScheduledNotifications();
+          int intID = int.parse(
+            widget.taskData.id.replaceAll(new RegExp(r'[^0-9]'), ''),
+          );
+
+          temp.forEach((n) {
+            if (n.id == intID) {
+              print("notification exist, updating it");
+              cancelNotification(id: widget.taskData.id);
+              scheduleNotification(
+                id: widget.taskData.id,
+                projectID: widget.taskData.projectID,
+                title: tTitleController.text,
+                endDate: eDateTime.toString(),
+                description: 'Due in one day',
+              );
+            }
+          });
+
           normalAlertDialog(
             title: result['status'] ? 'Updated!' : 'Error',
             description: result['data'],
@@ -132,132 +152,142 @@ class _NewEditTaskState extends State<NewEditTask> {
       layout: 2,
       body: loading
           ? Loading()
-          : Padding(
-              padding: const EdgeInsets.all(20),
-              child: Form(
-                key: formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // TOPIC
-                    TextFormField(
-                      controller: tTopicController,
-                      readOnly: readOnlyTopic,
-                      decoration: InputDecoration(
-                        labelText: 'Select Topic',
-                        suffixIcon: Icon(topic_icon),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return topicEmptyNull;
-                        }
-                        return null;
-                      },
-                      onTap: () {
-                        return simpleDialog(
-                          title: "Select Topic",
-                          context: context,
-                          children: projectTopic.map<Widget>((t) {
-                            String title = t.title;
-                            return simpleDialogOption(
-                              child: Text(title),
-                              onPressed: () => {
-                                tTopicController.text = title,
-                                Navigator.pop(context),
-                              },
-                            );
-                          }).toList(),
-                        );
-                      },
-                    ),
-                    // TITLE
-                    TextFormField(
-                      controller: tTitleController,
-                      decoration: InputDecoration(
-                        suffixIcon: Icon(task_icon),
-                        labelText: 'Task',
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return taskEmptyNull;
-                        }
-                        return null;
-                      },
-                    ),
-                    // DESCRIPTION
-                    TextFormField(
-                      controller: tDescriptionController,
-                      decoration: InputDecoration(
-                        suffixIcon: Icon(FluentIcons.list_24_regular),
-                        labelText: 'Description',
-                      ),
-                      keyboardType: TextInputType.multiline,
-                      maxLines: 3,
-                      maxLength: 100,
-                    ),
-                    // START DATE
-                    DateTimePicker(
-                      type: DateTimePickerType.dateTime,
-                      dateMask: dateFormat,
-                      controller: tStartDateController,
-                      firstDate: DateTime.now(),
-                      lastDate: DateTime(DateTime.now().year + 99),
-                      initialEntryMode: DatePickerEntryMode.input,
-                      errorFormatText: "Invalid format",
-                      use24HourFormat: false,
-                      scrollPhysics: BouncingScrollPhysics(),
-                      decoration: InputDecoration(
-                        labelText: 'Start Date & Time',
-                        suffixIcon: Icon(FluentIcons.clock_24_regular),
-                      ),
-                      validator: (val) {
-                        if (val == "") {
-                          return 'Start ' + dateEmptyNull;
-                        } else {
-                          print("Start Date & Time: " + val);
+          : SingleChildScrollView(
+              physics: BouncingScrollPhysics(),
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Form(
+                  key: formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // TOPIC
+                      TextFormField(
+                        controller: tTopicController,
+                        readOnly: readOnlyTopic,
+                        decoration: InputDecoration(
+                          labelText: 'Select Topic',
+                          suffixIcon: Icon(topic_icon),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return topicEmptyNull;
+                          }
                           return null;
-                        }
-                      },
-                    ),
-                    // END DATE
-                    DateTimePicker(
-                      type: DateTimePickerType.dateTime,
-                      dateMask: dateFormat,
-                      controller: tEndDateController,
-                      firstDate: DateTime.now().add(Duration(minutes: 1)),
-                      lastDate: DateTime(DateTime.now().year + 99),
-                      initialEntryMode: DatePickerEntryMode.input,
-                      errorFormatText: "Invalid format",
-                      use24HourFormat: false,
-                      scrollPhysics: BouncingScrollPhysics(),
-                      decoration: InputDecoration(
-                        labelText: 'End Date & Time',
-                        suffixIcon: Icon(FluentIcons.clock_24_regular),
+                        },
+                        onTap: () {
+                          return simpleDialog(
+                            title: "Select Topic",
+                            context: context,
+                            children: projectTopic.map<Widget>((t) {
+                              String title = t.title;
+                              return simpleDialogOption(
+                                child: Text(title),
+                                onPressed: () => {
+                                  tTopicController.text = title,
+                                  Navigator.pop(context),
+                                },
+                              );
+                            }).toList(),
+                          );
+                        },
                       ),
-                      validator: (val) {
-                        if (val == "") {
-                          return 'End ' + dateEmptyNull;
-                        } else {
-                          print("End Date & Time: " + val);
+                      // TITLE
+                      TextFormField(
+                        controller: tTitleController,
+                        decoration: InputDecoration(
+                          suffixIcon: Icon(task_icon),
+                          labelText: 'Task',
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return taskEmptyNull;
+                          }
                           return null;
-                        }
-                      },
-                    ),
-                    // CREATE BTN
-                    Container(
-                      alignment: Alignment.centerLeft,
-                      padding: const EdgeInsets.symmetric(vertical: 20),
-                      child: ElevatedButton(
-                        onPressed: () => onSubmit(),
-                        child: Text(widget.edit ? 'Save' : 'Create'),
-                        style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all(
-                            Theme.of(context).primaryColor,
+                        },
+                      ),
+                      // DESCRIPTION
+                      TextFormField(
+                        controller: tDescriptionController,
+                        decoration: InputDecoration(
+                          suffixIcon: Icon(FluentIcons.list_24_regular),
+                          labelText: 'Description',
+                        ),
+                        keyboardType: TextInputType.multiline,
+                        maxLines: 3,
+                        maxLength: 100,
+                      ),
+                      // START DATE
+                      DateTimePicker(
+                        type: DateTimePickerType.dateTime,
+                        dateMask: dateFormat,
+                        controller: tStartDateController,
+                        firstDate: DateTime.now(),
+                        lastDate: DateTime(DateTime.now().year + 99),
+                        initialEntryMode: DatePickerEntryMode.input,
+                        errorFormatText: "Invalid format",
+                        use24HourFormat: false,
+                        scrollPhysics: BouncingScrollPhysics(),
+                        decoration: InputDecoration(
+                          labelText: 'Start Date & Time',
+                          suffixIcon: Icon(FluentIcons.clock_24_regular),
+                        ),
+                        validator: (val) {
+                          if (val == "") {
+                            return 'Start: ' + dateEmptyNull;
+                          }
+
+                          return null;
+                        },
+                      ),
+                      // END DATE
+                      DateTimePicker(
+                        type: DateTimePickerType.dateTime,
+                        dateMask: dateFormat,
+                        controller: tEndDateController,
+                        firstDate: DateTime.now().add(Duration(minutes: 1)),
+                        lastDate: DateTime(DateTime.now().year + 99),
+                        initialEntryMode: DatePickerEntryMode.input,
+                        errorFormatText: "Invalid format",
+                        use24HourFormat: false,
+                        scrollPhysics: BouncingScrollPhysics(),
+                        decoration: InputDecoration(
+                          labelText: 'End Date & Time',
+                          suffixIcon: Icon(FluentIcons.clock_24_regular),
+                        ),
+                        validator: (val) {
+                          if (val == "") {
+                            return 'End ' + dateEmptyNull;
+                          } else {
+                            var start =
+                                DateTime.parse(tStartDateController.text);
+                            var end = DateTime.parse(val);
+                            int result = end.compareTo(start);
+                            if (result < 0) {
+                              return startDateAfterEndDate;
+                            } else if (result == 0) {
+                              return startDateSameAsEndDate;
+                            }
+                          }
+                          return null;
+                        },
+                      ),
+                      // CREATE BTN
+                      Container(
+                        alignment: Alignment.centerLeft,
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        child: ElevatedButton(
+                          onPressed: () => onSubmit(),
+                          child: Text(widget.edit ? 'Save' : 'Create'),
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all(
+                              Theme.of(context).primaryColor,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

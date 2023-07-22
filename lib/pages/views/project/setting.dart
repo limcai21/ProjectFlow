@@ -65,10 +65,10 @@ class _ProjectSettingsState extends State<ProjectSettings> {
                     children: [
                       ListViewHeader(title: 'General'),
                       CustomListTile(
-                        title: "Title",
-                        subtitle: projectDetails.title,
+                        title: "Project",
+                        subtitle: 'Change title & theme',
                         t: t,
-                        icon: FluentIcons.rename_24_regular,
+                        icon: project_icon,
                         trailingIcon: FluentIcons.chevron_right_24_regular,
                         borderRadius: br,
                         iconColor: Colors.white,
@@ -125,7 +125,7 @@ class _ProjectSettingsState extends State<ProjectSettings> {
                             context: context,
                             goBackTwice: result['status'] ? true : false,
                           );
-                          Get.offAll(MainSkeleton());
+                          Get.offAll(() => MainSkeleton());
                         },
                       ),
                     ],
