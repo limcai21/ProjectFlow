@@ -5,7 +5,7 @@ class CustomScaffold extends StatelessWidget {
   final String subtitle;
   final Widget body;
   final List<Widget> actionBtn;
-  final String backgroundColor;
+  final Color backgroundColor;
   final int layout;
   final Widget fab;
   final bool tab;

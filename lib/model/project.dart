@@ -6,11 +6,15 @@ class Project {
   String title;
   String theme;
   String userID;
+  String backgroundURL;
+  String imageID;
   Timestamp createdDateTime;
   Project({
     this.id,
     @required this.title,
     @required this.theme,
+    @required this.backgroundURL,
+    @required this.imageID,
     @required this.userID,
     @required this.createdDateTime,
   });
@@ -19,6 +23,8 @@ class Project {
     id = data['id'];
     title = data['title'];
     theme = data['theme'];
+    backgroundURL = data['backgroundURL'];
+    imageID = data['imageID'];
     userID = data['userID'];
     createdDateTime = data['createdDateTime'];
   }
@@ -28,6 +34,8 @@ class Project {
       'id': id,
       'title': title,
       'theme': theme,
+      'backgroundURL': backgroundURL,
+      'imageID': imageID,
       'userID': userID,
       'createdDateTime': createdDateTime,
     };

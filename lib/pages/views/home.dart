@@ -11,6 +11,7 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 class Projects extends StatefulWidget {
   @override
@@ -72,14 +73,15 @@ class _ProjectsState extends State<Projects> {
                 padding: const EdgeInsets.all(20),
                 physics: BouncingScrollPhysics(),
                 crossAxisCount: 2,
-                childAspectRatio: 1.5 / 1,
+                childAspectRatio: 1 / 1,
                 mainAxisSpacing: 10,
                 crossAxisSpacing: 10,
                 children: List.generate(snapshot.data.length, (index) {
                   return GestureDetector(
                     onTap: () async {
                       await Get.to(
-                          () => ProjectPage(id: snapshot.data[index].id));
+                        () => ProjectPage(id: snapshot.data[index].id),
+                      );
                       startup();
                     },
                     onLongPress: () => {
@@ -108,17 +110,21 @@ class _ProjectsState extends State<Projects> {
                             child: Text('Add Topic'),
                           ),
                           simpleDialogOption(
-                            onPressed: () => print("Delete Project"),
                             icon: FluentIcons.delete_24_regular,
                             child: Text('Delete Project'),
+                            onPressed: () async {
+                              await Firestore().deleteProject(
+                                id: snapshot.data[index].id,
+                                imageID: snapshot.data[index].imageID,
+                              );
+                              Get.back();
+                              startup();
+                            },
                           ),
                         ],
                       )
                     },
-                    child: ProjectCard(
-                      title: snapshot.data[index].title,
-                      theme: snapshot.data[index].theme,
-                    ),
+                    child: ProjectCard(data: snapshot.data[index]),
                   );
                 }),
               );
@@ -148,30 +154,62 @@ class _ProjectsState extends State<Projects> {
 }
 
 class ProjectCard extends StatelessWidget {
-  final String title;
-  final String theme;
-  ProjectCard({@required this.title, @required this.theme});
+  final Project data;
+  ProjectCard({@required this.data});
 
   @override
   Widget build(BuildContext context) {
     return Stack(
-      alignment: AlignmentDirectional.bottomStart,
       children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(10),
-          child: Container(color: Color(getHexValue(theme))),
+        Positioned.fill(
+          child: Container(
+            decoration: BoxDecoration(
+              color: Color(getHexValue(data.theme)),
+              borderRadius: BorderRadius.circular(10),
+              image: DecorationImage(
+                image: NetworkImage(data.backgroundURL),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
         ),
         Container(
-          width: MediaQuery.of(context).size.width,
+          height: double.infinity,
+          width: double.infinity,
           padding: const EdgeInsets.all(20),
-          child: Row(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Colors.transparent,
+                Colors.transparent,
+                Colors.transparent,
+                Colors.black.withOpacity(0.2),
+                Colors.black.withOpacity(0.7),
+                Colors.black,
+              ],
+            ),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                title,
+                data.title,
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
+                ),
+              ),
+              SizedBox(height: 2),
+              Text(
+                DateFormat(dateFormat).format(data.createdDateTime.toDate()),
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 12,
                 ),
               ),
             ],

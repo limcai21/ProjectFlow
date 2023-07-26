@@ -10,7 +10,12 @@ import 'package:get/get.dart';
 import '../../../main.dart';
 import 'about-us.dart';
 
-class Account extends StatelessWidget {
+class Account extends StatefulWidget {
+  @override
+  State<Account> createState() => _AccountState();
+}
+
+class _AccountState extends State<Account> {
   @override
   Widget build(BuildContext context) {
     const t = 1.0;
@@ -48,7 +53,9 @@ class Account extends StatelessWidget {
                   icon: FluentIcons.password_24_filled,
                   trailingIcon: FluentIcons.chevron_right_24_regular,
                   bgColor: Colors.brown,
-                  onTap: () => Get.to(() => UpdatePassword()),
+                  onTap: () {
+                    Get.to(() => UpdatePassword());
+                  },
                 ),
                 CustomListTile(
                   title: "Delete Account",

@@ -2,47 +2,59 @@ import 'package:flutter/material.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'constants.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
-Future<void> scheduleNotification({
+Future<Map> scheduleNotification({
   @required String id,
   @required String projectID,
   @required String title,
   @required String endDate,
+  @required int minutes,
   @required String description,
 }) async {
-  int intID = int.parse(id.replaceAll(new RegExp(r'[^0-9]'), ''));
-  DateTime dateTime = DateTime.parse(endDate);
-  tz.TZDateTime tzDateTime = tz.TZDateTime.from(
-    dateTime,
-    tz.getLocation('Asia/Singapore'),
-  );
+  try {
+    int intID = notificationID(id);
+    DateTime dateTime = DateTime.parse(endDate);
+    tz.TZDateTime tzDateTime = tz.TZDateTime.from(
+      dateTime,
+      tz.getLocation('Asia/Singapore'),
+    );
 
-  AndroidNotificationDetails androidPlatformChannelSpecifics =
-      AndroidNotificationDetails(
-    projectID,
-    'ProjectFlow',
-    "",
-    importance: Importance.max,
-    priority: Priority.high,
-  );
-  NotificationDetails platformChannelSpecifics =
-      NotificationDetails(android: androidPlatformChannelSpecifics);
+    AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails(
+      projectID,
+      'ProjectFlow',
+      "",
+      importance: Importance.max,
+      priority: Priority.high,
+    );
+    NotificationDetails platformChannelSpecifics =
+        NotificationDetails(android: androidPlatformChannelSpecifics);
 
-  await flutterLocalNotificationsPlugin.zonedSchedule(
-    intID,
-    title,
-    description,
-    tzDateTime.subtract(Duration(days: 1)),
-    platformChannelSpecifics,
-    androidAllowWhileIdle: true,
-    uiLocalNotificationDateInterpretation:
-        UILocalNotificationDateInterpretation.absoluteTime,
-  );
+    await flutterLocalNotificationsPlugin.zonedSchedule(
+      intID,
+      title,
+      description,
+      tzDateTime.subtract(Duration(minutes: minutes)),
+      platformChannelSpecifics,
+      androidAllowWhileIdle: true,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+    );
 
-  print("Notification Scheduled");
+    print("Notification Scheduled at " +
+        tzDateTime.subtract(Duration(minutes: minutes)).toString());
+    return {"status": true, "msg": "Scheduled!"};
+  } catch (e) {
+    return {
+      "status": false,
+      "msg":
+          "Something went wrong when scheduling your notification, try again later"
+    };
+  }
 }
 
 Future<List<PendingNotificationRequest>> getScheduledNotifications() async {
@@ -50,7 +62,7 @@ Future<List<PendingNotificationRequest>> getScheduledNotifications() async {
 }
 
 Future<void> cancelNotification({@required String id}) async {
-  int intID = int.parse(id.replaceAll(new RegExp(r'[^0-9]'), ''));
+  int intID = notificationID(id);
   await flutterLocalNotificationsPlugin.cancel(intID);
   print("Notification Cancelled");
 }

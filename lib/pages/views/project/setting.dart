@@ -66,7 +66,7 @@ class _ProjectSettingsState extends State<ProjectSettings> {
                       ListViewHeader(title: 'General'),
                       CustomListTile(
                         title: "Project",
-                        subtitle: 'Change title & theme',
+                        subtitle: 'Change title, theme & background',
                         t: t,
                         icon: project_icon,
                         trailingIcon: FluentIcons.chevron_right_24_regular,
@@ -117,8 +117,10 @@ class _ProjectSettingsState extends State<ProjectSettings> {
                         iconColor: Colors.white,
                         bgColor: Theme.of(context).primaryColor,
                         onTap: () async {
-                          var result = await Firestore()
-                              .deleteProject(id: projectDetails.id);
+                          var result = await Firestore().deleteProject(
+                            id: projectDetails.id,
+                            imageID: projectDetails.imageID,
+                          );
                           await normalAlertDialog(
                             title: result['status'] ? 'Done' : 'Error',
                             description: result['data'],

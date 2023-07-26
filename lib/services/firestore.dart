@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:ProjectFlow/model/project.dart';
 import 'package:ProjectFlow/model/topic.dart';
 import 'package:ProjectFlow/model/task.dart';
@@ -6,6 +7,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:uuid/uuid.dart';
 
 class Firestore {
   final CollectionReference projectCollection =
@@ -21,6 +24,7 @@ class Firestore {
   Future<Map> createProject({
     @required String title,
     @required String theme,
+    @required String backgroundURL,
     @required String userID,
   }) async {
     try {
@@ -34,6 +38,7 @@ class Firestore {
       await projectCollection.doc(docRef.id).set({
         'title': title,
         'theme': theme,
+        'backgroundURL': backgroundURL,
         'userID': userID,
         'createdDateTime': now,
       });
@@ -90,22 +95,33 @@ class Firestore {
     return output;
   }
 
-  Future<Map> updateProjectTitle({
+  Future<Map> updateProject({
     @required String id,
     @required String title,
     @required String theme,
+    @required String backgroundURL,
+    @required String imageID,
   }) async {
     try {
-      await projectCollection.doc(id).update({'title': title, 'theme': theme});
-      return {'status': true, 'data': 'Project Title Updated'};
+      await projectCollection.doc(id).update({
+        'title': title,
+        'theme': theme,
+        'backgroundURL': backgroundURL,
+        'imageID': imageID,
+      });
+      return {'status': true, 'data': 'Project Updated'};
     } catch (e) {
       print(e.message);
       return {'status': true, 'data': e.message};
     }
   }
 
-  Future<Map> deleteProject({@required String id}) async {
+  Future<Map> deleteProject({
+    @required String id,
+    @required String imageID,
+  }) async {
     try {
+      await deleteImage(id: imageID);
       await projectCollection.doc(id).delete();
       QuerySnapshot topicSnapshot = await topicCollection.get();
       topicSnapshot.docs.forEach((doc) async {
@@ -320,7 +336,7 @@ class Firestore {
     snapshot.docs.forEach((doc) {
       WatchModel watch = WatchModel.fromMap(doc.data());
       if (watch.taskID == id) {
-        output = {'status': true, 'id': doc.id};
+        output = {'status': true, 'id': doc.id, 'min': watch.min};
       }
     });
     return output;
@@ -330,13 +346,19 @@ class Firestore {
     @required String projectID,
     @required String taskID,
     @required String userID,
+    @required int minute,
   }) async {
     try {
       var docRef = Firestore().watchesCollection.doc();
       print("Create Watch docRef:" + docRef.id);
 
       await watchesCollection.doc(docRef.id).set(
-        {'taskID': taskID, 'userID': userID, 'projectID': projectID},
+        {
+          'taskID': taskID,
+          'userID': userID,
+          'projectID': projectID,
+          'min': minute
+        },
       );
 
       return {'status': true, 'data': 'Added to watch list'};
@@ -353,6 +375,49 @@ class Firestore {
     } catch (e) {
       print(e.message);
       return {'status': true, 'data': e.message};
+    }
+  }
+
+  // UPLOAD IMAGE
+  Future<Map> uploadImage({@required String path}) async {
+    try {
+      if (path == null) {
+        return {"status": false, "msg": "No Image"};
+      }
+
+      final fileName = Uuid().v4();
+      firebase_storage.Reference ref =
+          firebase_storage.FirebaseStorage.instance.ref().child(fileName);
+      await ref.putFile(File(path));
+
+      firebase_storage.FirebaseStorage.instance.ref().delete();
+
+      // Getting the download URL of the uploaded image
+      String downloadURL = await ref.getDownloadURL();
+      return {
+        "status": true,
+        'msg': 'Image Uploaded',
+        "url": downloadURL,
+        "imageID": fileName
+      };
+    } catch (e) {
+      // Handle any errors that occur during the image upload process.
+      print('Error uploading image: $e');
+      return {"status": false, "msg": e.message};
+    }
+  }
+
+  Future<Map> deleteImage({@required String id}) async {
+    try {
+      firebase_storage.Reference ref =
+          firebase_storage.FirebaseStorage.instance.ref().child(id);
+      await ref.delete();
+
+      return {"status": true, "msg": "Image deleted."};
+    } catch (e) {
+      // Handle any errors that occur during the image deletion process.
+      print('Error deleting image: $e');
+      return {"status": false, "msg": e.message};
     }
   }
 }

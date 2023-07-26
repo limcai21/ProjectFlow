@@ -62,29 +62,22 @@ class Auth {
 
   Future<Map<dynamic, dynamic>> updatePassword({
     @required String currentPassword,
-    @required bool checkCurrentPassword,
-    String newPassword,
+    @required String newPassword,
   }) async {
-    final user = getCurrentUser();
+    final user = _auth.currentUser;
     final cred = EmailAuthProvider.credential(
       email: user.email,
       password: currentPassword,
     );
 
-    if (checkCurrentPassword) {
-      try {
-        await user.reauthenticateWithCredential(cred);
-        return {'status': true};
-      } catch (err) {
-        return {'status': false, 'message': err.message.toString()};
-      }
-    } else {
-      try {
-        await user.updatePassword(newPassword);
-        return {'status': true, 'message': 'Password Updated'};
-      } catch (error) {
-        return {'status': false, 'message': error.message.toString()};
-      }
+    try {
+      await user.reauthenticateWithCredential(cred);
+      await user.updatePassword(newPassword);
+      print("Password updated");
+      return {'status': true, 'message': 'Password Updated'};
+    } catch (error) {
+      print("Failed to update password: ${error.message}");
+      return {'status': false, 'message': error.message.toString()};
     }
   }
 

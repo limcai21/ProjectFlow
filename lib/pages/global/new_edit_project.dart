@@ -5,6 +5,7 @@ import 'package:ProjectFlow/services/auth.dart';
 import 'package:ProjectFlow/services/firestore.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class NewEditProject extends StatefulWidget {
   final bool edit;
@@ -20,6 +21,73 @@ class _NewEditProjectState extends State<NewEditProject> {
   var formKey = GlobalKey<FormState>();
   final pTitleController = TextEditingController();
   final pColorController = TextEditingController();
+  final pImageController = TextEditingController();
+
+  imagePreview({@required String url, bool local = false}) {
+    double br = 10;
+
+    return showModalBottomSheet(
+      backgroundColor: Colors.transparent,
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          margin: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(br),
+            color: Colors.white,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: double.infinity,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).primaryColor,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(br),
+                      topRight: Radius.circular(br),
+                    ),
+                  ),
+                  padding: const EdgeInsets.only(
+                    left: 20,
+                    right: 20,
+                    top: 30,
+                    bottom: 20,
+                  ),
+                  child: Text(
+                    "Image Preview",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(br),
+                      bottomRight: Radius.circular(br),
+                    ),
+                    image: DecorationImage(
+                      fit: BoxFit.cover,
+                      image: local ? AssetImage(url) : NetworkImage(url),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   @override
   void initState() {
@@ -28,6 +96,7 @@ class _NewEditProjectState extends State<NewEditProject> {
     if (widget.edit) {
       pTitleController.text = widget.projectData.title;
       pColorController.text = widget.projectData.theme;
+      pImageController.text = widget.projectData.imageID;
     }
   }
 
@@ -44,11 +113,33 @@ class _NewEditProjectState extends State<NewEditProject> {
         return;
       } else {
         if (widget.edit) {
-          var result = await Firestore().updateProjectTitle(
+          var bgURL = widget.projectData.backgroundURL;
+          var imageID = widget.projectData.imageID;
+
+          if (imageID != pImageController.text) {
+            await Firestore().deleteImage(id: imageID);
+            final iResult =
+                await Firestore().uploadImage(path: pImageController.text);
+            if (iResult['status']) {
+              bgURL = iResult['url'];
+              imageID = iResult['imageID'];
+            } else {
+              return normalAlertDialog(
+                title: 'Error',
+                description: iResult['msg'],
+                context: context,
+              );
+            }
+          }
+
+          var result = await Firestore().updateProject(
             id: widget.id,
             title: pTitleController.text,
             theme: pColorController.text,
+            backgroundURL: bgURL,
+            imageID: imageID,
           );
+
           normalAlertDialog(
             title: result['status'] ? 'Done' : 'Error',
             description: result['data'],
@@ -58,25 +149,29 @@ class _NewEditProjectState extends State<NewEditProject> {
           );
         } else {
           var userID = Auth().getCurrentUser().uid;
-          var result = await Firestore().createProject(
-            title: pTitleController.text,
-            theme: pColorController.text,
-            userID: userID,
-          );
+          final iResult =
+              await Firestore().uploadImage(path: pImageController.text);
 
-          if (result['status']) {
+          if (iResult['status']) {
+            var result = await Firestore().createProject(
+              title: pTitleController.text,
+              theme: pColorController.text,
+              backgroundURL: iResult['url'],
+              userID: userID,
+            );
+
             normalAlertDialog(
-              title: 'Created!',
+              title: result['status'] ? 'Created!' : 'Error',
               context: context,
               description: result['data'],
-              goBackTwice: true,
-              backResult: 'reload',
+              goBackTwice: result['status'] ? true : null,
+              backResult: result['status'] ? 'reload' : null,
             );
           } else {
             normalAlertDialog(
               title: 'Error',
               context: context,
-              description: result['data'],
+              description: iResult['data'],
             );
           }
         }
@@ -150,6 +245,47 @@ class _NewEditProjectState extends State<NewEditProject> {
                         },
                       );
                     }).toList(),
+                  ),
+                ),
+                InkWell(
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  hoverColor: Colors.transparent,
+                  onLongPress: () {
+                    if (pImageController.text != widget.projectData.imageID) {
+                      imagePreview(url: pImageController.text, local: true);
+                    } else {
+                      imagePreview(
+                        url: widget.projectData.backgroundURL,
+                        local: false,
+                      );
+                    }
+                  },
+                  onTap: () async {
+                    final ImagePicker picker = ImagePicker();
+                    PickedFile pickedFile =
+                        await picker.getImage(source: ImageSource.gallery);
+                    pImageController.text = pickedFile.path;
+                  },
+                  child: IgnorePointer(
+                    ignoring: true,
+                    child: TextFormField(
+                      enableInteractiveSelection: false,
+                      controller: pImageController,
+                      readOnly: true,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return bgEmptyNull;
+                        }
+                        return null;
+                      },
+                      decoration: InputDecoration(
+                        suffixIcon: Icon(FluentIcons.image_24_regular),
+                        labelText: 'Background Image',
+                        helperText:
+                            widget.edit ? 'Hold to preview image' : null,
+                      ),
+                    ),
                   ),
                 ),
                 Container(

@@ -13,136 +13,9 @@ class _UpdatePasswordState extends State<UpdatePassword> {
   @override
   Widget build(BuildContext context) {
     final formKey = GlobalKey<FormState>();
-    final formKey2 = GlobalKey<FormState>();
     TextEditingController currentPasswordController = TextEditingController();
     TextEditingController newPasswordController = TextEditingController();
     TextEditingController retypeNewPasswordController = TextEditingController();
-    bool isCurrentPasswordCorrect = false;
-
-    checkCurrentPasswordForm() {
-      return Form(
-        key: formKey,
-        child: Column(
-          children: [
-            TextFormField(
-              controller: currentPasswordController,
-              obscureText: true,
-              decoration: const InputDecoration(
-                icon: Icon(FluentIcons.lock_closed_24_regular),
-                labelText: 'Current Password',
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter your current password.';
-                }
-                return null;
-              },
-            ),
-            Container(
-              alignment: Alignment.centerLeft,
-              padding: const EdgeInsets.symmetric(vertical: 20),
-              child: ElevatedButton(
-                onPressed: () async {
-                  if (formKey.currentState.validate()) {
-                    var result = await Auth().updatePassword(
-                      currentPassword: currentPasswordController.text,
-                      checkCurrentPassword: true,
-                    );
-
-                    if (result['status']) {
-                      setState(() {
-                        isCurrentPasswordCorrect = true;
-                      });
-                    } else {
-                      currentPasswordController.text = '';
-                      normalAlertDialog(
-                        title: "Error",
-                        description: result['message'],
-                        context: context,
-                      );
-                    }
-                  }
-                },
-                child: Text('Next'),
-                style: ButtonStyle(
-                  backgroundColor:
-                      MaterialStateProperty.all(Theme.of(context).primaryColor),
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    changePasswordForm() {
-      return Form(
-        key: formKey2,
-        child: Column(
-          children: [
-            TextFormField(
-              controller: newPasswordController,
-              obscureText: true,
-              decoration: const InputDecoration(
-                icon: Icon(FluentIcons.lock_closed_24_filled),
-                hintText: '',
-                labelText: 'New Password',
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return newPasswordEmptyNull;
-                } else if (newPasswordController.text !=
-                    retypeNewPasswordController.text) {
-                  return newPasswordAndRetypeNewPasswordDifferent;
-                }
-                return null;
-              },
-            ),
-            SizedBox(height: 10),
-            TextFormField(
-              controller: retypeNewPasswordController,
-              obscureText: true,
-              decoration: const InputDecoration(
-                icon: Icon(FluentIcons.lock_closed_24_filled),
-                hintText: '',
-                labelText: 'Retype New Password',
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return retpyeNewPasswordEmptyNull;
-                } else if (newPasswordController.text !=
-                    retypeNewPasswordController.text) {
-                  return newPasswordAndRetypeNewPasswordDifferent;
-                }
-                return null;
-              },
-            ),
-            Container(
-              alignment: Alignment.centerLeft,
-              padding: const EdgeInsets.symmetric(vertical: 16.0),
-              child: ElevatedButton(
-                onPressed: () async {
-                  if (formKey.currentState.validate()) {
-                    // await Auth().updatePassword(currentPassword: )
-                    // await updatePassword();
-                    // await nortmalAlertDialog(
-                    //   passwordChangedTitle,
-                    //   passwordChangedDescription,
-                    //   context,
-                    // );
-                  }
-                },
-                child: Text('Change Password'),
-                style: ButtonStyle(
-                  backgroundColor:
-                      MaterialStateProperty.all(Theme.of(context).primaryColor),
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
 
     return CustomScaffold(
       layout: 2,
@@ -151,9 +24,99 @@ class _UpdatePasswordState extends State<UpdatePassword> {
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(20),
-          child: isCurrentPasswordCorrect
-              ? changePasswordForm()
-              : checkCurrentPasswordForm(),
+          child: Form(
+            key: formKey,
+            child: Column(
+              children: [
+                TextFormField(
+                  controller: currentPasswordController,
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    icon: Icon(FluentIcons.lock_closed_24_regular),
+                    labelText: 'Current Password',
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return currentPasswordEmptyNull;
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 10),
+                TextFormField(
+                  controller: newPasswordController,
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    icon: Icon(FluentIcons.lock_closed_24_filled),
+                    hintText: '',
+                    labelText: 'New Password',
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return newPasswordEmptyNull;
+                    } else if (newPasswordController.text !=
+                        retypeNewPasswordController.text) {
+                      return newPasswordAndRetypeNewPasswordDifferent;
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 10),
+                TextFormField(
+                  controller: retypeNewPasswordController,
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    icon: Icon(FluentIcons.lock_closed_24_filled),
+                    hintText: '',
+                    labelText: 'Retype New Password',
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return retpyeNewPasswordEmptyNull;
+                    } else if (newPasswordController.text !=
+                        retypeNewPasswordController.text) {
+                      return newPasswordAndRetypeNewPasswordDifferent;
+                    }
+                    return null;
+                  },
+                ),
+                Container(
+                  alignment: Alignment.centerLeft,
+                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      if (formKey.currentState.validate()) {
+                        var result = await Auth().updatePassword(
+                          currentPassword: currentPasswordController.text,
+                          newPassword: retypeNewPasswordController.text,
+                        );
+
+                        if (result['status']) {
+                          normalAlertDialog(
+                            title: "Updated!",
+                            description: result['message'],
+                            context: context,
+                            goBackTwice: true,
+                          );
+                        } else {
+                          normalAlertDialog(
+                            title: "Error",
+                            description: result['message'],
+                            context: context,
+                          );
+                        }
+                      }
+                    },
+                    child: Text('Update'),
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(
+                          Theme.of(context).primaryColor),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

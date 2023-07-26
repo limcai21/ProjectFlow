@@ -71,6 +71,7 @@ class _NewEditTaskState extends State<NewEditTask> {
             orElse: () => null,
           );
 
+          // UPDATE TASK
           final result = await Firestore().updateTask(
             id: widget.taskData.id,
             title: tTitleController.text,
@@ -80,32 +81,66 @@ class _NewEditTaskState extends State<NewEditTask> {
             topicID: topic.id,
           );
 
+          // GET ALL NOTIFICATION
           var temp = await getScheduledNotifications();
-          int intID = int.parse(
-            widget.taskData.id.replaceAll(new RegExp(r'[^0-9]'), ''),
-          );
+          int intID = notificationID(widget.taskData.id);
+          var t = await Firestore().getWatchesByTaskID(id: widget.taskData.id);
 
-          temp.forEach((n) {
-            if (n.id == intID) {
-              print("notification exist, updating it");
-              cancelNotification(id: widget.taskData.id);
-              scheduleNotification(
-                id: widget.taskData.id,
-                projectID: widget.taskData.projectID,
-                title: tTitleController.text,
-                endDate: eDateTime.toString(),
-                description: 'Due in one day',
-              );
-            }
-          });
+          if (t['status']) {
+            print("IN WATCH LIST");
+            print(temp);
+            // CHECK FOR EXISTING NOTIFICATION TO UPDATE
+            temp.forEach((n) async {
+              print(n.id);
+              widget.taskData.title = tTitleController.text;
+              widget.taskData.description = tDescriptionController.text;
+              widget.taskData.startDateTime = Timestamp.fromDate(sDateTime);
+              widget.taskData.endDateTime = Timestamp.fromDate(eDateTime);
+              widget.taskData.topicID = topic.id;
+              var l = generateAlertOption(widget.taskData, context).length;
 
-          normalAlertDialog(
-            title: result['status'] ? 'Updated!' : 'Error',
-            description: result['data'],
-            context: context,
-            goBackTwice: result['status'] ? true : false,
-            backResult: result['status'] ? 'reload' : null,
-          );
+              if (n.id == intID) {
+                print("notification exist, updating it");
+                cancelNotification(id: widget.taskData.id);
+
+                if (l > 0) {
+                  await simpleDialog(
+                    title: 'Alert',
+                    dismissable: false,
+                    context: context,
+                    children: generateAlertOption(widget.taskData, context),
+                    then: (v) {
+                      normalAlertDialog(
+                        title: result['status'] ? 'Updated!' : 'Error',
+                        description: result['data'],
+                        context: context,
+                        goBackTwice: result['status'] ? true : false,
+                        backResult: result['status'] ? 'reload' : null,
+                      );
+                    },
+                  );
+                } else {
+                  normalAlertDialog(
+                    title: 'Oops',
+                    description:
+                        "It seems like the current end date and time you set is a bit too close for me to send a notification. Don't worry, though! I'll still keep an eye on it in my watchlist",
+                    context: context,
+                  );
+                }
+              } else {
+                print("no notification but in watch list");
+              }
+            });
+          } else {
+            print("NOT IN WATCH LIST");
+            normalAlertDialog(
+              title: result['status'] ? 'Updated!' : 'Error',
+              description: result['data'],
+              context: context,
+              goBackTwice: result['status'] ? true : false,
+              backResult: result['status'] ? 'reload' : null,
+            );
+          }
         } else {
           final topic = projectTopic.firstWhere(
             (t) => t.title == tTopicController.text,
@@ -222,7 +257,7 @@ class _NewEditTaskState extends State<NewEditTask> {
                         type: DateTimePickerType.dateTime,
                         dateMask: dateFormat,
                         controller: tStartDateController,
-                        firstDate: DateTime.now(),
+                        firstDate: DateTime(DateTime.now().year - 99),
                         lastDate: DateTime(DateTime.now().year + 99),
                         initialEntryMode: DatePickerEntryMode.input,
                         errorFormatText: "Invalid format",
@@ -245,7 +280,7 @@ class _NewEditTaskState extends State<NewEditTask> {
                         type: DateTimePickerType.dateTime,
                         dateMask: dateFormat,
                         controller: tEndDateController,
-                        firstDate: DateTime.now().add(Duration(minutes: 1)),
+                        firstDate: DateTime(DateTime.now().year - 99),
                         lastDate: DateTime(DateTime.now().year + 99),
                         initialEntryMode: DatePickerEntryMode.input,
                         errorFormatText: "Invalid format",

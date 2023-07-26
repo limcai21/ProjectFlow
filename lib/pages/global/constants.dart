@@ -1,7 +1,14 @@
+import 'dart:typed_data';
+import 'dart:ui' as ui;
+import 'package:ProjectFlow/model/task.dart';
+import 'package:ProjectFlow/services/auth.dart';
+import 'package:ProjectFlow/services/firestore.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'notification.dart';
 
 const dateFormat = 'dd MMM yyyy, h:mm a';
 const empty_fields = "Field cannot be empty";
@@ -73,6 +80,9 @@ const retpyePasswordEmptyNull = 'Retype Password cannot be empty';
 const passwordAndRetypePasswordDifferent =
     'Password & Retype Password must match';
 
+// IMAGE
+const bgEmptyNull = 'Background Image cannot be empty';
+
 // NEW PASSWORD
 const currentPasswordEmptyNull = 'Current Password cannot be empty';
 const newPasswordEmptyNull = 'New Password cannot be empty';
@@ -89,6 +99,7 @@ const startDateAfterEndDate =
     'Start Date & Time has to be before End Date & Time';
 const startDateSameAsEndDate =
     'Start Date & Time cannot be the same as End Date & Time';
+
 // COLORS THEME
 const color_list = [
   {'title': 'Aqua', 'hex': 0xFF00FFFF},
@@ -108,6 +119,39 @@ const color_list = [
   {'title': 'Yellow', 'hex': 0xFFFFFF00},
 ];
 
+const alert_duration = [
+  {"name": '5 minutes before', 'min': 5, 'msg': 'in 5 minutes'},
+  {"name": '10 minutes before', 'min': 10, 'msg': 'in 10 minutes'},
+  {"name": '15 minutes before', 'min': 15, 'msg': 'in 15 minutes'},
+  {"name": '30 minutes before', 'min': 30, 'msg': 'in 30 minutes'},
+  {"name": '1 hour before', 'min': 60, 'msg': 'in 1 hour'},
+  {"name": '2 hours before', 'min': 120, 'msg': 'in 2 hours'},
+  {"name": '1 day before', 'min': 1440, 'msg': 'in 1 day'},
+  {"name": '2 days before', 'min': 2880, 'msg': 'in 2 days'},
+  {"name": '1 week before', 'min': 10080, 'msg': 'in 1 week'},
+];
+
+Future<Color> getDominantColorFromImage(String imageUrl) async {
+  final ByteData data = await NetworkAssetBundle(Uri.parse(imageUrl)).load('');
+  final Uint8List bytes = data.buffer.asUint8List();
+  final ui.Codec codec = await ui.instantiateImageCodec(bytes);
+  final ui.Image image = (await codec.getNextFrame()).image;
+
+  // Resize the image to 1x1 pixel to get its dominant color
+  final ByteData pixelData =
+      await image.toByteData(format: ui.ImageByteFormat.rawRgba);
+  final List<int> pixelBytes = pixelData.buffer.asUint8List();
+  final int dominantColor =
+      Color.fromRGBO(pixelBytes[0], pixelBytes[1], pixelBytes[2], 1).value;
+
+  return Color(dominantColor);
+}
+
+// CUSTOMID FOR NOTIFICATION
+int notificationID(String id) {
+  return int.parse(id.replaceAll(new RegExp(r'[^0-9]'), ''));
+}
+
 // FUNCTIONS AND WIDGET
 int getHexValue(String colorTitle) {
   for (var color in color_list) {
@@ -116,6 +160,52 @@ int getHexValue(String colorTitle) {
     }
   }
   return null;
+}
+
+List<Widget> generateAlertOption(Task content, BuildContext context) {
+  List<Widget> output = [];
+
+  alert_duration.forEach((v) {
+    var start = DateTime.now();
+    var end = DateTime.parse(content.endDateTime.toDate().toString()).subtract(
+      Duration(minutes: v['min']),
+    );
+    int difference = end.difference(start).inMinutes;
+
+    if (difference > 0) {
+      output.add(simpleDialogOption(
+        child: Text(v['name']),
+        onPressed: () async {
+          await Firestore().watchTask(
+            minute: v['min'],
+            projectID: content.projectID,
+            taskID: content.id,
+            userID: Auth().getCurrentUser().uid,
+          );
+
+          var r = await scheduleNotification(
+            id: content.id,
+            endDate: content.endDateTime.toDate().toString(),
+            minutes: v['min'],
+            projectID: content.projectID,
+            title: content.title,
+            description: 'Due ' + v['msg'],
+          );
+
+          if (r['status']) {
+            Get.back();
+          } else {
+            normalAlertDialog(
+              title: "Error",
+              description: r['msg'],
+              context: context,
+            );
+          }
+        },
+      ));
+    }
+  });
+  return output;
 }
 
 class CustomLeadingIcon extends StatelessWidget {
@@ -224,12 +314,59 @@ class Loading extends StatelessWidget {
   }
 }
 
+class DoodleOutput extends StatelessWidget {
+  final String bgURL;
+  final String svgPath;
+  final String title;
+  final String subtitle;
+  DoodleOutput({
+    @required this.bgURL,
+    @required this.svgPath,
+    @required this.title,
+    @required this.subtitle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: NetworkImage(bgURL),
+          fit: BoxFit.cover,
+        ),
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(40),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: Colors.white,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SvgPicture.asset(svgPath, color: Theme.of(context).primaryColor),
+            SizedBox(height: 20),
+            Text(title),
+            Text(subtitle),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 simpleDialog({
   @required String title,
   @required BuildContext context,
   @required List<Widget> children,
+  bool dismissable = true,
+  Function(dynamic) then,
 }) {
   showDialog(
+    barrierDismissible: dismissable,
     context: context,
     builder: (BuildContext context) {
       return SimpleDialog(
@@ -252,7 +389,7 @@ simpleDialog({
         children: children,
       );
     },
-  );
+  ).then((value) => then != null ? then(value) : null);
 }
 
 simpleDialogOption({
