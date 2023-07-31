@@ -1,5 +1,6 @@
 import 'package:ProjectFlow/model/task.dart';
 import 'package:ProjectFlow/model/topic.dart';
+import 'package:ProjectFlow/services/auth.dart';
 import 'package:ProjectFlow/services/firestore.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:date_time_picker/date_time_picker.dart';
@@ -159,6 +160,7 @@ class _NewEditTaskState extends State<NewEditTask> {
               endDateTime: Timestamp.fromDate(eDateTime),
               topicID: topicID,
               projectID: widget.id,
+              userID: Auth().getCurrentUser().uid,
             );
 
             normalAlertDialog(

@@ -162,13 +162,16 @@ class ProjectCard extends StatelessWidget {
     return Stack(
       children: [
         Positioned.fill(
-          child: Container(
-            decoration: BoxDecoration(
-              color: Color(getHexValue(data.theme)),
-              borderRadius: BorderRadius.circular(10),
-              image: DecorationImage(
-                image: NetworkImage(data.backgroundURL),
-                fit: BoxFit.cover,
+          child: Hero(
+            tag: data.backgroundURL,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Color(getHexValue(data.theme)),
+                borderRadius: BorderRadius.circular(10),
+                image: DecorationImage(
+                  image: NetworkImage(data.backgroundURL),
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
           ),

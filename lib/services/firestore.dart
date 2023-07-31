@@ -25,6 +25,7 @@ class Firestore {
     @required String title,
     @required String theme,
     @required String backgroundURL,
+    @required String imageID,
     @required String userID,
   }) async {
     try {
@@ -40,6 +41,7 @@ class Firestore {
         'theme': theme,
         'backgroundURL': backgroundURL,
         'userID': userID,
+        'imageID': imageID,
         'createdDateTime': now,
       });
 
@@ -213,6 +215,7 @@ class Firestore {
     @required Timestamp endDateTime,
     @required String topicID,
     @required String projectID,
+    @required String userID,
   }) async {
     try {
       var docRef = Firestore().taskCollection.doc();
@@ -225,6 +228,7 @@ class Firestore {
         'endDateTime': endDateTime,
         'topicID': topicID,
         'projectID': projectID,
+        'userID': userID,
       });
 
       return {'status': true, 'data': 'Task Created'};
@@ -232,6 +236,21 @@ class Firestore {
       print(e.message);
       return {'status': true, 'data': e.message};
     }
+  }
+
+  Future<List<Task>> getTaskByUserID({@required String id}) async {
+    List<Task> output = [];
+    QuerySnapshot snapshot = await taskCollection.get();
+    snapshot.docs.forEach((doc) {
+      print(doc.data());
+      Task task = Task.fromMap(doc.data());
+      if (task.userID == id) {
+        task.id = doc.id;
+        output.add(task);
+      }
+    });
+
+    return output;
   }
 
   Future<List<Task>> getTaskByProjectID({@required String id}) async {

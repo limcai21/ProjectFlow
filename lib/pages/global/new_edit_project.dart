@@ -157,6 +157,7 @@ class _NewEditProjectState extends State<NewEditProject> {
               title: pTitleController.text,
               theme: pColorController.text,
               backgroundURL: iResult['url'],
+              imageID: iResult['imageID'],
               userID: userID,
             );
 
@@ -252,13 +253,19 @@ class _NewEditProjectState extends State<NewEditProject> {
                   highlightColor: Colors.transparent,
                   hoverColor: Colors.transparent,
                   onLongPress: () {
-                    if (pImageController.text != widget.projectData.imageID) {
-                      imagePreview(url: pImageController.text, local: true);
+                    if (widget.edit) {
+                      if (pImageController.text != widget.projectData.imageID) {
+                        imagePreview(url: pImageController.text, local: true);
+                      } else {
+                        imagePreview(
+                          url: widget.projectData.backgroundURL,
+                          local: false,
+                        );
+                      }
                     } else {
-                      imagePreview(
-                        url: widget.projectData.backgroundURL,
-                        local: false,
-                      );
+                      if (pImageController.text != "") {
+                        imagePreview(url: pImageController.text, local: true);
+                      }
                     }
                   },
                   onTap: () async {
@@ -282,8 +289,7 @@ class _NewEditProjectState extends State<NewEditProject> {
                       decoration: InputDecoration(
                         suffixIcon: Icon(FluentIcons.image_24_regular),
                         labelText: 'Background Image',
-                        helperText:
-                            widget.edit ? 'Hold to preview image' : null,
+                        helperText: 'Hold to preview image',
                       ),
                     ),
                   ),

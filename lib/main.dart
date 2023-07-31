@@ -43,7 +43,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final Controller controller = Get.put(Controller());
     navigateToMainSkeleton();
     return GetMaterialApp(
       title: 'ProjectFlow',

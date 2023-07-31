@@ -1,4 +1,5 @@
 import 'package:ProjectFlow/pages/global/constants.dart';
+import 'package:ProjectFlow/pages/views/search.dart';
 import 'package:flutter/material.dart';
 import 'package:ProjectFlow/pages/views/account/account.dart';
 import 'package:ProjectFlow/pages/views/watches.dart';
@@ -26,7 +27,7 @@ class _MainSkeletonState extends State<MainSkeleton> {
       "Search",
       FluentIcons.search_24_regular,
       FluentIcons.search_24_filled,
-      Text("b"),
+      Search(),
     ],
     [
       "Watches",

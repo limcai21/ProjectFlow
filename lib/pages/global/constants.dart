@@ -315,12 +315,10 @@ class Loading extends StatelessWidget {
 }
 
 class DoodleOutput extends StatelessWidget {
-  final String bgURL;
   final String svgPath;
   final String title;
   final String subtitle;
   DoodleOutput({
-    @required this.bgURL,
     @required this.svgPath,
     @required this.title,
     @required this.subtitle,
@@ -330,12 +328,6 @@ class DoodleOutput extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       alignment: Alignment.center,
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: NetworkImage(bgURL),
-          fit: BoxFit.cover,
-        ),
-      ),
       child: Container(
         padding: const EdgeInsets.all(40),
         decoration: BoxDecoration(
@@ -353,6 +345,63 @@ class DoodleOutput extends StatelessWidget {
             Text(subtitle),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class CustomCard extends StatelessWidget {
+  final Task content;
+  final Color pc;
+  final Function onTap;
+  final Function onLongPress;
+  CustomCard(
+      {@required this.content,
+      @required this.pc,
+      @required this.onTap,
+      @required this.onLongPress});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(5),
+      ),
+      color: Colors.white,
+      child: InkWell(
+        splashColor: Color.lerp(pc, Colors.white, 0.7),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text(
+                content.title,
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 16,
+                ),
+              ),
+              if (content.description != "") ...[
+                SizedBox(height: 2),
+                Text(
+                  content.description,
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 14,
+                  ),
+                ),
+              ]
+            ],
+          ),
+        ),
+        onTap: () async {
+          onTap();
+        },
+        onLongPress: () async {
+          onLongPress();
+        },
       ),
     );
   }
