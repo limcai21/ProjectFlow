@@ -35,7 +35,7 @@ class _LoginState extends State<Login> {
                 keyboardType: TextInputType.emailAddress,
                 // initialValue: 'test@example.com',
                 decoration: InputDecoration(
-                  icon: Icon(FluentIcons.mail_24_filled),
+                  icon: Icon(FluentIcons.mail_24_regular),
                   labelText: 'Email',
                 ),
                 validator: (value) {
@@ -53,7 +53,7 @@ class _LoginState extends State<Login> {
                 obscureText: true,
                 // initialValue: "P@ssw0rd!",
                 decoration: InputDecoration(
-                  icon: Icon(FluentIcons.password_24_filled),
+                  icon: Icon(FluentIcons.password_24_regular),
                   labelText: 'Password',
                 ),
                 validator: (value) {
@@ -67,11 +67,12 @@ class _LoginState extends State<Login> {
               ElevatedButton(
                 onPressed: () async {
                   if (formKey.currentState.validate()) {
+                    loadingCircle(context: context);
                     Map loginResult = await Auth().login(
                       email: emailController.text,
                       password: passwordController.text,
                     );
-
+                    Get.back();
                     if (loginResult['status']) {
                       Get.back();
                       Get.off(() => MainSkeleton());

@@ -85,6 +85,18 @@ class Auth {
     await _auth.signOut();
   }
 
+  Future<Map<dynamic, dynamic>> deleteAccount() async {
+    try {
+      User user = this.getCurrentUser();
+      await user.delete();
+      print("User account deleted successfully!");
+      return {"status": true, "data": "User account deleted successfully!"};
+    } catch (e) {
+      print("Error deleting user account: $e");
+      return {'status': false, 'data': "Error deleting user account: $e"};
+    }
+  }
+
   User getCurrentUser() {
     final User user = _auth.currentUser;
     return user;

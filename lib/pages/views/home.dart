@@ -73,7 +73,7 @@ class _ProjectsState extends State<Projects> {
                 padding: const EdgeInsets.all(20),
                 physics: BouncingScrollPhysics(),
                 crossAxisCount: 2,
-                childAspectRatio: 1 / 1,
+                childAspectRatio: 0.8 / 1,
                 mainAxisSpacing: 10,
                 crossAxisSpacing: 10,
                 children: List.generate(snapshot.data.length, (index) {
@@ -90,22 +90,28 @@ class _ProjectsState extends State<Projects> {
                         context: context,
                         children: [
                           simpleDialogOption(
-                            onPressed: () => Get.to(
-                              () => NewEditTask(
-                                id: snapshot.data[index].id,
-                                edit: false,
-                              ),
-                            ),
+                            onPressed: () {
+                              Get.back();
+                              Get.to(
+                                () => NewEditTask(
+                                  id: snapshot.data[index].id,
+                                  edit: false,
+                                ),
+                              );
+                            },
                             icon: task_icon,
                             child: Text('Add Task'),
                           ),
                           simpleDialogOption(
-                            onPressed: () => Get.to(
-                              () => NewEditTopic(
-                                id: snapshot.data[index].id,
-                                edit: false,
-                              ),
-                            ),
+                            onPressed: () {
+                              Get.back();
+                              Get.to(
+                                () => NewEditTopic(
+                                  id: snapshot.data[index].id,
+                                  edit: false,
+                                ),
+                              );
+                            },
                             icon: topic_icon,
                             child: Text('Add Topic'),
                           ),
@@ -113,12 +119,20 @@ class _ProjectsState extends State<Projects> {
                             icon: FluentIcons.delete_24_regular,
                             child: Text('Delete Project'),
                             onPressed: () async {
-                              await Firestore().deleteProject(
-                                id: snapshot.data[index].id,
-                                imageID: snapshot.data[index].imageID,
-                              );
                               Get.back();
-                              startup();
+                              loadingCircle(context: context);
+                              var r = await Firestore()
+                                  .deleteProject(id: snapshot.data[index].id);
+                              Get.back();
+                              if (r['status']) {
+                                startup();
+                              } else {
+                                normalAlertDialog(
+                                  title: 'Error',
+                                  description: r['data'],
+                                  context: context,
+                                );
+                              }
                             },
                           ),
                         ],

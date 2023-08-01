@@ -20,6 +20,19 @@ class Firestore {
   final CollectionReference watchesCollection =
       FirebaseFirestore.instance.collection('watches');
 
+  Future<Map> deleteAllDataFromUser({@required String id}) async {
+    QuerySnapshot projectSnapshot = await projectCollection.get();
+    projectSnapshot.docs.forEach((doc) async {
+      Project project = Project.fromMap(doc.data());
+      if (project.userID == id) await deleteProject(id: project.id);
+    });
+
+    return {
+      "status": true,
+      "data": "Project, Topics & Task deleted successfully"
+    };
+  }
+
   // PROJECT
   Future<Map> createProject({
     @required String title,
@@ -118,13 +131,13 @@ class Firestore {
     }
   }
 
-  Future<Map> deleteProject({
-    @required String id,
-    @required String imageID,
-  }) async {
+  Future<Map> deleteProject({@required String id}) async {
     try {
-      await deleteImage(id: imageID);
+      DocumentSnapshot pi = await projectCollection.doc(id).get();
+      Project data = Project.fromMap(pi.data());
+      await deleteImage(id: data.imageID);
       await projectCollection.doc(id).delete();
+
       QuerySnapshot topicSnapshot = await topicCollection.get();
       topicSnapshot.docs.forEach((doc) async {
         Topic topic = Topic.fromMap(doc.data());
@@ -216,6 +229,7 @@ class Firestore {
     @required String topicID,
     @required String projectID,
     @required String userID,
+    @required String uuid,
   }) async {
     try {
       var docRef = Firestore().taskCollection.doc();
@@ -229,6 +243,7 @@ class Firestore {
         'topicID': topicID,
         'projectID': projectID,
         'userID': userID,
+        'uuidNum': uuid,
       });
 
       return {'status': true, 'data': 'Task Created'};
@@ -242,7 +257,6 @@ class Firestore {
     List<Task> output = [];
     QuerySnapshot snapshot = await taskCollection.get();
     snapshot.docs.forEach((doc) {
-      print(doc.data());
       Task task = Task.fromMap(doc.data());
       if (task.userID == id) {
         task.id = doc.id;
@@ -366,6 +380,7 @@ class Firestore {
     @required String taskID,
     @required String userID,
     @required int minute,
+    @required String uuidNum,
   }) async {
     try {
       var docRef = Firestore().watchesCollection.doc();
@@ -376,7 +391,8 @@ class Firestore {
           'taskID': taskID,
           'userID': userID,
           'projectID': projectID,
-          'min': minute
+          'min': minute,
+          'uuidNum': uuidNum,
         },
       );
 

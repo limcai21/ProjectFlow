@@ -3,6 +3,7 @@ import 'package:ProjectFlow/services/auth.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:ProjectFlow/pages/global/constants.dart';
+import 'package:get/get.dart';
 
 class UpdatePassword extends StatefulWidget {
   @override
@@ -47,7 +48,7 @@ class _UpdatePasswordState extends State<UpdatePassword> {
                   controller: newPasswordController,
                   obscureText: true,
                   decoration: const InputDecoration(
-                    icon: Icon(FluentIcons.lock_closed_24_filled),
+                    icon: Icon(FluentIcons.lock_closed_24_regular),
                     hintText: '',
                     labelText: 'New Password',
                   ),
@@ -66,7 +67,7 @@ class _UpdatePasswordState extends State<UpdatePassword> {
                   controller: retypeNewPasswordController,
                   obscureText: true,
                   decoration: const InputDecoration(
-                    icon: Icon(FluentIcons.lock_closed_24_filled),
+                    icon: Icon(FluentIcons.lock_closed_24_regular),
                     hintText: '',
                     labelText: 'Retype New Password',
                   ),
@@ -86,25 +87,18 @@ class _UpdatePasswordState extends State<UpdatePassword> {
                   child: ElevatedButton(
                     onPressed: () async {
                       if (formKey.currentState.validate()) {
+                        loadingCircle(context: context);
                         var result = await Auth().updatePassword(
                           currentPassword: currentPasswordController.text,
                           newPassword: retypeNewPasswordController.text,
                         );
-
-                        if (result['status']) {
-                          normalAlertDialog(
-                            title: "Updated!",
-                            description: result['message'],
-                            context: context,
-                            goBackTwice: true,
-                          );
-                        } else {
-                          normalAlertDialog(
-                            title: "Error",
-                            description: result['message'],
-                            context: context,
-                          );
-                        }
+                        Get.back();
+                        normalAlertDialog(
+                          title: result['status'] ? "Updated!" : "Error",
+                          description: result['message'],
+                          context: context,
+                          goBackTwice: result['status'] ? true : false,
+                        );
                       }
                     },
                     child: Text('Update'),

@@ -4,6 +4,7 @@ import 'package:ProjectFlow/pages/global/scaffold.dart';
 import 'package:ProjectFlow/pages/views/account/update-email.dart';
 import 'package:ProjectFlow/pages/views/account/update-password.dart';
 import 'package:ProjectFlow/services/auth.dart';
+import 'package:ProjectFlow/services/firestore.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -19,6 +20,7 @@ class _AccountState extends State<Account> {
   @override
   Widget build(BuildContext context) {
     const t = 1.0;
+    const borderRadius = 10.0;
     var user = Auth().getCurrentUser();
 
     return CustomScaffold(
@@ -39,17 +41,23 @@ class _AccountState extends State<Account> {
                   title: "Email",
                   subtitle: "Update your email address",
                   t: t,
+                  borderRadius: borderRadius,
                   icon: FluentIcons.mail_24_filled,
                   trailingIcon: FluentIcons.chevron_right_24_regular,
                   bgColor: Colors.orange,
-                  onTap: () => Get.to(
-                    () => UpdateEmail(currentEmail: user.email),
-                  ),
+                  onTap: () async {
+                    await Get.to(
+                      () => UpdateEmail(currentEmail: user.email),
+                    );
+                    print(Auth().getCurrentUser());
+                    user = Auth().getCurrentUser();
+                  },
                 ),
                 CustomListTile(
                   title: "Password",
                   subtitle: "Change your password",
                   t: t,
+                  borderRadius: borderRadius,
                   icon: FluentIcons.password_24_filled,
                   trailingIcon: FluentIcons.chevron_right_24_regular,
                   bgColor: Colors.brown,
@@ -61,16 +69,70 @@ class _AccountState extends State<Account> {
                   title: "Delete Account",
                   subtitle: "Once you delete, it's gone",
                   t: t,
+                  borderRadius: borderRadius,
                   icon: FluentIcons.delete_24_filled,
                   bgColor: Colors.red,
-                  onTap: () => print("a"),
+                  onTap: () async {
+                    normalAlertDialog(
+                      title: destructiveTitle,
+                      description:
+                          'Are you sure you want to delete your account? All projects, topics & tasks will be gone',
+                      context: context,
+                      closeTitle: 'Delete',
+                      additionalActions: TextButton(
+                        style: ButtonStyle(
+                          overlayColor: MaterialStateProperty.all(
+                            Color.lerp(
+                              Theme.of(context).primaryColor,
+                              Colors.white,
+                              0.9,
+                            ),
+                          ),
+                        ),
+                        onPressed: () => Get.back(),
+                        child: Text(
+                          "CANCEL",
+                          style: TextStyle(
+                            color: Theme.of(context).primaryColor,
+                          ),
+                        ),
+                      ),
+                      onTap: () async {
+                        Get.back();
+                        loadingCircle(context: context);
+                        var result = await Firestore().deleteAllDataFromUser(
+                          id: Auth().getCurrentUser().uid,
+                        );
+                        if (result['status']) {
+                          result = await Auth().deleteAccount();
+                          if (result['status']) {
+                            await Auth().logout();
+                            Get.off(() => Home());
+                          } else {
+                            normalAlertDialog(
+                              title: 'Error',
+                              description: result['data'],
+                              context: context,
+                            );
+                          }
+                        } else {
+                          normalAlertDialog(
+                            title: 'Error',
+                            description: result['data'],
+                            context: context,
+                          );
+                        }
+                      },
+                    );
+                  },
                 ),
                 CustomListTile(
                   title: "Logout",
-                  subtitle: "You can always sign back in",
+                  subtitle: "You can always login again",
                   t: t,
+                  borderRadius: borderRadius,
                   icon: FluentIcons.sign_out_24_filled,
-                  bgColor: Colors.blueGrey,
+                  bgColor: Colors.blue[700],
                   onTap: () async => {
                     await Auth().logout(),
                     Get.off(() => Home()),
@@ -81,15 +143,17 @@ class _AccountState extends State<Account> {
                   title: 'About Us',
                   subtitle: 'Find out more about us',
                   t: t,
+                  borderRadius: borderRadius,
                   icon: FluentIcons.info_24_filled,
                   trailingIcon: FluentIcons.chevron_right_24_filled,
                   bgColor: Colors.green,
-                  onTap: () => Get.to(AboutUs()),
+                  onTap: () => Get.to(() => AboutUs()),
                 ),
                 CustomListTile(
                   title: 'Feedback',
                   subtitle: 'Tell us if you encounter something odd',
                   t: t,
+                  borderRadius: borderRadius,
                   icon: FluentIcons.person_feedback_24_filled,
                   trailingIcon: FluentIcons.open_24_filled,
                   bgColor: Colors.purple,

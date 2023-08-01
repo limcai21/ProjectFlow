@@ -3,6 +3,7 @@ import 'package:ProjectFlow/services/auth.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:ProjectFlow/pages/global/constants.dart';
+import 'package:get/get.dart';
 
 class SignUp extends StatefulWidget {
   @override
@@ -45,7 +46,7 @@ class _SignUpState extends State<SignUp> {
               TextFormField(
                 controller: nameController,
                 decoration: InputDecoration(
-                  icon: Icon(FluentIcons.person_24_filled),
+                  icon: Icon(FluentIcons.person_24_regular),
                   labelText: 'Name',
                 ),
                 validator: (value) {
@@ -58,7 +59,7 @@ class _SignUpState extends State<SignUp> {
               TextFormField(
                 controller: emailController,
                 decoration: InputDecoration(
-                  icon: Icon(FluentIcons.mail_24_filled),
+                  icon: Icon(FluentIcons.mail_24_regular),
                   labelText: 'Email',
                 ),
                 validator: (value) {
@@ -75,7 +76,7 @@ class _SignUpState extends State<SignUp> {
                 controller: passwordController,
                 obscureText: true,
                 decoration: InputDecoration(
-                  icon: Icon(FluentIcons.password_24_filled),
+                  icon: Icon(FluentIcons.password_24_regular),
                   labelText: 'Password',
                 ),
                 validator: (value) {
@@ -90,7 +91,7 @@ class _SignUpState extends State<SignUp> {
                 controller: confirmPasswordController,
                 obscureText: true,
                 decoration: InputDecoration(
-                  icon: Icon(FluentIcons.password_24_filled),
+                  icon: Icon(FluentIcons.password_24_regular),
                   labelText: 'Retype Password',
                 ),
                 validator: (value) {
@@ -105,12 +106,13 @@ class _SignUpState extends State<SignUp> {
               ElevatedButton(
                 onPressed: () async {
                   if (formKey.currentState.validate()) {
+                    loadingCircle(context: context);
                     var signUpResult = await Auth().signUp(
                       email: emailController.text,
                       password: passwordController.text,
                       name: nameController.text,
                     );
-
+                    Get.back();
                     if (signUpResult['status']) {
                       normalAlertDialog(
                         title: registerDoneTitle,

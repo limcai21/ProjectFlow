@@ -6,6 +6,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:date_time_picker/date_time_picker.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:uuid/uuid.dart';
 import 'constants.dart';
 import 'notification.dart';
 import 'scaffold.dart';
@@ -36,6 +38,15 @@ class _NewEditTaskState extends State<NewEditTask> {
     setState(() {
       loading = false;
     });
+    if (projectTopic.length == 0) {
+      normalAlertDialog(
+        title: 'Error',
+        description:
+            'You have no topic yet. Please create a topic before continuing to create task',
+        context: context,
+        goBackTwice: true,
+      );
+    }
 
     if (widget.edit) {
       var data = widget.taskData;
@@ -64,6 +75,7 @@ class _NewEditTaskState extends State<NewEditTask> {
   Widget build(BuildContext context) {
     Future onSubmit() async {
       if (formKey.currentState.validate()) {
+        loadingCircle(context: context);
         if (widget.edit) {
           final sDateTime = DateTime.parse(tStartDateController.text);
           final eDateTime = DateTime.parse(tEndDateController.text);
@@ -84,15 +96,14 @@ class _NewEditTaskState extends State<NewEditTask> {
 
           // GET ALL NOTIFICATION
           var temp = await getScheduledNotifications();
-          int intID = notificationID(widget.taskData.id);
           var t = await Firestore().getWatchesByTaskID(id: widget.taskData.id);
+          var check = false;
 
           if (t['status']) {
             print("IN WATCH LIST");
             print(temp);
             // CHECK FOR EXISTING NOTIFICATION TO UPDATE
             temp.forEach((n) async {
-              print(n.id);
               widget.taskData.title = tTitleController.text;
               widget.taskData.description = tDescriptionController.text;
               widget.taskData.startDateTime = Timestamp.fromDate(sDateTime);
@@ -100,11 +111,13 @@ class _NewEditTaskState extends State<NewEditTask> {
               widget.taskData.topicID = topic.id;
               var l = generateAlertOption(widget.taskData, context).length;
 
-              if (n.id == intID) {
+              if (n.id == int.parse(widget.taskData.uuidNum)) {
+                check = true;
                 print("notification exist, updating it");
-                cancelNotification(id: widget.taskData.id);
+                cancelNotification(id: widget.taskData.uuidNum);
 
                 if (l > 0) {
+                  Get.back();
                   await simpleDialog(
                     title: 'Alert',
                     dismissable: false,
@@ -121,6 +134,7 @@ class _NewEditTaskState extends State<NewEditTask> {
                     },
                   );
                 } else {
+                  Get.back();
                   normalAlertDialog(
                     title: 'Oops',
                     description:
@@ -128,12 +142,22 @@ class _NewEditTaskState extends State<NewEditTask> {
                     context: context,
                   );
                 }
-              } else {
-                print("no notification but in watch list");
               }
             });
+
+            if (!check) {
+              Get.back();
+              normalAlertDialog(
+                title: result['status'] ? 'Updated!' : 'Error',
+                description: result['data'],
+                context: context,
+                goBackTwice: result['status'] ? true : false,
+                backResult: result['status'] ? 'reload' : null,
+              );
+            }
           } else {
             print("NOT IN WATCH LIST");
+            Get.back();
             normalAlertDialog(
               title: result['status'] ? 'Updated!' : 'Error',
               description: result['data'],
@@ -161,8 +185,9 @@ class _NewEditTaskState extends State<NewEditTask> {
               topicID: topicID,
               projectID: widget.id,
               userID: Auth().getCurrentUser().uid,
+              uuid: (Uuid().v4().numericOnly()).substring(0, 8),
             );
-
+            Get.back();
             normalAlertDialog(
               title: result['status'] ? 'Created!' : 'Error',
               description: result['data'],
@@ -171,10 +196,12 @@ class _NewEditTaskState extends State<NewEditTask> {
               backResult: result['status'] ? 'reload' : null,
             );
           } else {
+            Get.back();
             normalAlertDialog(
               title: 'Error',
-              description: 'Fail to get topic',
+              description: 'Fail to get topics',
               context: context,
+              goBackTwice: true,
             );
           }
         }

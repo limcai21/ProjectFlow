@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'constants.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -16,7 +15,6 @@ Future<Map> scheduleNotification({
   @required String description,
 }) async {
   try {
-    int intID = notificationID(id);
     DateTime dateTime = DateTime.parse(endDate);
     tz.TZDateTime tzDateTime = tz.TZDateTime.from(
       dateTime,
@@ -35,7 +33,7 @@ Future<Map> scheduleNotification({
         NotificationDetails(android: androidPlatformChannelSpecifics);
 
     await flutterLocalNotificationsPlugin.zonedSchedule(
-      intID,
+      int.parse(id),
       title,
       description,
       tzDateTime.subtract(Duration(minutes: minutes)),
@@ -62,8 +60,7 @@ Future<List<PendingNotificationRequest>> getScheduledNotifications() async {
 }
 
 Future<void> cancelNotification({@required String id}) async {
-  int intID = notificationID(id);
-  await flutterLocalNotificationsPlugin.cancel(intID);
+  await flutterLocalNotificationsPlugin.cancel(int.parse(id));
   print("Notification Cancelled");
 }
 

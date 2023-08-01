@@ -3,6 +3,7 @@ import 'package:ProjectFlow/pages/global/constants.dart';
 import 'package:ProjectFlow/pages/global/scaffold.dart';
 import 'package:ProjectFlow/services/firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class NewEditTopic extends StatefulWidget {
   final String id;
@@ -33,11 +34,13 @@ class _NewEditTopicState extends State<NewEditTopic> {
     submitForm() async {
       final isValid = formKey.currentState.validate();
       if (isValid) {
+        loadingCircle(context: context);
         if (widget.edit) {
           Map result = await Firestore().updateTopic(
             title: tTitleController.text,
             id: widget.topicData.id,
           );
+          Get.back();
           normalAlertDialog(
             title: result['status'] ? 'Updated!' : 'Error',
             description: result['data'],
@@ -50,6 +53,7 @@ class _NewEditTopicState extends State<NewEditTopic> {
             title: tTitleController.text,
             projectID: widget.id,
           );
+          Get.back();
           normalAlertDialog(
             title: result['status'] ? 'Created!' : 'Error',
             description: result['data'],

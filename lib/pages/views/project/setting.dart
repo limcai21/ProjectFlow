@@ -117,10 +117,10 @@ class _ProjectSettingsState extends State<ProjectSettings> {
                         iconColor: Colors.white,
                         bgColor: Theme.of(context).primaryColor,
                         onTap: () async {
-                          var result = await Firestore().deleteProject(
-                            id: projectDetails.id,
-                            imageID: projectDetails.imageID,
-                          );
+                          loadingCircle(context: context);
+                          var result = await Firestore()
+                              .deleteProject(id: projectDetails.id);
+                          Get.back();
                           await normalAlertDialog(
                             title: result['status'] ? 'Done' : 'Error',
                             description: result['data'],

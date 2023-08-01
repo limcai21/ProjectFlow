@@ -5,6 +5,7 @@ import 'package:ProjectFlow/services/auth.dart';
 import 'package:ProjectFlow/services/firestore.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
 class NewEditProject extends StatefulWidget {
@@ -112,7 +113,9 @@ class _NewEditProjectState extends State<NewEditProject> {
       if (!isValid) {
         return;
       } else {
+        loadingCircle(context: context);
         if (widget.edit) {
+          var uploadedImg = true;
           var bgURL = widget.projectData.backgroundURL;
           var imageID = widget.projectData.imageID;
 
@@ -123,7 +126,10 @@ class _NewEditProjectState extends State<NewEditProject> {
             if (iResult['status']) {
               bgURL = iResult['url'];
               imageID = iResult['imageID'];
+              uploadedImg = true;
             } else {
+              Get.back();
+              uploadedImg = false;
               return normalAlertDialog(
                 title: 'Error',
                 description: iResult['msg'],
@@ -132,21 +138,23 @@ class _NewEditProjectState extends State<NewEditProject> {
             }
           }
 
-          var result = await Firestore().updateProject(
-            id: widget.id,
-            title: pTitleController.text,
-            theme: pColorController.text,
-            backgroundURL: bgURL,
-            imageID: imageID,
-          );
-
-          normalAlertDialog(
-            title: result['status'] ? 'Done' : 'Error',
-            description: result['data'],
-            context: context,
-            goBackTwice: result['status'] ? true : null,
-            backResult: 'reload',
-          );
+          if (uploadedImg) {
+            var result = await Firestore().updateProject(
+              id: widget.id,
+              title: pTitleController.text,
+              theme: pColorController.text,
+              backgroundURL: bgURL,
+              imageID: imageID,
+            );
+            Get.back();
+            normalAlertDialog(
+              title: result['status'] ? 'Done' : 'Error',
+              description: result['data'],
+              context: context,
+              goBackTwice: result['status'] ? true : null,
+              backResult: 'reload',
+            );
+          }
         } else {
           var userID = Auth().getCurrentUser().uid;
           final iResult =
@@ -160,7 +168,7 @@ class _NewEditProjectState extends State<NewEditProject> {
               imageID: iResult['imageID'],
               userID: userID,
             );
-
+            Get.back();
             normalAlertDialog(
               title: result['status'] ? 'Created!' : 'Error',
               context: context,
@@ -169,6 +177,7 @@ class _NewEditProjectState extends State<NewEditProject> {
               backResult: result['status'] ? 'reload' : null,
             );
           } else {
+            Get.back();
             normalAlertDialog(
               title: 'Error',
               context: context,
@@ -199,6 +208,7 @@ class _NewEditProjectState extends State<NewEditProject> {
                     suffixIcon: Icon(project_icon),
                     labelText: 'Project Title',
                   ),
+                  maxLength: 50,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return projectEmptyNull;
@@ -265,6 +275,12 @@ class _NewEditProjectState extends State<NewEditProject> {
                     } else {
                       if (pImageController.text != "") {
                         imagePreview(url: pImageController.text, local: true);
+                      } else {
+                        normalAlertDialog(
+                          title: 'Error',
+                          description: 'Select an image first',
+                          context: context,
+                        );
                       }
                     }
                   },

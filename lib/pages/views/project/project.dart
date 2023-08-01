@@ -72,7 +72,10 @@ class _ProjectPageState extends State<ProjectPage> {
     var userID = Auth().getCurrentUser().uid;
 
     if (loading) {
-      return Scaffold(body: Loading());
+      return Scaffold(
+        backgroundColor: Theme.of(context).primaryColor,
+        body: Loading(),
+      );
     } else {
       return CustomScaffold(
         layout: 2,
@@ -129,7 +132,7 @@ class _ProjectPageState extends State<ProjectPage> {
         body: Stack(
           children: [
             Hero(
-              tag: projectDetails.backgroundURL,
+              tag: projectDetails.backgroundURL ?? "",
               child: Container(
                 width: double.infinity,
                 decoration: BoxDecoration(
@@ -210,12 +213,6 @@ class _ProjectPageState extends State<ProjectPage> {
                                   itemBuilder: (context, index) {
                                     final current = projectTopics[i].id;
                                     final content = output[current][index];
-                                    // final sDateTime = DateFormat(dateFormat)
-                                    //     .format(content.startDateTime.toDate());
-                                    // final eDateTime = DateFormat(dateFormat)
-                                    //     .format(content.endDateTime.toDate());
-                                    // final subtitle =
-                                    //     sDateTime + ' - ' + eDateTime;
 
                                     return CustomCard(
                                       content: content,
@@ -268,8 +265,10 @@ class _ProjectPageState extends State<ProjectPage> {
                                                               content.projectID,
                                                           taskID: content.id,
                                                           userID: userID,
+                                                          uuidNum:
+                                                              content.uuidNum,
                                                         );
-                                                        return normalAlertDialog(
+                                                        normalAlertDialog(
                                                           title: 'Oh, no!',
                                                           description:
                                                               "It appears that the task end date has already passed, and I couldn't schedule a notification for it. But don't worry, I've still got it covered on my watchlist",
@@ -283,12 +282,12 @@ class _ProjectPageState extends State<ProjectPage> {
                                                         .eye_hide_24_regular,
                                                     child: Text('Unwatch Task'),
                                                     onPressed: () async {
+                                                      await cancelNotification(
+                                                        id: content.uuidNum,
+                                                      );
                                                       await Firestore()
                                                           .unwatchTask(
                                                         id: result['id'],
-                                                      );
-                                                      await cancelNotification(
-                                                        id: content.id,
                                                       );
                                                       Get.back();
                                                     },

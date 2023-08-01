@@ -26,6 +26,9 @@ const company_name = "arnet";
 const company_developer = 'Lim Cai';
 const company_website = "arnet.com.sg";
 
+// DESTRUCTIVE STUFF
+const destructiveTitle = 'Hold On';
+
 // REGISTER
 const registerFailTitle = 'Error';
 const registerDoneTitle = 'Complete';
@@ -147,11 +150,6 @@ Future<Color> getDominantColorFromImage(String imageUrl) async {
   return Color(dominantColor);
 }
 
-// CUSTOMID FOR NOTIFICATION
-int notificationID(String id) {
-  return int.parse(id.replaceAll(new RegExp(r'[^0-9]'), ''));
-}
-
 // FUNCTIONS AND WIDGET
 int getHexValue(String colorTitle) {
   for (var color in color_list) {
@@ -176,15 +174,8 @@ List<Widget> generateAlertOption(Task content, BuildContext context) {
       output.add(simpleDialogOption(
         child: Text(v['name']),
         onPressed: () async {
-          await Firestore().watchTask(
-            minute: v['min'],
-            projectID: content.projectID,
-            taskID: content.id,
-            userID: Auth().getCurrentUser().uid,
-          );
-
           var r = await scheduleNotification(
-            id: content.id,
+            id: content.uuidNum.toString(),
             endDate: content.endDateTime.toDate().toString(),
             minutes: v['min'],
             projectID: content.projectID,
@@ -193,7 +184,22 @@ List<Widget> generateAlertOption(Task content, BuildContext context) {
           );
 
           if (r['status']) {
+            var rr = await Firestore().watchTask(
+              minute: v['min'],
+              projectID: content.projectID,
+              taskID: content.id,
+              userID: Auth().getCurrentUser().uid,
+              uuidNum: content.uuidNum,
+            );
+
             Get.back();
+            if (!rr['status']) {
+              normalAlertDialog(
+                title: "Error",
+                description: rr['msg'],
+                context: context,
+              );
+            }
           } else {
             normalAlertDialog(
               title: "Error",
@@ -206,6 +212,36 @@ List<Widget> generateAlertOption(Task content, BuildContext context) {
     }
   });
   return output;
+}
+
+loadingCircle({@required BuildContext context}) {
+  return showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext context) {
+      return WillPopScope(
+        onWillPop: () async {
+          // Return false to prevent the back button from closing the modal
+          return false;
+        },
+        child: Dialog(
+          insetPadding: const EdgeInsets.all(0),
+          backgroundColor: Colors.transparent,
+          elevation: 0.0,
+          child: Container(
+            height: MediaQuery.of(context).size.height,
+            width: MediaQuery.of(context).size.width,
+            color: Theme.of(context).primaryColor.withOpacity(0.8),
+            child: Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              ),
+            ),
+          ),
+        ),
+      );
+    },
+  );
 }
 
 class CustomLeadingIcon extends StatelessWidget {
@@ -305,11 +341,10 @@ class ListViewHeader extends StatelessWidget {
 class Loading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: SvgPicture.asset(
-        "images/clock.svg",
-        color: Theme.of(context).primaryColor,
-      ),
+    return DoodleOutput(
+      svgPath: "images/clock.svg",
+      title: 'Loading',
+      subtitle: 'Fun Fact: Every 60 secs, a minute passes',
     );
   }
 }
@@ -318,10 +353,12 @@ class DoodleOutput extends StatelessWidget {
   final String svgPath;
   final String title;
   final String subtitle;
+  final Color bg;
   DoodleOutput({
     @required this.svgPath,
     @required this.title,
     @required this.subtitle,
+    this.bg = Colors.white,
   });
 
   @override
@@ -332,7 +369,7 @@ class DoodleOutput extends StatelessWidget {
         padding: const EdgeInsets.all(40),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-          color: Colors.white,
+          color: bg,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -355,19 +392,22 @@ class CustomCard extends StatelessWidget {
   final Color pc;
   final Function onTap;
   final Function onLongPress;
+  final Color bg;
   CustomCard(
       {@required this.content,
       @required this.pc,
       @required this.onTap,
-      @required this.onLongPress});
+      @required this.onLongPress,
+      this.bg = Colors.white});
 
   @override
   Widget build(BuildContext context) {
     return Card(
+      elevation: 5,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(5),
+        borderRadius: BorderRadius.circular(7),
       ),
-      color: Colors.white,
+      color: bg,
       child: InkWell(
         splashColor: Color.lerp(pc, Colors.white, 0.7),
         child: Container(
@@ -463,6 +503,7 @@ normalAlertDialog({
   String closeTitle = 'CLOSE',
   bool goBackTwice = false,
   dynamic backResult,
+  Function onTap,
 }) {
   return showDialog(
     context: context,
@@ -494,9 +535,12 @@ normalAlertDialog({
               style: TextStyle(color: Colors.white),
             ),
             onPressed: () {
-              print(backResult);
-              if (goBackTwice) Get.back();
-              Get.back(result: backResult);
+              if (onTap != null) {
+                onTap();
+              } else {
+                if (goBackTwice) Get.back();
+                Get.back(result: backResult);
+              }
             },
           ),
         ],

@@ -3,6 +3,7 @@ import 'package:ProjectFlow/services/auth.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:ProjectFlow/pages/global/constants.dart';
+import 'package:get/get.dart';
 
 class UpdateEmail extends StatelessWidget {
   final String currentEmail;
@@ -29,7 +30,7 @@ class UpdateEmail extends StatelessWidget {
                 controller: emailController,
                 keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
-                  icon: Icon(FluentIcons.mail_24_filled),
+                  icon: Icon(FluentIcons.mail_24_regular),
                   helperText: 'e.g: projecflow@arnet.com',
                   labelText: 'Email',
                   hintText: currentEmail,
@@ -50,23 +51,16 @@ class UpdateEmail extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: () async {
                     if (formKey.currentState.validate()) {
+                      loadingCircle(context: context);
                       var result = await Auth()
                           .updateEmail(newEmail: emailController.text);
-
-                      if (result['status']) {
-                        normalAlertDialog(
-                          title: emailUpdateTitle,
-                          description: result['data'],
-                          context: context,
-                          goBackTwice: true,
-                        );
-                      } else {
-                        normalAlertDialog(
-                          title: 'Error',
-                          context: context,
-                          description: result['data'],
-                        );
-                      }
+                      Get.back();
+                      normalAlertDialog(
+                        title: result['status'] ? emailUpdateTitle : 'Error',
+                        description: result['data'],
+                        context: context,
+                        goBackTwice: result['status'] ? true : false,
+                      );
                     }
                   },
                   child: Text('Update'),

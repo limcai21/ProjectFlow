@@ -1,6 +1,7 @@
 import 'package:ProjectFlow/model/watch.dart';
 import 'package:ProjectFlow/pages/global/constants.dart';
 import 'package:ProjectFlow/pages/global/new_edit_task.dart';
+import 'package:ProjectFlow/pages/global/notification.dart';
 import 'package:ProjectFlow/pages/global/scaffold.dart';
 import 'package:ProjectFlow/pages/views/project/project.dart';
 import 'package:ProjectFlow/services/auth.dart';
@@ -60,6 +61,7 @@ class _WatchesState extends State<Watches> {
                     confirmDismiss: (direction) async {
                       if (direction == DismissDirection.endToStart) {
                         await Firestore().unwatchTask(id: data.id);
+                        await cancelNotification(id: data.uuidNum.toString());
                         startup();
                       }
 

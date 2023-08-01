@@ -10,10 +10,12 @@ class WatchModel {
   int min;
   Task task;
   Project project;
+  String uuidNum;
   WatchModel({
     this.id,
     @required this.taskID,
     @required this.userID,
+    @required this.uuidNum,
     this.task,
     this.project,
   });
@@ -26,6 +28,7 @@ class WatchModel {
     task = data['task'];
     project = data['project'];
     min = data['min'];
+    uuidNum = data['uuidNum'];
   }
 
   Map<String, dynamic> toMap() {
@@ -37,6 +40,7 @@ class WatchModel {
       'task': task,
       'project': project,
       'min': min,
+      'uuidNum': uuidNum,
     };
   }
 }
