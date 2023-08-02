@@ -215,7 +215,9 @@ class _ProjectPageState extends State<ProjectPage> {
                                     final content = output[current][index];
 
                                     return CustomCard(
-                                      content: content,
+                                      topTitle: content.status,
+                                      title: content.title,
+                                      description: content.description,
                                       pc: pc,
                                       onTap: () async {
                                         var result = await Get.to(
@@ -293,9 +295,71 @@ class _ProjectPageState extends State<ProjectPage> {
                                                     },
                                                   ),
                                             simpleDialogOption(
+                                                child: Text("Status"),
+                                                icon: FluentIcons
+                                                    .status_24_regular,
+                                                onPressed: () {
+                                                  Get.back();
+                                                  simpleDialog(
+                                                    title: 'Status',
+                                                    context: context,
+                                                    children: [
+                                                      simpleDialogOption(
+                                                        child: Text("Doing"),
+                                                        onPressed: () async {
+                                                          Get.back();
+                                                          loadingCircle(
+                                                              context: context);
+                                                          var r = await Firestore()
+                                                              .updateTaskStatus(
+                                                            id: content.id,
+                                                            status: 'Doing',
+                                                          );
+                                                          Get.back();
+                                                          if (!r['status']) {
+                                                            normalAlertDialog(
+                                                              title: 'Error',
+                                                              context: context,
+                                                              description:
+                                                                  r['data'],
+                                                            );
+                                                          } else {
+                                                            startup();
+                                                          }
+                                                        },
+                                                      ),
+                                                      simpleDialogOption(
+                                                        child:
+                                                            Text("Completed"),
+                                                        onPressed: () async {
+                                                          Get.back();
+                                                          loadingCircle(
+                                                              context: context);
+                                                          var r = await Firestore()
+                                                              .updateTaskStatus(
+                                                            id: content.id,
+                                                            status: 'Completed',
+                                                          );
+                                                          Get.back();
+                                                          if (!r['status']) {
+                                                            normalAlertDialog(
+                                                              title: 'Error',
+                                                              context: context,
+                                                              description:
+                                                                  r['data'],
+                                                            );
+                                                          } else {
+                                                            startup();
+                                                          }
+                                                        },
+                                                      ),
+                                                    ],
+                                                  );
+                                                }),
+                                            simpleDialogOption(
                                                 icon:
                                                     FluentIcons.edit_24_regular,
-                                                child: Text('Edit Task'),
+                                                child: Text('Edit'),
                                                 onPressed: () async {
                                                   Get.back();
                                                   var result = await Get.to(
@@ -312,7 +376,7 @@ class _ProjectPageState extends State<ProjectPage> {
                                             simpleDialogOption(
                                               icon:
                                                   FluentIcons.delete_24_regular,
-                                              child: Text('Delete Task'),
+                                              child: Text('Delete'),
                                               onPressed: () async {
                                                 await Firestore().deleteTask(
                                                   id: content.id,

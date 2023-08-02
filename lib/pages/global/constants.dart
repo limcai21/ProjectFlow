@@ -378,7 +378,7 @@ class DoodleOutput extends StatelessWidget {
           children: [
             SvgPicture.asset(svgPath, color: Theme.of(context).primaryColor),
             SizedBox(height: 20),
-            Text(title),
+            Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
             Text(subtitle),
           ],
         ),
@@ -388,51 +388,71 @@ class DoodleOutput extends StatelessWidget {
 }
 
 class CustomCard extends StatelessWidget {
-  final Task content;
+  final String title;
+  final String description;
   final Color pc;
   final Function onTap;
   final Function onLongPress;
   final Color bg;
-  CustomCard(
-      {@required this.content,
-      @required this.pc,
-      @required this.onTap,
-      @required this.onLongPress,
-      this.bg = Colors.white});
+  final String topTitle;
+  final Widget rightSide;
+  CustomCard({
+    @required this.title,
+    @required this.description,
+    @required this.pc,
+    @required this.topTitle,
+    @required this.onTap,
+    @required this.onLongPress,
+    this.rightSide,
+    this.bg = Colors.white,
+  });
 
   @override
   Widget build(BuildContext context) {
+    double br = 8.0;
+
     return Card(
-      elevation: 5,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(7),
-      ),
       color: bg,
+      elevation: 3,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(br)),
       child: InkWell(
+        borderRadius: BorderRadius.circular(br),
         splashColor: Color.lerp(pc, Colors.white, 0.7),
         child: Container(
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(br)),
           padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.start,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                content.title,
-                style: TextStyle(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 16,
-                ),
-              ),
-              if (content.description != "") ...[
-                SizedBox(height: 2),
-                Text(
-                  content.description,
-                  style: TextStyle(
-                    color: Colors.grey,
-                    fontSize: 14,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Text(
+                    topTitle,
+                    style: TextStyle(fontSize: 10),
                   ),
-                ),
-              ]
+                  SizedBox(height: 5),
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 16,
+                    ),
+                  ),
+                  if (description != "") ...[
+                    SizedBox(height: 2),
+                    Text(
+                      description,
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+              if (rightSide != null) rightSide,
             ],
           ),
         ),
@@ -445,6 +465,76 @@ class CustomCard extends StatelessWidget {
       ),
     );
   }
+}
+
+imagePreview({
+  @required String url,
+  bool local = false,
+  @required BuildContext context,
+}) {
+  double br = 10;
+
+  return showModalBottomSheet(
+    backgroundColor: Colors.transparent,
+    context: context,
+    builder: (BuildContext context) {
+      return Container(
+        margin: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(br),
+          color: Colors.white,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: double.infinity,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(br),
+                    topRight: Radius.circular(br),
+                  ),
+                ),
+                padding: const EdgeInsets.only(
+                  left: 20,
+                  right: 20,
+                  top: 30,
+                  bottom: 20,
+                ),
+                child: Text(
+                  "Image Preview",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(br),
+                    bottomRight: Radius.circular(br),
+                  ),
+                  image: DecorationImage(
+                    fit: BoxFit.cover,
+                    image: local ? AssetImage(url) : NetworkImage(url),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    },
+  );
 }
 
 simpleDialog({

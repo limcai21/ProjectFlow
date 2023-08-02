@@ -61,7 +61,9 @@ class _SearchState extends State<Search> {
                     itemCount: taskList.length,
                     itemBuilder: (context, index) {
                       return CustomCard(
-                        content: taskList[index],
+                        topTitle: taskList[index].status,
+                        title: taskList[index].title,
+                        description: taskList[index].description,
                         pc: Theme.of(context).primaryColor,
                         onTap: () async {
                           await Get.to(
@@ -130,7 +132,8 @@ class TaskSearch extends SearchDelegate<String> {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    if (search().length > 0) {
+    var searchData = search();
+    if (searchData.length > 0) {
       return Hero(
         tag: "lv",
         child: ListView.builder(
@@ -139,17 +142,19 @@ class TaskSearch extends SearchDelegate<String> {
           itemCount: search().length,
           itemBuilder: (context, index) {
             return CustomCard(
-              content: data[index],
+              topTitle: searchData[index].status,
+              title: searchData[index].title,
+              description: searchData[index].description,
               pc: Theme.of(context).primaryColor,
               onTap: () {
+                close(context, null);
                 Get.to(
                   () => NewEditTask(
                     edit: true,
-                    id: data[index].projectID,
-                    taskData: data[index],
+                    id: searchData[index].projectID,
+                    taskData: searchData[index],
                   ),
                 );
-                Get.back();
               },
               onLongPress: () {},
             );

@@ -10,7 +10,6 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 
 class Watches extends StatefulWidget {
   @override
@@ -51,118 +50,61 @@ class _WatchesState extends State<Watches> {
           if (snapshot.hasData) {
             if (snapshot.data.length > 0) {
               return ListView.builder(
+                padding: const EdgeInsets.all(10),
                 physics: BouncingScrollPhysics(),
                 itemCount: snapshot.data.length,
                 itemBuilder: (context, index) {
                   WatchModel data = snapshot.data[index];
 
-                  return Dismissible(
-                    key: Key(data.id),
-                    confirmDismiss: (direction) async {
-                      if (direction == DismissDirection.endToStart) {
-                        await Firestore().unwatchTask(id: data.id);
-                        await cancelNotification(id: data.uuidNum.toString());
-                        startup();
-                      }
-
-                      return false;
-                    },
-                    secondaryBackground: Container(
-                      padding: const EdgeInsets.all(20),
-                      color: Colors.red,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Icon(
-                            FluentIcons.eye_hide_20_filled,
-                            color: Colors.white,
-                          ),
-                          SizedBox(width: 5),
-                          Text(
-                            "Unwatch",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          )
-                        ],
+                  return CustomCard(
+                    topTitle: data.project.title,
+                    title: data.task.title,
+                    description: data.task.description,
+                    pc: Theme.of(context).primaryColor,
+                    rightSide: Container(
+                      width: 5,
+                      height: 30,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(100),
+                        color: Color(getHexValue(data.project.theme)),
                       ),
                     ),
-                    background: Container(color: Colors.transparent),
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.only(
-                        left: 20,
-                        right: 20,
-                        bottom: 5,
-                        top: 10,
-                      ),
-                      onLongPress: () {
-                        return simpleDialog(
-                          title: 'Quck Actions',
-                          context: context,
-                          children: [
-                            simpleDialogOption(
-                              child: Text("To Project"),
-                              icon: project_icon,
-                              onPressed: () async {
-                                Get.back();
-                                await Get.to(
-                                  () => ProjectPage(id: data.projectID),
-                                );
-                                startup();
-                              },
-                            )
-                          ],
-                        );
-                      },
-                      onTap: () async {
-                        await Get.to(
-                          () => NewEditTask(
-                            id: data.projectID,
-                            edit: true,
-                            taskData: data.task,
-                          ),
-                        );
-                        startup();
-                      },
-                      trailing: Container(
-                        width: 5,
-                        height: 30,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(100),
-                          color: Color(getHexValue(data.project.theme)),
+                    onTap: () async {
+                      await Get.to(
+                        () => NewEditTask(
+                          id: data.projectID,
+                          edit: true,
+                          taskData: data.task,
                         ),
-                      ),
-                      title: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            data.project.title.toUpperCase(),
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                          Text(data.task.title),
-                          SizedBox(height: 10),
-                          Row(
-                            children: [
-                              Icon(
-                                FluentIcons.clock_24_regular,
-                                size: 12,
-                              ),
-                              SizedBox(width: 5),
-                              Text(
-                                DateFormat(dateFormat)
-                                    .format(data.task.endDateTime.toDate())
-                                    .toString(),
-                                style: TextStyle(fontSize: 12),
-                              )
-                            ],
-                          )
-                        ],
-                      ),
+                      );
+                      startup();
+                    },
+                    onLongPress: () => simpleDialog(
+                      title: 'Quick Actions',
+                      context: context,
+                      children: [
+                        simpleDialogOption(
+                          child: Text("Unwatch Task"),
+                          icon: FluentIcons.eye_hide_24_regular,
+                          onPressed: () async {
+                            await cancelNotification(id: data.task.uuidNum);
+                            await Firestore().unwatchTask(id: data.id);
+                            Get.back();
+                            startup();
+                          },
+                        ),
+                        simpleDialogOption(
+                          child: Text("To Project"),
+                          icon: project_icon,
+                          onPressed: () async {
+                            Get.back();
+                            await Get.to(
+                              () => ProjectPage(id: data.projectID),
+                            );
+                            startup();
+                          },
+                        )
+                      ],
                     ),
                   );
                 },

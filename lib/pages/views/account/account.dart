@@ -5,11 +5,14 @@ import 'package:ProjectFlow/pages/views/account/update-email.dart';
 import 'package:ProjectFlow/pages/views/account/update-password.dart';
 import 'package:ProjectFlow/services/auth.dart';
 import 'package:ProjectFlow/services/firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../main.dart';
 import 'about-us.dart';
+import 'update-profilepic.dart';
 
 class Account extends StatefulWidget {
   @override
@@ -20,7 +23,7 @@ class _AccountState extends State<Account> {
   @override
   Widget build(BuildContext context) {
     const t = 1.0;
-    const borderRadius = 10.0;
+    const borderRadius = 8.0;
     var user = Auth().getCurrentUser();
 
     return CustomScaffold(
@@ -35,7 +38,7 @@ class _AccountState extends State<Account> {
               padding: const EdgeInsets.only(bottom: 20),
               physics: BouncingScrollPhysics(),
               children: [
-                ProfileCard(name: user.displayName ?? "", email: user.email),
+                ProfileCard(),
                 ListViewHeader(title: 'My Info'),
                 CustomListTile(
                   title: "Email",
@@ -65,6 +68,20 @@ class _AccountState extends State<Account> {
                     Get.to(() => UpdatePassword());
                   },
                 ),
+                CustomListTile(
+                    title: "Profile Picture",
+                    subtitle: "Looking fresh",
+                    t: t,
+                    borderRadius: borderRadius,
+                    icon: FluentIcons.image_24_filled,
+                    trailingIcon: FluentIcons.chevron_right_24_regular,
+                    bgColor: Colors.grey[600],
+                    onTap: () {
+                      print(user.photoURL);
+                      Get.to(
+                        () => UpdateProfilePic(ppURL: user.photoURL),
+                      );
+                    }),
                 CustomListTile(
                   title: "Delete Account",
                   subtitle: "Once you delete, it's gone",
@@ -172,14 +189,15 @@ class _AccountState extends State<Account> {
 }
 
 class ProfileCard extends StatelessWidget {
-  final String name;
-  final String email;
-  ProfileCard({@required this.name, @required this.email});
+  final User user = Auth().getCurrentUser();
 
   @override
   Widget build(BuildContext context) {
-    Color bgColor =
-        Color.lerp(Colors.white, Theme.of(context).primaryColor, 0.125);
+    Color bgColor = Color.lerp(
+      Colors.white,
+      Theme.of(context).primaryColor,
+      0.125,
+    );
 
     return Container(
       padding: EdgeInsets.all(20),
@@ -192,7 +210,7 @@ class ProfileCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                name,
+                user.displayName,
                 style: TextStyle(
                   color: Colors.black,
                   fontSize: Theme.of(context).textTheme.headline6.fontSize,
@@ -200,7 +218,7 @@ class ProfileCard extends StatelessWidget {
                 ),
               ),
               Text(
-                email,
+                user.email,
                 style: TextStyle(
                   color: Colors.grey[600],
                   fontSize: Theme.of(context).textTheme.bodyText1.fontSize,
@@ -208,11 +226,40 @@ class ProfileCard extends StatelessWidget {
               ),
             ],
           ),
-          CircleAvatar(
-            radius: 30,
-            backgroundColor: Colors.transparent,
-            backgroundImage: AssetImage("images/defaultProfilePic.png"),
-          ),
+          GestureDetector(
+            onTap: () async {
+              final ImagePicker picker = ImagePicker();
+              PickedFile pickedFile =
+                  await picker.getImage(source: ImageSource.gallery);
+              var ur = await Firestore().uploadImage(path: pickedFile.path);
+              loadingCircle(context: context);
+              if (ur['status']) {
+                var result = await Auth().updateProfilePic(url: ur['url']);
+                Get.back();
+                normalAlertDialog(
+                  title: result['status'] ? 'Updated' : 'Error',
+                  context: context,
+                  description: result['data'],
+                  goBackTwice: result['status'] ? true : null,
+                  backResult: result['status'] ? 'reload' : null,
+                );
+              } else {
+                Get.back();
+                normalAlertDialog(
+                  title: 'Error',
+                  description: ur['data'],
+                  context: context,
+                );
+              }
+            },
+            child: CircleAvatar(
+              radius: 30,
+              backgroundColor: Colors.transparent,
+              backgroundImage: user.photoURL != null
+                  ? NetworkImage(user.photoURL)
+                  : AssetImage("images/defaultProfilePic.png"),
+            ),
+          )
         ],
       ),
     );

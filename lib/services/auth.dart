@@ -60,6 +60,20 @@ class Auth {
     }
   }
 
+  Future<Map> updateProfilePic({@required String url}) async {
+    try {
+      User currentUser = getCurrentUser();
+      await currentUser.updateProfile(photoURL: url);
+      print('Pofile Picture Updated!');
+      return {'status': true, 'data': 'Profile Picture Updated'};
+    } on FirebaseAuthException catch (e) {
+      return {'status': false, 'data': e.message};
+    } catch (e) {
+      print(e.message);
+      return {'status': false, 'data': e.message};
+    }
+  }
+
   Future<Map<dynamic, dynamic>> updatePassword({
     @required String currentPassword,
     @required String newPassword,

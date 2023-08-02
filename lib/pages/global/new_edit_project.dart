@@ -24,72 +24,6 @@ class _NewEditProjectState extends State<NewEditProject> {
   final pColorController = TextEditingController();
   final pImageController = TextEditingController();
 
-  imagePreview({@required String url, bool local = false}) {
-    double br = 10;
-
-    return showModalBottomSheet(
-      backgroundColor: Colors.transparent,
-      context: context,
-      builder: (BuildContext context) {
-        return Container(
-          margin: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(br),
-            color: Colors.white,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                width: double.infinity,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColor,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(br),
-                      topRight: Radius.circular(br),
-                    ),
-                  ),
-                  padding: const EdgeInsets.only(
-                    left: 20,
-                    right: 20,
-                    top: 30,
-                    bottom: 20,
-                  ),
-                  child: Text(
-                    "Image Preview",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(br),
-                      bottomRight: Radius.circular(br),
-                    ),
-                    image: DecorationImage(
-                      fit: BoxFit.cover,
-                      image: local ? AssetImage(url) : NetworkImage(url),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   @override
   void initState() {
     super.initState();
@@ -265,16 +199,24 @@ class _NewEditProjectState extends State<NewEditProject> {
                   onLongPress: () {
                     if (widget.edit) {
                       if (pImageController.text != widget.projectData.imageID) {
-                        imagePreview(url: pImageController.text, local: true);
+                        imagePreview(
+                            url: pImageController.text,
+                            local: true,
+                            context: context);
                       } else {
                         imagePreview(
                           url: widget.projectData.backgroundURL,
+                          context: context,
                           local: false,
                         );
                       }
                     } else {
                       if (pImageController.text != "") {
-                        imagePreview(url: pImageController.text, local: true);
+                        imagePreview(
+                          url: pImageController.text,
+                          local: true,
+                          context: context,
+                        );
                       } else {
                         normalAlertDialog(
                           title: 'Error',

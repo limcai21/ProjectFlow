@@ -11,6 +11,7 @@ class Task {
   Timestamp endDateTime;
   String userID;
   String uuidNum;
+  String status;
   Task({
     this.id,
     @required this.title,
@@ -20,6 +21,7 @@ class Task {
     @required this.projectID,
     @required this.userID,
     @required this.uuidNum,
+    this.status,
     this.description,
   });
 
@@ -33,6 +35,7 @@ class Task {
     endDateTime = data['endDateTime'];
     userID = data['userID'];
     uuidNum = data['uuidNum'];
+    status = data['status'];
   }
 
   Map<String, dynamic> toMap() {
@@ -46,6 +49,7 @@ class Task {
       'endDateTime': endDateTime,
       'userID': userID,
       'uuidNum': uuidNum,
+      'status': status,
     };
   }
 }

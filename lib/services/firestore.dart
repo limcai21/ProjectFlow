@@ -244,6 +244,7 @@ class Firestore {
         'projectID': projectID,
         'userID': userID,
         'uuidNum': uuid,
+        'status': 'Created',
       });
 
       return {'status': true, 'data': 'Task Created'};
@@ -328,6 +329,19 @@ class Firestore {
         'topicID': topicID,
       });
       return {'status': true, 'data': 'Task Updated'};
+    } catch (e) {
+      print(e.message);
+      return {'status': true, 'data': e.message};
+    }
+  }
+
+  Future<Map> updateTaskStatus({
+    @required String id,
+    @required String status,
+  }) async {
+    try {
+      await taskCollection.doc(id).update({'status': status});
+      return {'status': true, 'data': 'Task Status Updated'};
     } catch (e) {
       print(e.message);
       return {'status': true, 'data': e.message};
