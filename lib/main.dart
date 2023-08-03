@@ -35,8 +35,8 @@ void main() async {
 class MyApp extends StatelessWidget {
   void navigateToMainSkeleton() {
     Future.delayed(Duration(seconds: 1), () {
-      // const login = false;
-      const login = true;
+      const login = false;
+      // login = true;
       login ? Get.off(() => MainSkeleton()) : Get.off(() => Home());
     });
   }
@@ -65,7 +65,7 @@ class Home extends StatelessWidget {
           Lottie.asset(
             "images/lottie/bg.json",
             fit: BoxFit.cover,
-            frameRate: FrameRate(30),
+            frameRate: FrameRate(60),
           ),
 
           // LOGIN/SIGN UP BTN
@@ -80,6 +80,7 @@ class Home extends StatelessWidget {
                   height: 30,
                 ),
                 SizedBox(height: 30),
+                // LOGIN
                 FractionallySizedBox(
                   widthFactor: 0.7,
                   child: ElevatedButton.icon(
@@ -104,6 +105,7 @@ class Home extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 5),
+                // CONTINUE WITH GOOGLE
                 FractionallySizedBox(
                   widthFactor: 0.7,
                   child: OutlinedButton.icon(
@@ -128,6 +130,7 @@ class Home extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 10),
+                // SIGNUP BTN
                 FractionallySizedBox(
                   widthFactor: 0.7,
                   child: ElevatedButton(
@@ -142,6 +145,7 @@ class Home extends StatelessWidget {
                       onPrimary: Colors.white,
                       shadowColor: Colors.transparent,
                       shape: RoundedRectangleBorder(
+                        side: BorderSide(width: 3.0),
                         borderRadius: BorderRadius.circular(30),
                       ),
                     ),

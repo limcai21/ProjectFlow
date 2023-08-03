@@ -107,7 +107,7 @@ class Auth {
       return {"status": true, "data": "User account deleted successfully!"};
     } catch (e) {
       print("Error deleting user account: $e");
-      return {'status': false, 'data': "Error deleting user account: $e"};
+      return {'status': false, 'data': e.message};
     }
   }
 

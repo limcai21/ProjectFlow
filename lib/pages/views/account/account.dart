@@ -12,7 +12,6 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../main.dart';
 import 'about-us.dart';
-import 'update-profilepic.dart';
 
 class Account extends StatefulWidget {
   @override
@@ -69,20 +68,6 @@ class _AccountState extends State<Account> {
                   },
                 ),
                 CustomListTile(
-                    title: "Profile Picture",
-                    subtitle: "Looking fresh",
-                    t: t,
-                    borderRadius: borderRadius,
-                    icon: FluentIcons.image_24_filled,
-                    trailingIcon: FluentIcons.chevron_right_24_regular,
-                    bgColor: Colors.grey[600],
-                    onTap: () {
-                      print(user.photoURL);
-                      Get.to(
-                        () => UpdateProfilePic(ppURL: user.photoURL),
-                      );
-                    }),
-                CustomListTile(
                   title: "Delete Account",
                   subtitle: "Once you delete, it's gone",
                   t: t,
@@ -126,6 +111,7 @@ class _AccountState extends State<Account> {
                             await Auth().logout();
                             Get.off(() => Home());
                           } else {
+                            Get.back();
                             normalAlertDialog(
                               title: 'Error',
                               description: result['data'],
@@ -228,29 +214,57 @@ class ProfileCard extends StatelessWidget {
           ),
           GestureDetector(
             onTap: () async {
-              final ImagePicker picker = ImagePicker();
-              PickedFile pickedFile =
-                  await picker.getImage(source: ImageSource.gallery);
-              var ur = await Firestore().uploadImage(path: pickedFile.path);
-              loadingCircle(context: context);
-              if (ur['status']) {
-                var result = await Auth().updateProfilePic(url: ur['url']);
-                Get.back();
-                normalAlertDialog(
-                  title: result['status'] ? 'Updated' : 'Error',
+              simpleDialog(
+                  title: 'Profile Picture',
                   context: context,
-                  description: result['data'],
-                  goBackTwice: result['status'] ? true : null,
-                  backResult: result['status'] ? 'reload' : null,
-                );
-              } else {
-                Get.back();
-                normalAlertDialog(
-                  title: 'Error',
-                  description: ur['data'],
-                  context: context,
-                );
-              }
+                  children: [
+                    simpleDialogOption(
+                      child: Text("View Profile Picture"),
+                      icon: FluentIcons.image_24_regular,
+                      onPressed: () {
+                        Get.back();
+                        imagePreview(
+                          local: user.photoURL != null ? false : true,
+                          url: user.photoURL != null
+                              ? user.photoURL
+                              : "images/defaultProfilePic.png",
+                          context: context,
+                        );
+                      },
+                    ),
+                    simpleDialogOption(
+                      icon: FluentIcons.image_edit_24_regular,
+                      child: Text("Change Profile Picture"),
+                      onPressed: () async {
+                        Get.back();
+                        final ImagePicker picker = ImagePicker();
+                        PickedFile pickedFile =
+                            await picker.getImage(source: ImageSource.gallery);
+                        var ur = await Firestore()
+                            .uploadImage(path: pickedFile.path);
+                        loadingCircle(context: context);
+                        if (ur['status']) {
+                          var result =
+                              await Auth().updateProfilePic(url: ur['url']);
+                          Get.back();
+                          normalAlertDialog(
+                            title: result['status'] ? 'Updated' : 'Error',
+                            context: context,
+                            description: result['data'],
+                            goBackTwice: result['status'] ? true : null,
+                            backResult: result['status'] ? 'reload' : null,
+                          );
+                        } else {
+                          Get.back();
+                          normalAlertDialog(
+                            title: 'Error',
+                            description: ur['data'],
+                            context: context,
+                          );
+                        }
+                      },
+                    )
+                  ]);
             },
             child: CircleAvatar(
               radius: 30,
