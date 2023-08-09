@@ -34,9 +34,11 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   void navigateToMainSkeleton() {
+    Future.delayed(Duration.zero, () {
       var login = false;
       // login = true;
       login ? Get.off(() => MainSkeleton()) : Get.off(() => Home());
+    });
   }
 
   @override
