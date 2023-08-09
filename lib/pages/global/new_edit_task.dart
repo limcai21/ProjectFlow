@@ -16,7 +16,8 @@ class NewEditTask extends StatefulWidget {
   final String id;
   final bool edit;
   final Task taskData;
-  NewEditTask({@required this.id, @required this.edit, this.taskData});
+  final Color bg;
+  NewEditTask({@required this.id, @required this.edit, this.taskData, this.bg});
 
   @override
   State<NewEditTask> createState() => _NewEditTaskState();
@@ -40,7 +41,7 @@ class _NewEditTaskState extends State<NewEditTask> {
     });
     if (projectTopic.length == 0) {
       normalAlertDialog(
-        title: 'Error',
+        title: alertErrorTitle,
         description:
             'You have no topic yet. Please create a topic before continuing to create task',
         context: context,
@@ -125,7 +126,7 @@ class _NewEditTaskState extends State<NewEditTask> {
                     children: generateAlertOption(widget.taskData, context),
                     then: (v) {
                       normalAlertDialog(
-                        title: result['status'] ? 'Updated!' : 'Error',
+                        title: result['status'] ? 'Updated!' : alertErrorTitle,
                         description: result['data'],
                         context: context,
                         goBackTwice: result['status'] ? true : false,
@@ -148,7 +149,7 @@ class _NewEditTaskState extends State<NewEditTask> {
             if (!check) {
               Get.back();
               normalAlertDialog(
-                title: result['status'] ? 'Updated!' : 'Error',
+                title: result['status'] ? 'Updated!' : alertErrorTitle,
                 description: result['data'],
                 context: context,
                 goBackTwice: result['status'] ? true : false,
@@ -159,7 +160,7 @@ class _NewEditTaskState extends State<NewEditTask> {
             print("NOT IN WATCH LIST");
             Get.back();
             normalAlertDialog(
-              title: result['status'] ? 'Updated!' : 'Error',
+              title: result['status'] ? 'Updated!' : alertErrorTitle,
               description: result['data'],
               context: context,
               goBackTwice: result['status'] ? true : false,
@@ -189,7 +190,7 @@ class _NewEditTaskState extends State<NewEditTask> {
             );
             Get.back();
             normalAlertDialog(
-              title: result['status'] ? 'Created!' : 'Error',
+              title: result['status'] ? 'Created!' : alertErrorTitle,
               description: result['data'],
               context: context,
               goBackTwice: result['status'] ? true : false,
@@ -198,7 +199,7 @@ class _NewEditTaskState extends State<NewEditTask> {
           } else {
             Get.back();
             normalAlertDialog(
-              title: 'Error',
+              title: alertErrorTitle,
               description: 'Fail to get topics',
               context: context,
               goBackTwice: true,
@@ -214,6 +215,7 @@ class _NewEditTaskState extends State<NewEditTask> {
           ? 'Make some adjustment to your task'
           : "Create task and add them to your topic",
       layout: 2,
+      backgroundColor: widget.bg ?? Theme.of(context).primaryColor,
       body: loading
           ? Loading()
           : SingleChildScrollView(
@@ -345,7 +347,7 @@ class _NewEditTaskState extends State<NewEditTask> {
                           child: Text(widget.edit ? 'Save' : 'Create'),
                           style: ButtonStyle(
                             backgroundColor: MaterialStateProperty.all(
-                              Theme.of(context).primaryColor,
+                              widget.bg ?? Theme.of(context).primaryColor,
                             ),
                           ),
                         ),

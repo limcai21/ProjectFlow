@@ -71,6 +71,22 @@ class _ProjectPageState extends State<ProjectPage> {
     int tabIndex = 0;
     var userID = Auth().getCurrentUser().uid;
 
+    void updateStatus(String status, String id) async {
+      Get.back();
+      loadingCircle(context: context);
+      var r = await Firestore().updateTaskStatus(id: id, status: status);
+      Get.back();
+      if (!r['status']) {
+        normalAlertDialog(
+          title: alertErrorTitle,
+          context: context,
+          description: r['data'],
+        );
+      } else {
+        startup();
+      }
+    }
+
     if (loading) {
       return Scaffold(
         backgroundColor: Theme.of(context).primaryColor,
@@ -82,15 +98,14 @@ class _ProjectPageState extends State<ProjectPage> {
         backgroundColor: pc,
         title: projectDetails.title,
         subtitle: 'Created on: ' +
-            DateFormat(dateFormat).format(
-              projectDetails.createdDateTime.toDate(),
-            ),
+            DateFormat(dateFormat)
+                .format(projectDetails.createdDateTime.toDate()),
         tab: true,
         actionBtn: [
           IconButton(
             icon: Icon(FluentIcons.settings_24_regular, color: Colors.white),
             onPressed: () async {
-              await Get.to(() => ProjectSettings(id: widget.id));
+              await Get.to(() => ProjectSettings(id: widget.id, bg: pc));
               startup();
             },
           ),
@@ -111,7 +126,7 @@ class _ProjectPageState extends State<ProjectPage> {
                 child: Icon(task_icon),
                 onTap: () async {
                   final result = await Get.to(
-                    () => NewEditTask(id: widget.id, edit: false),
+                    () => NewEditTask(id: widget.id, edit: false, bg: pc),
                   );
                   if (result == 'reload') startup();
                 },
@@ -122,7 +137,7 @@ class _ProjectPageState extends State<ProjectPage> {
               child: Icon(topic_icon),
               onTap: () async {
                 final result = await Get.to(
-                  () => NewEditTopic(id: widget.id, edit: false),
+                  () => NewEditTopic(id: widget.id, edit: false, bg: pc),
                 );
                 if (result == 'reload') startup();
               },
@@ -167,6 +182,7 @@ class _ProjectPageState extends State<ProjectPage> {
                                   return simpleDialog(
                                     title: 'Quick Actions',
                                     context: context,
+                                    bg: pc,
                                     children: [
                                       simpleDialogOption(
                                         icon: FluentIcons.edit_24_regular,
@@ -178,6 +194,7 @@ class _ProjectPageState extends State<ProjectPage> {
                                               id: widget.id,
                                               edit: true,
                                               topicData: projectTopics[i],
+                                              // bg: pc,
                                             ),
                                           );
                                           if (result == 'reload') startup();
@@ -215,9 +232,20 @@ class _ProjectPageState extends State<ProjectPage> {
                                     final content = output[current][index];
 
                                     return CustomCard(
-                                      topTitle: content.status,
                                       title: content.title,
                                       description: content.description,
+                                      rightSide: content.status != 'Created'
+                                          ? Chip(
+                                              backgroundColor:
+                                                  getTaskColor(content.status),
+                                              padding: const EdgeInsets.all(3),
+                                              label: Icon(
+                                                getTaskIcon(content.status),
+                                                color: Colors.white,
+                                                size: 16,
+                                              ),
+                                            )
+                                          : null,
                                       pc: pc,
                                       onTap: () async {
                                         var result = await Get.to(
@@ -225,6 +253,7 @@ class _ProjectPageState extends State<ProjectPage> {
                                             id: content.projectID,
                                             edit: true,
                                             taskData: content,
+                                            // bg: pc,
                                           ),
                                         );
 
@@ -236,6 +265,7 @@ class _ProjectPageState extends State<ProjectPage> {
                                         return simpleDialog(
                                           title: 'Quick Actions',
                                           context: context,
+                                          bg: pc,
                                           children: [
                                             !result['status']
                                                 ? simpleDialogOption(
@@ -253,6 +283,7 @@ class _ProjectPageState extends State<ProjectPage> {
                                                         return simpleDialog(
                                                           title: 'Alert',
                                                           context: context,
+                                                          bg: pc,
                                                           children:
                                                               generateAlertOption(
                                                             content,
@@ -303,57 +334,23 @@ class _ProjectPageState extends State<ProjectPage> {
                                                   simpleDialog(
                                                     title: 'Status',
                                                     context: context,
-                                                    children: [
-                                                      simpleDialogOption(
-                                                        child: Text("Doing"),
-                                                        onPressed: () async {
-                                                          Get.back();
-                                                          loadingCircle(
-                                                              context: context);
-                                                          var r = await Firestore()
-                                                              .updateTaskStatus(
-                                                            id: content.id,
-                                                            status: 'Doing',
-                                                          );
-                                                          Get.back();
-                                                          if (!r['status']) {
-                                                            normalAlertDialog(
-                                                              title: 'Error',
-                                                              context: context,
-                                                              description:
-                                                                  r['data'],
+                                                    bg: pc,
+                                                    children:
+                                                        task_status.map<Widget>(
+                                                      (e) {
+                                                        return simpleDialogOption(
+                                                          icon: e['icon'],
+                                                          child:
+                                                              Text(e['title']),
+                                                          onPressed: () async {
+                                                            updateStatus(
+                                                              e['title'],
+                                                              content.id,
                                                             );
-                                                          } else {
-                                                            startup();
-                                                          }
-                                                        },
-                                                      ),
-                                                      simpleDialogOption(
-                                                        child:
-                                                            Text("Completed"),
-                                                        onPressed: () async {
-                                                          Get.back();
-                                                          loadingCircle(
-                                                              context: context);
-                                                          var r = await Firestore()
-                                                              .updateTaskStatus(
-                                                            id: content.id,
-                                                            status: 'Completed',
-                                                          );
-                                                          Get.back();
-                                                          if (!r['status']) {
-                                                            normalAlertDialog(
-                                                              title: 'Error',
-                                                              context: context,
-                                                              description:
-                                                                  r['data'],
-                                                            );
-                                                          } else {
-                                                            startup();
-                                                          }
-                                                        },
-                                                      ),
-                                                    ],
+                                                          },
+                                                        );
+                                                      },
+                                                    ).toList(),
                                                   );
                                                 }),
                                             simpleDialogOption(
@@ -367,6 +364,7 @@ class _ProjectPageState extends State<ProjectPage> {
                                                       id: content.projectID,
                                                       edit: true,
                                                       taskData: content,
+                                                      // bg: pc,
                                                     ),
                                                   );
 

@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:ProjectFlow/pages/global/constants.dart';
 import 'package:get/get.dart';
 
+import '../../../main.dart';
+
 class UpdatePassword extends StatefulWidget {
   @override
   State<UpdatePassword> createState() => _UpdatePasswordState();
@@ -94,10 +96,21 @@ class _UpdatePasswordState extends State<UpdatePassword> {
                         );
                         Get.back();
                         normalAlertDialog(
-                          title: result['status'] ? "Updated!" : "Error",
-                          description: result['message'],
+                          title:
+                              result['status'] ? "Updated!" : alertErrorTitle,
+                          description: result['status']
+                              ? result['message'] +
+                                  '! For security reasons, please log out and log back in to continue using the app with your new password'
+                              : result['message'],
                           context: context,
-                          goBackTwice: result['status'] ? true : false,
+                          onTap: () async {
+                            if (result['status']) {
+                              await Auth().logout();
+                              Get.off(() => Home());
+                            } else {
+                              Get.back();
+                            }
+                          },
                         );
                       }
                     },

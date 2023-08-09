@@ -61,10 +61,21 @@ class _SearchState extends State<Search> {
                     itemCount: taskList.length,
                     itemBuilder: (context, index) {
                       return CustomCard(
-                        topTitle: taskList[index].status,
                         title: taskList[index].title,
                         description: taskList[index].description,
                         pc: Theme.of(context).primaryColor,
+                        rightSide: taskList[index].status != 'Created'
+                            ? Chip(
+                                backgroundColor:
+                                    getTaskColor(taskList[index].status),
+                                padding: const EdgeInsets.all(3),
+                                label: Icon(
+                                  getTaskIcon(taskList[index].status),
+                                  color: Colors.white,
+                                  size: 16,
+                                ),
+                              )
+                            : null,
                         onTap: () async {
                           await Get.to(
                             () => NewEditTask(

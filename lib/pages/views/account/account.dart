@@ -19,11 +19,29 @@ class Account extends StatefulWidget {
 }
 
 class _AccountState extends State<Account> {
+  User user;
+
+  void refreshUserDetails() {
+    setState(() {
+      user = Auth().getCurrentUser();
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    refreshUserDetails();
+  }
+
   @override
   Widget build(BuildContext context) {
     const t = 1.0;
     const borderRadius = 8.0;
-    var user = Auth().getCurrentUser();
+    Color bgColor = Color.lerp(
+      Colors.white,
+      Theme.of(context).primaryColor,
+      0.125,
+    );
 
     return CustomScaffold(
       title: "Account",
@@ -37,7 +55,112 @@ class _AccountState extends State<Account> {
               padding: const EdgeInsets.only(bottom: 20),
               physics: BouncingScrollPhysics(),
               children: [
-                ProfileCard(),
+                Container(
+                  padding: EdgeInsets.all(20),
+                  color: bgColor,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            user.displayName,
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: Theme.of(context)
+                                  .textTheme
+                                  .headline6
+                                  .fontSize,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            user.email,
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: Theme.of(context)
+                                  .textTheme
+                                  .bodyText1
+                                  .fontSize,
+                            ),
+                          ),
+                        ],
+                      ),
+                      GestureDetector(
+                        onTap: () async {
+                          simpleDialog(
+                              title: 'Profile Picture',
+                              context: context,
+                              children: [
+                                simpleDialogOption(
+                                  child: Text("View Profile Picture"),
+                                  icon: FluentIcons.image_24_regular,
+                                  onPressed: () {
+                                    Get.back();
+                                    imagePreview(
+                                      local:
+                                          user.photoURL != null ? false : true,
+                                      url: user.photoURL != null
+                                          ? user.photoURL
+                                          : "images/defaultProfilePic.png",
+                                      context: context,
+                                    );
+                                  },
+                                ),
+                                simpleDialogOption(
+                                  icon: FluentIcons.image_edit_24_regular,
+                                  child: Text("Change Profile Picture"),
+                                  onPressed: () async {
+                                    Get.back();
+                                    final ImagePicker picker = ImagePicker();
+                                    PickedFile pickedFile = await picker
+                                        .getImage(source: ImageSource.gallery);
+                                    var ur = await Firestore()
+                                        .uploadImage(path: pickedFile.path);
+                                    loadingCircle(context: context);
+                                    if (ur['status']) {
+                                      var result = await Auth()
+                                          .updateProfilePic(url: ur['url']);
+                                      Get.back();
+                                      normalAlertDialog(
+                                        title: result['status']
+                                            ? 'Updated'
+                                            : alertErrorTitle,
+                                        context: context,
+                                        description: result['data'],
+                                        goBackTwice:
+                                            result['status'] ? true : null,
+                                        backResult:
+                                            result['status'] ? 'reload' : null,
+                                      );
+
+                                      if (result['status'])
+                                        refreshUserDetails();
+                                    } else {
+                                      Get.back();
+                                      normalAlertDialog(
+                                        title: alertErrorTitle,
+                                        description: ur['data'],
+                                        context: context,
+                                      );
+                                    }
+                                  },
+                                )
+                              ]);
+                        },
+                        child: CircleAvatar(
+                          radius: 30,
+                          backgroundColor: Colors.transparent,
+                          backgroundImage: user.photoURL != null
+                              ? NetworkImage(user.photoURL)
+                              : AssetImage("images/defaultProfilePic.png"),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
                 ListViewHeader(title: 'My Info'),
                 CustomListTile(
                   title: "Email",
@@ -51,8 +174,7 @@ class _AccountState extends State<Account> {
                     await Get.to(
                       () => UpdateEmail(currentEmail: user.email),
                     );
-                    print(Auth().getCurrentUser());
-                    user = Auth().getCurrentUser();
+                    refreshUserDetails();
                   },
                 ),
                 CustomListTile(
@@ -113,14 +235,14 @@ class _AccountState extends State<Account> {
                           } else {
                             Get.back();
                             normalAlertDialog(
-                              title: 'Error',
+                              title: alertErrorTitle,
                               description: result['data'],
                               context: context,
                             );
                           }
                         } else {
                           normalAlertDialog(
-                            title: 'Error',
+                            title: alertErrorTitle,
                             description: result['data'],
                             context: context,
                           );
@@ -168,112 +290,6 @@ class _AccountState extends State<Account> {
               ],
             ),
           ),
-        ],
-      ),
-    );
-  }
-}
-
-class ProfileCard extends StatelessWidget {
-  final User user = Auth().getCurrentUser();
-
-  @override
-  Widget build(BuildContext context) {
-    Color bgColor = Color.lerp(
-      Colors.white,
-      Theme.of(context).primaryColor,
-      0.125,
-    );
-
-    return Container(
-      padding: EdgeInsets.all(20),
-      color: bgColor,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                user.displayName,
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: Theme.of(context).textTheme.headline6.fontSize,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                user.email,
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: Theme.of(context).textTheme.bodyText1.fontSize,
-                ),
-              ),
-            ],
-          ),
-          GestureDetector(
-            onTap: () async {
-              simpleDialog(
-                  title: 'Profile Picture',
-                  context: context,
-                  children: [
-                    simpleDialogOption(
-                      child: Text("View Profile Picture"),
-                      icon: FluentIcons.image_24_regular,
-                      onPressed: () {
-                        Get.back();
-                        imagePreview(
-                          local: user.photoURL != null ? false : true,
-                          url: user.photoURL != null
-                              ? user.photoURL
-                              : "images/defaultProfilePic.png",
-                          context: context,
-                        );
-                      },
-                    ),
-                    simpleDialogOption(
-                      icon: FluentIcons.image_edit_24_regular,
-                      child: Text("Change Profile Picture"),
-                      onPressed: () async {
-                        Get.back();
-                        final ImagePicker picker = ImagePicker();
-                        PickedFile pickedFile =
-                            await picker.getImage(source: ImageSource.gallery);
-                        var ur = await Firestore()
-                            .uploadImage(path: pickedFile.path);
-                        loadingCircle(context: context);
-                        if (ur['status']) {
-                          var result =
-                              await Auth().updateProfilePic(url: ur['url']);
-                          Get.back();
-                          normalAlertDialog(
-                            title: result['status'] ? 'Updated' : 'Error',
-                            context: context,
-                            description: result['data'],
-                            goBackTwice: result['status'] ? true : null,
-                            backResult: result['status'] ? 'reload' : null,
-                          );
-                        } else {
-                          Get.back();
-                          normalAlertDialog(
-                            title: 'Error',
-                            description: ur['data'],
-                            context: context,
-                          );
-                        }
-                      },
-                    )
-                  ]);
-            },
-            child: CircleAvatar(
-              radius: 30,
-              backgroundColor: Colors.transparent,
-              backgroundImage: user.photoURL != null
-                  ? NetworkImage(user.photoURL)
-                  : AssetImage("images/defaultProfilePic.png"),
-            ),
-          )
         ],
       ),
     );

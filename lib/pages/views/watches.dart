@@ -8,7 +8,6 @@ import 'package:ProjectFlow/services/auth.dart';
 import 'package:ProjectFlow/services/firestore.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 
 class Watches extends StatefulWidget {
@@ -110,20 +109,10 @@ class _WatchesState extends State<Watches> {
                 },
               );
             } else {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    SvgPicture.asset(
-                      "images/camera.svg",
-                      color: Theme.of(context).primaryColor,
-                    ),
-                    SizedBox(height: 20),
-                    Text("You have no watch task yet"),
-                    Text("Go to your project and watch one of your task"),
-                  ],
-                ),
+              return DoodleOutput(
+                svgPath: "images/camera.svg",
+                title: 'You have no watch task yet',
+                subtitle: 'Go to your project and watch one of your task',
               );
             }
           } else if (snapshot.hasError) {

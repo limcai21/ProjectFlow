@@ -30,7 +30,7 @@ class _MainSkeletonState extends State<MainSkeleton> {
       Search(),
     ],
     [
-      "Watches",
+      "Watch",
       FluentIcons.eye_show_24_regular,
       FluentIcons.eye_show_24_filled,
       Watches(),

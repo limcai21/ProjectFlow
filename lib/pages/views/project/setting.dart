@@ -12,7 +12,8 @@ import 'package:get/get.dart';
 
 class ProjectSettings extends StatefulWidget {
   final String id;
-  ProjectSettings({@required this.id});
+  final Color bg;
+  ProjectSettings({@required this.id, this.bg});
 
   @override
   State<ProjectSettings> createState() => _ProjectSettingsState();
@@ -52,6 +53,7 @@ class _ProjectSettingsState extends State<ProjectSettings> {
     return CustomScaffold(
       layout: 2,
       title: 'Settings',
+      // backgroundColor: widget.bg,
       subtitle: 'Make some tweaks and turn here',
       body: loading
           ? Loading()
@@ -72,13 +74,14 @@ class _ProjectSettingsState extends State<ProjectSettings> {
                         trailingIcon: FluentIcons.chevron_right_24_regular,
                         borderRadius: br,
                         iconColor: Colors.white,
-                        bgColor: Theme.of(context).primaryColor,
+                        // bgColor: widget.bg,
                         onTap: () async {
                           var result = await Get.to(
                             () => NewEditProject(
                               id: projectDetails.id,
                               edit: true,
                               projectData: projectDetails,
+                              // bg: widget.bg,
                             ),
                           );
                           if (result == "reload") startup();
@@ -92,7 +95,7 @@ class _ProjectSettingsState extends State<ProjectSettings> {
                         trailingIcon: FluentIcons.chevron_right_24_regular,
                         borderRadius: br,
                         iconColor: Colors.white,
-                        bgColor: Theme.of(context).primaryColor,
+                        // bgColor: widget.bg,
                         onTap: () => Get.back(result: 'reload'),
                       ),
                       CustomListTile(
@@ -103,7 +106,7 @@ class _ProjectSettingsState extends State<ProjectSettings> {
                         trailingIcon: FluentIcons.chevron_right_24_regular,
                         borderRadius: br,
                         iconColor: Colors.white,
-                        bgColor: Theme.of(context).primaryColor,
+                        // bgColor: widget.bg,
                         onTap: () => Get.back(result: 'reload'),
                       ),
                       ListViewHeader(title: 'Danger Zone'),
@@ -115,19 +118,47 @@ class _ProjectSettingsState extends State<ProjectSettings> {
                         trailingIcon: FluentIcons.chevron_right_24_regular,
                         borderRadius: br,
                         iconColor: Colors.white,
-                        bgColor: Theme.of(context).primaryColor,
+                        // bgColor: widget.bg,
                         onTap: () async {
-                          loadingCircle(context: context);
-                          var result = await Firestore()
-                              .deleteProject(id: projectDetails.id);
-                          Get.back();
-                          await normalAlertDialog(
-                            title: result['status'] ? 'Done' : 'Error',
-                            description: result['data'],
+                          normalAlertDialog(
+                            title: deleteProjectTitle,
+                            description: deleteProjectSubtitle,
                             context: context,
-                            goBackTwice: result['status'] ? true : false,
+                            closeTitle: 'DELETE',
+                            additionalActions: TextButton(
+                              onPressed: () => Get.back(),
+                              child: Text(
+                                "CLOSE",
+                                style: TextStyle(
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                              ),
+                              style: ButtonStyle(
+                                overlayColor: MaterialStateProperty.all(
+                                  Color.lerp(
+                                    Theme.of(context).primaryColor,
+                                    Colors.white,
+                                    0.9,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            onTap: () async {
+                              Get.back();
+                              loadingCircle(context: context);
+                              var result = await Firestore()
+                                  .deleteProject(id: projectDetails.id);
+                              Get.back();
+                              await normalAlertDialog(
+                                title:
+                                    result['status'] ? 'Done' : alertErrorTitle,
+                                description: result['data'],
+                                context: context,
+                                goBackTwice: result['status'] ? true : false,
+                              );
+                              Get.offAll(() => MainSkeleton());
+                            },
                           );
-                          Get.offAll(() => MainSkeleton());
                         },
                       ),
                     ],

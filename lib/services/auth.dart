@@ -5,7 +5,7 @@ import 'package:ProjectFlow/pages/global/constants.dart';
 class Auth {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  Future<Map> login({
+  Future<Map<dynamic, dynamic>> login({
     @required String email,
     @required String password,
   }) async {
@@ -21,7 +21,7 @@ class Auth {
     }
   }
 
-  Future<Map> signUp({
+  Future<Map<dynamic, dynamic>> signUp({
     @required String email,
     @required String password,
     @required String name,
@@ -43,7 +43,7 @@ class Auth {
     }
   }
 
-  Future<Map> updateEmail({@required String newEmail}) async {
+  Future<Map<dynamic, dynamic>> updateEmail({@required String newEmail}) async {
     try {
       User currentUser = getCurrentUser();
       if (currentUser.email == newEmail) {
@@ -60,7 +60,7 @@ class Auth {
     }
   }
 
-  Future<Map> updateProfilePic({@required String url}) async {
+  Future<Map<dynamic, dynamic>> updateProfilePic({@required String url}) async {
     try {
       User currentUser = getCurrentUser();
       await currentUser.updateProfile(photoURL: url);

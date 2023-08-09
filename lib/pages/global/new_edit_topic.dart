@@ -9,7 +9,9 @@ class NewEditTopic extends StatefulWidget {
   final String id;
   final bool edit;
   final Topic topicData;
-  NewEditTopic({@required this.id, @required this.edit, this.topicData});
+  final Color bg;
+  NewEditTopic(
+      {@required this.id, @required this.edit, this.topicData, this.bg});
 
   @override
   State<NewEditTopic> createState() => _NewEditTopicState();
@@ -42,7 +44,7 @@ class _NewEditTopicState extends State<NewEditTopic> {
           );
           Get.back();
           normalAlertDialog(
-            title: result['status'] ? 'Updated!' : 'Error',
+            title: result['status'] ? 'Updated!' : alertErrorTitle,
             description: result['data'],
             context: context,
             goBackTwice: result['status'] ? true : false,
@@ -55,7 +57,7 @@ class _NewEditTopicState extends State<NewEditTopic> {
           );
           Get.back();
           normalAlertDialog(
-            title: result['status'] ? 'Created!' : 'Error',
+            title: result['status'] ? 'Created!' : alertErrorTitle,
             description: result['data'],
             context: context,
             goBackTwice: result['status'] ? true : false,
@@ -70,6 +72,7 @@ class _NewEditTopicState extends State<NewEditTopic> {
     return CustomScaffold(
       layout: 2,
       title: widget.edit ? 'Edit Topic' : 'New Topic',
+      backgroundColor: widget.bg ?? Theme.of(context).primaryColor,
       subtitle: widget.edit
           ? 'Make some adjustment to your topic'
           : 'Create topic to add task inside',
@@ -102,7 +105,7 @@ class _NewEditTopicState extends State<NewEditTopic> {
                     child: Text(widget.edit ? 'Update' : 'Create'),
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all(
-                        Theme.of(context).primaryColor,
+                        widget.bg ?? Theme.of(context).primaryColor,
                       ),
                     ),
                   ),

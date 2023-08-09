@@ -34,11 +34,9 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   void navigateToMainSkeleton() {
-    Future.delayed(Duration(seconds: 1), () {
-      const login = false;
+      var login = false;
       // login = true;
       login ? Get.off(() => MainSkeleton()) : Get.off(() => Home());
-    });
   }
 
   @override
@@ -106,30 +104,29 @@ class Home extends StatelessWidget {
                 ),
                 SizedBox(height: 5),
                 // CONTINUE WITH GOOGLE
-                FractionallySizedBox(
-                  widthFactor: 0.7,
-                  child: OutlinedButton.icon(
-                    onPressed: null,
-                    // onPressed: () async => await Auth().loginWithGoogle(),
-                    icon: Icon(
-                      FluentIcons.store_microsoft_24_filled,
-                      color: Colors.white,
-                    ),
-                    label: Text(
-                      'Continue with Google',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: Size(200, 45),
-                      onPrimary: Colors.white,
-                      side: const BorderSide(width: 1.0, color: Colors.white),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 10),
+                // FractionallySizedBox(
+                //   widthFactor: 0.7,
+                //   child: OutlinedButton.icon(
+                //     // onPressed: null,
+                //     icon: Icon(
+                //       FluentIcons.store_microsoft_24_filled,
+                //       color: Colors.white,
+                //     ),
+                //     label: Text(
+                //       'Continue with Google',
+                //       style: TextStyle(color: Colors.white),
+                //     ),
+                //     style: ElevatedButton.styleFrom(
+                //       minimumSize: Size(200, 45),
+                //       onPrimary: Colors.white,
+                //       side: const BorderSide(width: 1.0, color: Colors.white),
+                //       shape: RoundedRectangleBorder(
+                //         borderRadius: BorderRadius.circular(30),
+                //       ),
+                //     ),
+                //   ),
+                // ),
+                // SizedBox(height: 10),
                 // SIGNUP BTN
                 FractionallySizedBox(
                   widthFactor: 0.7,

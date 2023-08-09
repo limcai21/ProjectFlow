@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:ProjectFlow/model/task.dart';
@@ -103,6 +104,13 @@ const startDateAfterEndDate =
 const startDateSameAsEndDate =
     'Start Date & Time cannot be the same as End Date & Time';
 
+// DELETE PROJECT
+const deleteProjectTitle = "Confirm?";
+const deleteProjectSubtitle = "All task and topic will be deleted";
+
+// ALERT
+const alertErrorTitle = 'Error';
+
 // COLORS THEME
 const color_list = [
   {'title': 'Aqua', 'hex': 0xFF00FFFF},
@@ -120,6 +128,33 @@ const color_list = [
   {'title': 'Silver', 'hex': 0xFFC0C0C0},
   {'title': 'Teal', 'hex': 0xFF008080},
   {'title': 'Yellow', 'hex': 0xFFFFFF00},
+];
+
+const task_status = [
+  {
+    "title": "Cancelled",
+    "color": Colors.red,
+    "icon": FluentIcons.dismiss_24_regular,
+    "filled_icon": FluentIcons.dismiss_24_filled,
+  },
+  {
+    "title": "Doing",
+    "color": Colors.blueGrey,
+    "icon": FluentIcons.protocol_handler_24_regular,
+    "filled_icon": FluentIcons.protocol_handler_24_filled,
+  },
+  {
+    "title": "On Hold",
+    "color": Colors.orange,
+    "icon": FluentIcons.hand_right_24_regular,
+    "filled_icon": FluentIcons.hand_right_24_filled,
+  },
+  {
+    "title": "Done",
+    "color": Colors.green,
+    "icon": FluentIcons.checkmark_24_regular,
+    "filled_icon": FluentIcons.checkmark_24_filled,
+  },
 ];
 
 const alert_duration = [
@@ -160,6 +195,25 @@ int getHexValue(String colorTitle) {
   return null;
 }
 
+Color getTaskColor(String statusV) {
+  for (var status in task_status) {
+    if (status['title'] == statusV) {
+      print(status);
+      return status['color'];
+    }
+  }
+  return null;
+}
+
+IconData getTaskIcon(String statusV) {
+  for (var status in task_status) {
+    if (status['title'] == statusV) {
+      return status['filled_icon'];
+    }
+  }
+  return null;
+}
+
 List<Widget> generateAlertOption(Task content, BuildContext context) {
   List<Widget> output = [];
 
@@ -195,14 +249,14 @@ List<Widget> generateAlertOption(Task content, BuildContext context) {
             Get.back();
             if (!rr['status']) {
               normalAlertDialog(
-                title: "Error",
+                title: alertErrorTitle,
                 description: rr['msg'],
                 context: context,
               );
             }
           } else {
             normalAlertDialog(
-              title: "Error",
+              title: alertErrorTitle,
               description: r['msg'],
               context: context,
             );
@@ -293,7 +347,7 @@ class CustomListTile extends StatelessWidget {
     this.trailingIcon,
     this.iconColor,
     this.borderRadius,
-    @required this.bgColor,
+    this.bgColor,
     this.onTap,
     @required this.t,
   });
@@ -306,7 +360,7 @@ class CustomListTile extends StatelessWidget {
       subtitle: Text(subtitle),
       trailing: Icon(trailingIcon, size: 18),
       leading: CustomLeadingIcon(
-        color: bgColor,
+        color: bgColor ?? Theme.of(context).primaryColor,
         iconColor: iconColor,
         icon: icon,
         t: t,
@@ -341,10 +395,26 @@ class ListViewHeader extends StatelessWidget {
 class Loading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final List<String> data = [
+      "Did you know that a group of flamingos is called a 'flamboyance'?",
+      "The average person spends about six months of their life waiting for red lights to turn green",
+      "Honey never spoils",
+      "There are more possible iterations of a game of chess than there are atoms in the known universe",
+      "Sneezes can travel up to 100 miles per hour",
+      "The dot over the letter 'i' or 'j' is called a 'tittle.'",
+      "Octopuses have three hearts: two for pumping blood to the gills and one for the rest of the body",
+      "Cows have best friends and can get stressed when separated from them",
+      "The shortest war in history was between Britain and Zanzibar on August 27, 1896. Zanzibar surrendered after 38 minutes",
+      "Astronauts' height can change in space due to the absence of gravity"
+    ];
+
+    final random = Random();
+    final randomIndex = random.nextInt(data.length);
+
     return DoodleOutput(
       svgPath: "images/clock.svg",
       title: 'Loading',
-      subtitle: 'Fun Fact: Every 60 secs, a minute passes',
+      subtitle: data[randomIndex],
     );
   }
 }
@@ -365,8 +435,10 @@ class DoodleOutput extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       alignment: Alignment.center,
+      width: MediaQuery.of(context).size.width / 0.5,
       child: Container(
         padding: const EdgeInsets.all(40),
+        margin: const EdgeInsets.all(30),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           color: bg,
@@ -379,7 +451,7 @@ class DoodleOutput extends StatelessWidget {
             SvgPicture.asset(svgPath, color: Theme.of(context).primaryColor),
             SizedBox(height: 20),
             Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
-            Text(subtitle),
+            Text(subtitle, textAlign: TextAlign.center),
           ],
         ),
       ),
@@ -400,7 +472,7 @@ class CustomCard extends StatelessWidget {
     @required this.title,
     @required this.description,
     @required this.pc,
-    @required this.topTitle,
+    this.topTitle,
     @required this.onTap,
     @required this.onLongPress,
     this.rightSide,
@@ -428,11 +500,13 @@ class CustomCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Text(
-                    topTitle,
-                    style: TextStyle(fontSize: 10),
-                  ),
-                  SizedBox(height: 5),
+                  if (topTitle != null) ...[
+                    Text(
+                      topTitle,
+                      style: TextStyle(fontSize: 10),
+                    ),
+                    SizedBox(height: 5),
+                  ],
                   Text(
                     title,
                     style: TextStyle(
@@ -541,6 +615,7 @@ simpleDialog({
   @required String title,
   @required BuildContext context,
   @required List<Widget> children,
+  Color bg,
   bool dismissable = true,
   Function(dynamic) then,
 }) {
@@ -558,7 +633,7 @@ simpleDialog({
           padding: const EdgeInsets.fromLTRB(20, 30, 20, 10),
           child: Text(title, style: TextStyle(color: Colors.white)),
           decoration: BoxDecoration(
-            color: Theme.of(context).primaryColor,
+            color: bg ?? Theme.of(context).primaryColor,
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(10),
               topRight: Radius.circular(10),

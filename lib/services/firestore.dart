@@ -150,6 +150,12 @@ class Firestore {
         if (task.projectID == id) await taskCollection.doc(doc.id).delete();
       });
 
+      QuerySnapshot watchSnapshot = await watchesCollection.get();
+      watchSnapshot.docs.forEach((doc) async {
+        WatchModel watch = WatchModel.fromMap(doc.data());
+        if (watch.projectID == id) await watchesCollection.doc(doc.id).delete();
+      });
+
       return {'status': true, 'data': 'Project Deleted'};
     } catch (e) {
       print(e.message);

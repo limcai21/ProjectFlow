@@ -9,7 +9,6 @@ import 'package:ProjectFlow/services/auth.dart';
 import 'package:ProjectFlow/services/firestore.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
@@ -45,8 +44,6 @@ class _ProjectsState extends State<Projects> {
 
   @override
   Widget build(BuildContext context) {
-    var primaryColor = Theme.of(context).primaryColor;
-
     return CustomScaffold(
       layout: 2,
       title: 'Projects',
@@ -120,19 +117,48 @@ class _ProjectsState extends State<Projects> {
                             child: Text('Delete Project'),
                             onPressed: () async {
                               Get.back();
-                              loadingCircle(context: context);
-                              var r = await Firestore()
-                                  .deleteProject(id: snapshot.data[index].id);
-                              Get.back();
-                              if (r['status']) {
-                                startup();
-                              } else {
-                                normalAlertDialog(
-                                  title: 'Error',
-                                  description: r['data'],
-                                  context: context,
-                                );
-                              }
+                              normalAlertDialog(
+                                title: deleteProjectTitle,
+                                description: deleteProjectSubtitle,
+                                context: context,
+                                closeTitle: 'DELETE',
+                                additionalActions: TextButton(
+                                  onPressed: () => Get.back(),
+                                  child: Text(
+                                    "CLOSE",
+                                    style: TextStyle(
+                                      color: Theme.of(context).primaryColor,
+                                    ),
+                                  ),
+                                  style: ButtonStyle(
+                                    overlayColor: MaterialStateProperty.all(
+                                      Color.lerp(
+                                        Theme.of(context).primaryColor,
+                                        Colors.white,
+                                        0.9,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                onTap: () async {
+                                  Get.back();
+                                  loadingCircle(context: context);
+                                  var result = await Firestore().deleteProject(
+                                    id: snapshot.data[index].id,
+                                  );
+                                  Get.back();
+                                  await normalAlertDialog(
+                                    title: result['status']
+                                        ? 'Done'
+                                        : alertErrorTitle,
+                                    description: result['data'],
+                                    context: context,
+                                    goBackTwice:
+                                        result['status'] ? true : false,
+                                  );
+                                  startup();
+                                },
+                              );
                             },
                           ),
                         ],
@@ -143,17 +169,10 @@ class _ProjectsState extends State<Projects> {
                 }),
               );
             } else {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    SvgPicture.asset("images/arrowUp.svg", color: primaryColor),
-                    SizedBox(height: 20),
-                    Text("You have no project yet"),
-                    Text("Create one at the top right corner"),
-                  ],
-                ),
+              return DoodleOutput(
+                svgPath: "images/arrowUp.svg",
+                title: 'You have no project yet',
+                subtitle: 'Create one at the top right corner',
               );
             }
           } else if (snapshot.hasError) {

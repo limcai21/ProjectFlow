@@ -12,7 +12,8 @@ class NewEditProject extends StatefulWidget {
   final bool edit;
   final String id;
   final Project projectData;
-  NewEditProject({@required this.edit, this.id, this.projectData});
+  final Color bg;
+  NewEditProject({@required this.edit, this.id, this.projectData, this.bg});
 
   @override
   State<NewEditProject> createState() => _NewEditProjectState();
@@ -65,7 +66,7 @@ class _NewEditProjectState extends State<NewEditProject> {
               Get.back();
               uploadedImg = false;
               return normalAlertDialog(
-                title: 'Error',
+                title: alertErrorTitle,
                 description: iResult['msg'],
                 context: context,
               );
@@ -82,7 +83,7 @@ class _NewEditProjectState extends State<NewEditProject> {
             );
             Get.back();
             normalAlertDialog(
-              title: result['status'] ? 'Done' : 'Error',
+              title: result['status'] ? 'Done' : alertErrorTitle,
               description: result['data'],
               context: context,
               goBackTwice: result['status'] ? true : null,
@@ -104,7 +105,7 @@ class _NewEditProjectState extends State<NewEditProject> {
             );
             Get.back();
             normalAlertDialog(
-              title: result['status'] ? 'Created!' : 'Error',
+              title: result['status'] ? 'Created!' : alertErrorTitle,
               context: context,
               description: result['data'],
               goBackTwice: result['status'] ? true : null,
@@ -113,7 +114,7 @@ class _NewEditProjectState extends State<NewEditProject> {
           } else {
             Get.back();
             normalAlertDialog(
-              title: 'Error',
+              title: alertErrorTitle,
               context: context,
               description: iResult['data'],
             );
@@ -128,6 +129,7 @@ class _NewEditProjectState extends State<NewEditProject> {
           ? 'Make some adjustment to your project'
           : "Start a new project here",
       layout: 2,
+      backgroundColor: widget.bg ?? Theme.of(context).primaryColor,
       body: SingleChildScrollView(
         physics: BouncingScrollPhysics(),
         child: Padding(
@@ -219,7 +221,7 @@ class _NewEditProjectState extends State<NewEditProject> {
                         );
                       } else {
                         normalAlertDialog(
-                          title: 'Error',
+                          title: alertErrorTitle,
                           description: 'Select an image first',
                           context: context,
                         );
@@ -260,7 +262,7 @@ class _NewEditProjectState extends State<NewEditProject> {
                     child: Text(widget.edit ? 'Update' : 'Create'),
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all(
-                        Theme.of(context).primaryColor,
+                        widget.bg ?? Theme.of(context).primaryColor,
                       ),
                     ),
                   ),
