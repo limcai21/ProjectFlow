@@ -114,37 +114,42 @@ class _AccountState extends State<Account> {
                                   child: Text("Change Profile Picture"),
                                   onPressed: () async {
                                     Get.back();
+                                    loadingCircle(context: context);
                                     final ImagePicker picker = ImagePicker();
                                     PickedFile pickedFile = await picker
                                         .getImage(source: ImageSource.gallery);
-                                    var ur = await Firestore()
-                                        .uploadImage(path: pickedFile.path);
-                                    loadingCircle(context: context);
-                                    if (ur['status']) {
-                                      var result = await Auth()
-                                          .updateProfilePic(url: ur['url']);
-                                      Get.back();
-                                      normalAlertDialog(
-                                        title: result['status']
-                                            ? 'Updated'
-                                            : alertErrorTitle,
-                                        context: context,
-                                        description: result['data'],
-                                        goBackTwice:
-                                            result['status'] ? true : null,
-                                        backResult:
-                                            result['status'] ? 'reload' : null,
-                                      );
+                                    if (pickedFile != null) {
+                                      var ur = await Firestore()
+                                          .uploadImage(path: pickedFile.path);
+                                      if (ur['status']) {
+                                        var result = await Auth()
+                                            .updateProfilePic(url: ur['url']);
+                                        Get.back();
+                                        normalAlertDialog(
+                                          title: result['status']
+                                              ? 'Updated'
+                                              : alertErrorTitle,
+                                          context: context,
+                                          description: result['data'],
+                                          goBackTwice:
+                                              result['status'] ? true : null,
+                                          backResult: result['status']
+                                              ? 'reload'
+                                              : null,
+                                        );
 
-                                      if (result['status'])
-                                        refreshUserDetails();
+                                        if (result['status'])
+                                          refreshUserDetails();
+                                      } else {
+                                        Get.back();
+                                        normalAlertDialog(
+                                          title: alertErrorTitle,
+                                          description: ur['data'],
+                                          context: context,
+                                        );
+                                      }
                                     } else {
                                       Get.back();
-                                      normalAlertDialog(
-                                        title: alertErrorTitle,
-                                        description: ur['data'],
-                                        context: context,
-                                      );
                                     }
                                   },
                                 )

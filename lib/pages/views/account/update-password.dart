@@ -105,6 +105,8 @@ class _UpdatePasswordState extends State<UpdatePassword> {
                           context: context,
                           onTap: () async {
                             if (result['status']) {
+                              Get.back();
+                              Get.back();
                               await Auth().logout(true);
                               Get.off(() => Home());
                             } else {
