@@ -7,6 +7,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'pages/views/login.dart';
@@ -34,10 +35,11 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   void navigateToMainSkeleton() {
-    Future.delayed(Duration.zero, () {
-      var login = false;
-      // login = true;
-      login ? Get.off(() => MainSkeleton()) : Get.off(() => Home());
+    Future.delayed(Duration.zero, () async {
+      final SharedPreferences _prefs = await SharedPreferences.getInstance();
+      bool login = _prefs.getBool('isUserLoggedIn');
+      print("LOGIN STATUS: " + login.toString());
+      login == true ? Get.off(() => MainSkeleton()) : Get.off(() => Home());
     });
   }
 

@@ -66,7 +66,7 @@ class _AccountState extends State<Account> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            user.displayName,
+                            user.displayName.toString(),
                             style: TextStyle(
                               color: Colors.black,
                               fontSize: Theme.of(context)
@@ -77,7 +77,7 @@ class _AccountState extends State<Account> {
                             ),
                           ),
                           Text(
-                            user.email,
+                            user.email.toString(),
                             style: TextStyle(
                               color: Colors.grey[600],
                               fontSize: Theme.of(context)
@@ -224,23 +224,27 @@ class _AccountState extends State<Account> {
                       onTap: () async {
                         Get.back();
                         loadingCircle(context: context);
-                        var result = await Firestore().deleteAllDataFromUser(
-                          id: Auth().getCurrentUser().uid,
-                        );
+                        var result = await Firestore()
+                            .deleteAllDataFromUser(id: user.uid);
                         if (result['status']) {
-                          result = await Auth().deleteAccount();
-                          if (result['status']) {
-                            await Auth().logout();
-                            Get.off(() => Home());
-                          } else {
-                            Get.back();
-                            normalAlertDialog(
-                              title: alertErrorTitle,
-                              description: result['data'],
-                              context: context,
-                            );
-                          }
+                          Get.back();
+                          var r = await Auth().deleteAccount();
+                          Get.back();
+                          normalAlertDialog(
+                            title: r['status'] ? 'Deleted!' : alertErrorTitle,
+                            description: r['data'],
+                            context: context,
+                            onTap: () async {
+                              if (r['status']) {
+                                await Auth().logout(false);
+                                Get.off(() => Home());
+                              } else {
+                                Get.back();
+                              }
+                            },
+                          );
                         } else {
+                          Get.back();
                           normalAlertDialog(
                             title: alertErrorTitle,
                             description: result['data'],
@@ -259,7 +263,7 @@ class _AccountState extends State<Account> {
                   icon: FluentIcons.sign_out_24_filled,
                   bgColor: Colors.blue[700],
                   onTap: () async => {
-                    await Auth().logout(),
+                    await Auth().logout(true),
                     Get.off(() => Home()),
                   },
                 ),

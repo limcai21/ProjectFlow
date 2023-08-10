@@ -85,6 +85,7 @@ class _NewEditTopicState extends State<NewEditTopic> {
             child: Column(
               children: [
                 TextFormField(
+                  maxLength: 20,
                   controller: tTitleController,
                   decoration: InputDecoration(
                     labelText: 'Topic',

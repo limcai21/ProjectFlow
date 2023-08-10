@@ -260,6 +260,7 @@ class _NewEditTaskState extends State<NewEditTask> {
                       ),
                       // TITLE
                       TextFormField(
+                        maxLength: 50,
                         controller: tTitleController,
                         decoration: InputDecoration(
                           suffixIcon: Icon(task_icon),

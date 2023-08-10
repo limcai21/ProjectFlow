@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ProjectFlow/pages/global/constants.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Auth {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -10,7 +11,10 @@ class Auth {
     @required String password,
   }) async {
     try {
+      final SharedPreferences _prefs = await SharedPreferences.getInstance();
       await _auth.signInWithEmailAndPassword(email: email, password: password);
+      await _prefs.setBool('isUserLoggedIn', true);
+
       print("Succesfully Login");
       return {'status': true, 'data': 'Succesfully Login'};
     } on FirebaseAuthException catch (e) {
@@ -95,8 +99,10 @@ class Auth {
     }
   }
 
-  Future<void> logout() async {
-    await _auth.signOut();
+  Future<void> logout(bool withAuth) async {
+    final SharedPreferences _prefs = await SharedPreferences.getInstance();
+    await _prefs.remove('isUserLoggedIn');
+    if (withAuth) await _auth.signOut();
   }
 
   Future<Map<dynamic, dynamic>> deleteAccount() async {
@@ -104,7 +110,10 @@ class Auth {
       User user = this.getCurrentUser();
       await user.delete();
       print("User account deleted successfully!");
-      return {"status": true, "data": "User account deleted successfully!"};
+      return {
+        "status": true,
+        "data": "Account deleted successfully! You will now be logout"
+      };
     } catch (e) {
       print("Error deleting user account: $e");
       return {'status': false, 'data': e.message};

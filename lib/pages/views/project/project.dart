@@ -38,7 +38,9 @@ class _ProjectPageState extends State<ProjectPage> {
     Project pTemp = await Firestore().getProjectByProjectID(id: widget.id);
     List<Topic> tTemp = await Firestore().getTopicByProjectID(id: widget.id);
     List<Task> taskTemp = await Firestore().getTaskByProjectID(id: widget.id);
-    Color cTemp = await getDominantColorFromImage((pTemp.backgroundURL));
+    Color cTemp = pTemp != null
+        ? await getDominantColorFromImage((pTemp.backgroundURL))
+        : Theme.of(context).primaryColor;
 
     tTemp.forEach((topic) {
       List<Task> temp = [];

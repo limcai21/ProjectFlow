@@ -3,6 +3,7 @@ import 'package:ProjectFlow/model/project.dart';
 import 'package:ProjectFlow/model/topic.dart';
 import 'package:ProjectFlow/model/task.dart';
 import 'package:ProjectFlow/model/watch.dart';
+import 'package:ProjectFlow/pages/global/notification.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:timezone/timezone.dart' as tz;
@@ -24,7 +25,9 @@ class Firestore {
     QuerySnapshot projectSnapshot = await projectCollection.get();
     projectSnapshot.docs.forEach((doc) async {
       Project project = Project.fromMap(doc.data());
-      if (project.userID == id) await deleteProject(id: project.id);
+      if (project.userID == id) {
+        await deleteProject(id: doc.id);
+      }
     });
 
     return {
@@ -153,13 +156,17 @@ class Firestore {
       QuerySnapshot watchSnapshot = await watchesCollection.get();
       watchSnapshot.docs.forEach((doc) async {
         WatchModel watch = WatchModel.fromMap(doc.data());
-        if (watch.projectID == id) await watchesCollection.doc(doc.id).delete();
+        if (watch.projectID == id) {
+          await watchesCollection.doc(doc.id).delete();
+          await cancelNotification(id: watch.uuidNum);
+        }
       });
 
+      print("Project Deleted");
       return {'status': true, 'data': 'Project Deleted'};
     } catch (e) {
-      print(e.message);
-      return {'status': true, 'data': e.message};
+      print(e);
+      return {'status': true, 'data': e};
     }
   }
 
@@ -444,10 +451,6 @@ class Firestore {
       firebase_storage.Reference ref =
           firebase_storage.FirebaseStorage.instance.ref().child(fileName);
       await ref.putFile(File(path));
-
-      firebase_storage.FirebaseStorage.instance.ref().delete();
-
-      // Getting the download URL of the uploaded image
       String downloadURL = await ref.getDownloadURL();
       return {
         "status": true,
@@ -465,10 +468,10 @@ class Firestore {
   Future<Map> deleteImage({@required String id}) async {
     try {
       firebase_storage.Reference ref =
-          firebase_storage.FirebaseStorage.instance.ref().child(id);
+          firebase_storage.FirebaseStorage.instance.ref(id);
       await ref.delete();
 
-      return {"status": true, "msg": "Image deleted."};
+      return {"status": true, "msg": "Image deleted"};
     } catch (e) {
       // Handle any errors that occur during the image deletion process.
       print('Error deleting image: $e');

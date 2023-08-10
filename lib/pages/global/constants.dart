@@ -11,7 +11,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'notification.dart';
 
-const dateFormat = 'dd MMM yyyy, h:mm a';
+const dateFormat = 'd MMM yyyy, h:mm a';
 const empty_fields = "Field cannot be empty";
 const something_wrong_validation = "Something wrong with validation";
 const project_icon = FluentIcons.dock_panel_left_24_regular;
@@ -496,37 +496,42 @@ class CustomCard extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  if (topTitle != null) ...[
+              Flexible(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    if (topTitle != null) ...[
+                      Text(
+                        topTitle,
+                        style: TextStyle(fontSize: 10),
+                      ),
+                      SizedBox(height: 5),
+                    ],
                     Text(
-                      topTitle,
-                      style: TextStyle(fontSize: 10),
-                    ),
-                    SizedBox(height: 5),
-                  ],
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w500,
-                      fontSize: 16,
-                    ),
-                  ),
-                  if (description != "") ...[
-                    SizedBox(height: 2),
-                    Text(
-                      description,
+                      title,
                       style: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 16,
                       ),
                     ),
+                    if (description != "") ...[
+                      SizedBox(height: 2),
+                      Text(
+                        description,
+                        maxLines: 1,
+                        softWrap: false,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
-              if (rightSide != null) rightSide,
+              if (rightSide != null) ...[SizedBox(width: 20), rightSide],
             ],
           ),
         ),

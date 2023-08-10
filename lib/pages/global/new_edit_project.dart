@@ -139,12 +139,12 @@ class _NewEditProjectState extends State<NewEditProject> {
             child: Column(
               children: [
                 TextFormField(
+                  maxLength: 20,
                   controller: pTitleController,
                   decoration: InputDecoration(
                     suffixIcon: Icon(project_icon),
                     labelText: 'Project Title',
                   ),
-                  maxLength: 50,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return projectEmptyNull;
