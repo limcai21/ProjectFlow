@@ -126,7 +126,7 @@ class _ProjectPageState extends State<ProjectPage> {
                 child: Icon(task_icon),
                 onTap: () async {
                   final result = await Get.to(
-                    () => NewEditTask(id: widget.id, edit: false, bg: pc),
+                    () => NewEditTask(id: widget.id, edit: false),
                   );
                   if (result == 'reload') startup();
                 },
@@ -137,7 +137,7 @@ class _ProjectPageState extends State<ProjectPage> {
               child: Icon(topic_icon),
               onTap: () async {
                 final result = await Get.to(
-                  () => NewEditTopic(id: widget.id, edit: false, bg: pc),
+                  () => NewEditTopic(id: widget.id, edit: false),
                 );
                 if (result == 'reload') startup();
               },
