@@ -24,21 +24,21 @@ class _MainSkeletonState extends State<MainSkeleton> {
       project_icon,
       FluentIcons.dock_panel_left_24_filled,
       Projects(),
-      "Manage your projects"
+      "Manage your projects here"
     ],
     [
       "Search",
       FluentIcons.search_24_regular,
       FluentIcons.search_24_filled,
       Search(),
-      "All your task is here"
+      "Search through all your task here"
     ],
     [
       "Watches",
       FluentIcons.eye_show_24_regular,
       FluentIcons.eye_show_24_filled,
       Watches(),
-      "View all your watch task here"
+      "View all your watches here"
     ],
     [
       "Account",

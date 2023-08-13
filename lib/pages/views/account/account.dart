@@ -204,7 +204,7 @@ class _AccountState extends State<Account> {
                                 ? NetworkImage(user.photoURL)
                                 : AssetImage("images/defaultProfilePic.png"),
                       ),
-                    )
+                    ),
                   ],
                 ),
               ),

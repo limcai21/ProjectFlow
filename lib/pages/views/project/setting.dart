@@ -128,7 +128,7 @@ class _ProjectSettingsState extends State<ProjectSettings> {
                             additionalActions: TextButton(
                               onPressed: () => Get.back(),
                               child: Text(
-                                "CLOSE",
+                                "CANCEL",
                                 style: TextStyle(
                                   color: Theme.of(context).primaryColor,
                                 ),
