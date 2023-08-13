@@ -7,13 +7,16 @@ import 'package:ProjectFlow/pages/global/new_edit_topic.dart';
 import 'package:ProjectFlow/pages/global/notification.dart';
 import 'package:ProjectFlow/pages/global/scaffold.dart';
 import 'package:ProjectFlow/pages/views/project/setting.dart';
+import 'package:ProjectFlow/services/ads.dart';
 import 'package:ProjectFlow/services/auth.dart';
 import 'package:ProjectFlow/services/firestore.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:get/get.dart';
+// import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class ProjectPage extends StatefulWidget {
   final String id;
@@ -32,6 +35,22 @@ class _ProjectPageState extends State<ProjectPage> {
   List<Task> outputProjectTask = [];
   Map<String, List<Task>> output = {};
   Color pc;
+  // InterstitialAd ads;
+
+  // @override
+  // void didChangeDependencies() {
+  //   super.didChangeDependencies();
+  //   final adState = Provider.of<AdState>(context);
+  //   adState.initialization.then((status) => {
+  //         setState(() => {
+  //               ads = InterstitialAd(
+  //                 adUnitId: adState.getBannerAdUnitID,
+  //                 listener: adState.listener,
+  //                 request: AdRequest(),
+  //               )..load()
+  //             })
+  //       });
+  // }
 
   startup() async {
     Map<String, List<Task>> tempOutput = {};

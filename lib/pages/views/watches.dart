@@ -9,6 +9,7 @@ import 'package:ProjectFlow/services/firestore.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 class Watches extends StatefulWidget {
   @override
@@ -39,89 +40,89 @@ class _WatchesState extends State<Watches> {
 
   @override
   Widget build(BuildContext context) {
-    return CustomScaffold(
-      title: 'Watches',
-      subtitle: 'View all your watch task here',
-      layout: 2,
-      body: FutureBuilder<List<WatchModel>>(
-        future: watchesFuture,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            if (snapshot.data.length > 0) {
-              return ListView.builder(
-                padding: const EdgeInsets.all(10),
-                physics: BouncingScrollPhysics(),
-                itemCount: snapshot.data.length,
-                itemBuilder: (context, index) {
-                  WatchModel data = snapshot.data[index];
+    return FutureBuilder<List<WatchModel>>(
+      future: watchesFuture,
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          if (snapshot.data.length > 0) {
+            return ListView.builder(
+              padding: const EdgeInsets.all(10),
+              physics: BouncingScrollPhysics(),
+              itemCount: snapshot.data.length,
+              itemBuilder: (context, index) {
+                WatchModel data = snapshot.data[index];
 
-                  return CustomCard(
-                    topTitle: data.project.title,
-                    title: data.task.title,
-                    description: data.task.description,
-                    pc: Theme.of(context).primaryColor,
-                    rightSide: Container(
-                      width: 5,
-                      height: 30,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(100),
-                        color: Color(getHexValue(data.project.theme)),
-                      ),
-                    ),
-                    onTap: () async {
-                      await Get.to(
-                        () => NewEditTask(
-                          id: data.projectID,
-                          edit: true,
-                          taskData: data.task,
-                        ),
-                      );
-                      startup();
-                    },
-                    onLongPress: () => simpleDialog(
-                      title: 'Quick Actions',
-                      context: context,
-                      children: [
-                        simpleDialogOption(
-                          child: Text("Unwatch Task"),
-                          icon: FluentIcons.eye_hide_24_regular,
-                          onPressed: () async {
-                            await cancelNotification(id: data.task.uuidNum);
-                            await Firestore().unwatchTask(id: data.id);
-                            Get.back();
-                            startup();
-                          },
-                        ),
-                        simpleDialogOption(
-                          child: Text("To Project"),
-                          icon: project_icon,
-                          onPressed: () async {
-                            Get.back();
-                            await Get.to(
-                              () => ProjectPage(id: data.projectID),
-                            );
-                            startup();
-                          },
+                return CustomCard(
+                  topTitle: data.project.title,
+                  title: data.task.title,
+                  description: "Due on " +
+                      DateFormat(dateFormat)
+                          .format(data.task.endDateTime.toDate()),
+                  pc: Theme.of(context).primaryColor,
+                  rightSide: data.task.status != 'Created'
+                      ? Chip(
+                          backgroundColor: getTaskColor(data.task.status),
+                          padding: const EdgeInsets.all(3),
+                          label: Icon(
+                            getTaskIcon(data.task.status),
+                            color: Colors.white,
+                            size: 16,
+                          ),
                         )
-                      ],
-                    ),
-                  );
-                },
-              );
-            } else {
-              return DoodleOutput(
-                svgPath: "images/camera.svg",
-                title: 'You have no watch task yet',
-                subtitle: 'Go to your project and watch one of your task',
-              );
-            }
-          } else if (snapshot.hasError) {
-            return Text(snapshot.error);
+                      : null,
+                  onTap: () async {
+                    await Get.to(
+                      () => NewEditTask(
+                        id: data.projectID,
+                        edit: true,
+                        taskData: data.task,
+                      ),
+                    );
+                    startup();
+                  },
+                  onLongPress: () => simpleDialog(
+                    title: 'Quick Actions',
+                    context: context,
+                    children: [
+                      simpleDialogOption(
+                        child: Text("Unwatch Task"),
+                        icon: FluentIcons.eye_hide_24_regular,
+                        onPressed: () async {
+                          await cancelNotification(id: data.task.uuidNum);
+                          await Firestore().unwatchTask(id: data.id);
+                          Get.back();
+                          startup();
+                        },
+                      ),
+                      simpleDialogOption(
+                        child: Text("To Project"),
+                        icon: project_icon,
+                        onPressed: () async {
+                          Get.back();
+                          await Get.to(
+                            () => ProjectPage(id: data.projectID),
+                          );
+                          startup();
+                        },
+                      )
+                    ],
+                  ),
+                );
+              },
+            );
+          } else {
+            return DoodleOutput(
+              svgPath: "images/camera.svg",
+              title: 'You have no watch task yet',
+              subtitle: 'Go to your project and watch one of your task',
+            );
           }
+        } else if (snapshot.hasError) {
+          return Text(snapshot.error);
+        }
 
-          return Loading();
-        },
-      ),
+        return Loading();
+      },
     );
   }
 }

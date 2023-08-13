@@ -27,6 +27,8 @@ dependencies:
   intl:
   uuid:
   lottie:
+  provider:
+  animations:
   flutter_svg:
   image_picker:
   url_launcher:
@@ -35,6 +37,7 @@ dependencies:
   cloud_firestore:
   firebase_storage:
   date_time_picker:
+  # google_mobile_ads: 
   shared_preferences:
   flutter_speed_dial:
   salomon_bottom_bar:

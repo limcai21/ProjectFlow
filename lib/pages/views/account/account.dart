@@ -5,6 +5,7 @@ import 'package:ProjectFlow/pages/views/account/update-email.dart';
 import 'package:ProjectFlow/pages/views/account/update-password.dart';
 import 'package:ProjectFlow/services/auth.dart';
 import 'package:ProjectFlow/services/firestore.dart';
+import 'package:animations/animations.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
@@ -43,264 +44,304 @@ class _AccountState extends State<Account> {
       0.125,
     );
 
-    return CustomScaffold(
-      title: "Account",
-      subtitle: "Manage all your information here",
-      layout: 2,
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.only(bottom: 20),
-              physics: BouncingScrollPhysics(),
-              children: [
-                Container(
-                  padding: EdgeInsets.all(20),
-                  color: bgColor,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            user.displayName.toString(),
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: Theme.of(context)
-                                  .textTheme
-                                  .headline6
-                                  .fontSize,
-                              fontWeight: FontWeight.bold,
-                            ),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.only(bottom: 20),
+            physics: BouncingScrollPhysics(),
+            children: [
+              Container(
+                padding: EdgeInsets.all(20),
+                color: bgColor,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          user.displayName.toString(),
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize:
+                                Theme.of(context).textTheme.headline6.fontSize,
+                            fontWeight: FontWeight.bold,
                           ),
-                          Text(
-                            user.email.toString(),
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: Theme.of(context)
-                                  .textTheme
-                                  .bodyText1
-                                  .fontSize,
-                            ),
+                        ),
+                        Text(
+                          user.email.toString(),
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize:
+                                Theme.of(context).textTheme.bodyText1.fontSize,
                           ),
-                        ],
-                      ),
-                      GestureDetector(
-                        onTap: () async {
-                          simpleDialog(
-                              title: 'Profile Picture',
-                              context: context,
-                              children: [
-                                simpleDialogOption(
-                                  child: Text("View Profile Picture"),
-                                  icon: FluentIcons.image_24_regular,
-                                  onPressed: () {
+                        ),
+                      ],
+                    ),
+                    GestureDetector(
+                      onTap: () async {
+                        simpleDialog(
+                          title: 'Profile Picture',
+                          context: context,
+                          children: [
+                            simpleDialogOption(
+                              child: Text("View Profile Picture"),
+                              icon: FluentIcons.image_24_regular,
+                              onPressed: () {
+                                Get.back();
+                                imagePreview(
+                                  local: user.photoURL != null &&
+                                          user.photoURL != " "
+                                      ? false
+                                      : true,
+                                  url: user.photoURL != null &&
+                                          user.photoURL != " "
+                                      ? user.photoURL
+                                      : "images/defaultProfilePic.png",
+                                  context: context,
+                                );
+                              },
+                            ),
+                            simpleDialogOption(
+                              icon: FluentIcons.image_edit_24_regular,
+                              child: Text("Change Profile Picture"),
+                              onPressed: () async {
+                                Get.back();
+                                loadingCircle(context: context);
+                                final ImagePicker picker = ImagePicker();
+                                PickedFile pickedFile = await picker.getImage(
+                                    source: ImageSource.gallery);
+                                if (pickedFile != null) {
+                                  var ur = await Firestore()
+                                      .uploadImage(path: pickedFile.path);
+                                  if (ur['status']) {
+                                    var result = await Auth()
+                                        .updateProfilePic(url: ur['url']);
                                     Get.back();
-                                    imagePreview(
-                                      local:
-                                          user.photoURL != null ? false : true,
-                                      url: user.photoURL != null
-                                          ? user.photoURL
-                                          : "images/defaultProfilePic.png",
+                                    normalAlertDialog(
+                                      title: result['status']
+                                          ? 'Updated'
+                                          : alertErrorTitle,
+                                      context: context,
+                                      description: result['data'],
+                                      goBackTwice:
+                                          result['status'] ? true : null,
+                                      backResult:
+                                          result['status'] ? 'reload' : null,
+                                    );
+
+                                    if (result['status']) refreshUserDetails();
+                                  } else {
+                                    Get.back();
+                                    normalAlertDialog(
+                                      title: alertErrorTitle,
+                                      description: ur['data'],
                                       context: context,
                                     );
-                                  },
-                                ),
-                                simpleDialogOption(
-                                  icon: FluentIcons.image_edit_24_regular,
-                                  child: Text("Change Profile Picture"),
-                                  onPressed: () async {
-                                    Get.back();
-                                    loadingCircle(context: context);
-                                    final ImagePicker picker = ImagePicker();
-                                    PickedFile pickedFile = await picker
-                                        .getImage(source: ImageSource.gallery);
-                                    if (pickedFile != null) {
-                                      var ur = await Firestore()
-                                          .uploadImage(path: pickedFile.path);
-                                      if (ur['status']) {
-                                        var result = await Auth()
-                                            .updateProfilePic(url: ur['url']);
-                                        Get.back();
-                                        normalAlertDialog(
-                                          title: result['status']
-                                              ? 'Updated'
-                                              : alertErrorTitle,
-                                          context: context,
-                                          description: result['data'],
-                                          goBackTwice:
-                                              result['status'] ? true : null,
-                                          backResult: result['status']
-                                              ? 'reload'
-                                              : null,
-                                        );
-
-                                        if (result['status'])
-                                          refreshUserDetails();
-                                      } else {
-                                        Get.back();
-                                        normalAlertDialog(
-                                          title: alertErrorTitle,
-                                          description: ur['data'],
-                                          context: context,
-                                        );
-                                      }
-                                    } else {
-                                      Get.back();
-                                    }
-                                  },
-                                )
-                              ]);
-                        },
-                        child: CircleAvatar(
-                          radius: 30,
-                          backgroundColor: Colors.transparent,
-                          backgroundImage: user.photoURL != null
-                              ? NetworkImage(user.photoURL)
-                              : AssetImage("images/defaultProfilePic.png"),
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-                ListViewHeader(title: 'My Info'),
-                CustomListTile(
-                  title: "Email",
-                  subtitle: "Update your email address",
-                  t: t,
-                  borderRadius: borderRadius,
-                  icon: FluentIcons.mail_24_filled,
-                  trailingIcon: FluentIcons.chevron_right_24_regular,
-                  bgColor: Colors.orange,
-                  onTap: () async {
-                    await Get.to(
-                      () => UpdateEmail(currentEmail: user.email),
-                    );
-                    refreshUserDetails();
-                  },
-                ),
-                CustomListTile(
-                  title: "Password",
-                  subtitle: "Change your password",
-                  t: t,
-                  borderRadius: borderRadius,
-                  icon: FluentIcons.password_24_filled,
-                  trailingIcon: FluentIcons.chevron_right_24_regular,
-                  bgColor: Colors.brown,
-                  onTap: () {
-                    Get.to(() => UpdatePassword());
-                  },
-                ),
-                CustomListTile(
-                  title: "Delete Account",
-                  subtitle: "Once you delete, it's gone",
-                  t: t,
-                  borderRadius: borderRadius,
-                  icon: FluentIcons.delete_24_filled,
-                  bgColor: Colors.red,
-                  onTap: () async {
-                    normalAlertDialog(
-                      title: destructiveTitle,
-                      description:
-                          'Are you sure you want to delete your account? All projects, topics & tasks will be gone',
-                      context: context,
-                      closeTitle: 'Delete',
-                      additionalActions: TextButton(
-                        style: ButtonStyle(
-                          overlayColor: MaterialStateProperty.all(
-                            Color.lerp(
-                              Theme.of(context).primaryColor,
-                              Colors.white,
-                              0.9,
+                                  }
+                                } else {
+                                  Get.back();
+                                }
+                              },
                             ),
-                          ),
-                        ),
-                        onPressed: () => Get.back(),
-                        child: Text(
-                          "CANCEL",
-                          style: TextStyle(
-                            color: Theme.of(context).primaryColor,
+                            if (user.photoURL != null && user.photoURL != " ")
+                              simpleDialogOption(
+                                icon: FluentIcons.image_off_24_regular,
+                                child: Text("Remove Profile Picture"),
+                                onPressed: () async {
+                                  Get.back();
+                                  normalAlertDialog(
+                                    title: 'Remove Profile Picture',
+                                    description:
+                                        'Are you sure you want to remove your current profile picture?',
+                                    context: context,
+                                    closeTitle: 'REMOVE',
+                                    additionalActions: TextButton(
+                                      onPressed: () => Get.back(),
+                                      child: Text(
+                                        "CANCEL",
+                                        style: TextStyle(
+                                          color: Theme.of(context).primaryColor,
+                                        ),
+                                      ),
+                                      style: ButtonStyle(
+                                        overlayColor: MaterialStateProperty.all(
+                                          Color.lerp(
+                                            Theme.of(context).primaryColor,
+                                            Colors.white,
+                                            0.9,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    onTap: () async {
+                                      Get.back();
+                                      loadingCircle(context: context);
+                                      await Auth().updateProfilePic(
+                                        url: null,
+                                        remove: true,
+                                      );
+                                      await Firestore().deleteImage(
+                                        id: user.photoURL,
+                                      );
+                                      refreshUserDetails();
+                                      Get.back();
+                                    },
+                                  );
+                                },
+                              ),
+                          ],
+                        );
+                      },
+                      child: CircleAvatar(
+                        radius: 30,
+                        backgroundColor: Colors.transparent,
+                        backgroundImage:
+                            user.photoURL != null && user.photoURL != " "
+                                ? NetworkImage(user.photoURL)
+                                : AssetImage("images/defaultProfilePic.png"),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              ListViewHeader(title: 'My Info'),
+              CustomListTile(
+                title: "Email",
+                subtitle: "Update your email address",
+                t: t,
+                borderRadius: borderRadius,
+                icon: FluentIcons.mail_24_filled,
+                trailingIcon: FluentIcons.chevron_right_24_regular,
+                bgColor: Colors.orange,
+                onTap: () async {
+                  await Get.to(
+                    () => UpdateEmail(currentEmail: user.email),
+                  );
+                  refreshUserDetails();
+                },
+              ),
+              CustomListTile(
+                title: "Password",
+                subtitle: "Change your password",
+                t: t,
+                borderRadius: borderRadius,
+                icon: FluentIcons.password_24_filled,
+                trailingIcon: FluentIcons.chevron_right_24_regular,
+                bgColor: Colors.brown,
+                onTap: () {
+                  Get.to(() => UpdatePassword());
+                },
+              ),
+              CustomListTile(
+                title: "Delete Account",
+                subtitle: "Once you delete, it's gone",
+                t: t,
+                borderRadius: borderRadius,
+                icon: FluentIcons.delete_24_filled,
+                bgColor: Colors.red,
+                onTap: () async {
+                  normalAlertDialog(
+                    title: destructiveTitle,
+                    description:
+                        'Are you sure you want to delete your account? All projects, topics & tasks will be gone',
+                    context: context,
+                    closeTitle: 'Delete',
+                    additionalActions: TextButton(
+                      style: ButtonStyle(
+                        overlayColor: MaterialStateProperty.all(
+                          Color.lerp(
+                            Theme.of(context).primaryColor,
+                            Colors.white,
+                            0.9,
                           ),
                         ),
                       ),
-                      onTap: () async {
+                      onPressed: () => Get.back(),
+                      child: Text(
+                        "CANCEL",
+                        style: TextStyle(
+                          color: Theme.of(context).primaryColor,
+                        ),
+                      ),
+                    ),
+                    onTap: () async {
+                      Get.back();
+                      loadingCircle(context: context);
+                      var result =
+                          await Firestore().deleteAllDataFromUser(id: user.uid);
+                      if (result['status']) {
                         Get.back();
-                        loadingCircle(context: context);
-                        var result = await Firestore()
-                            .deleteAllDataFromUser(id: user.uid);
-                        if (result['status']) {
-                          Get.back();
-                          var r = await Auth().deleteAccount();
-                          Get.back();
-                          normalAlertDialog(
-                            title: r['status'] ? 'Deleted!' : alertErrorTitle,
-                            description: r['data'],
-                            context: context,
-                            onTap: () async {
-                              if (r['status']) {
-                                await Auth().logout(false);
-                                Get.off(() => Home());
-                              } else {
-                                Get.back();
-                              }
-                            },
-                          );
-                        } else {
-                          Get.back();
-                          normalAlertDialog(
-                            title: alertErrorTitle,
-                            description: result['data'],
-                            context: context,
-                          );
-                        }
-                      },
-                    );
-                  },
+                        var r = await Auth().deleteAccount();
+                        Get.back();
+                        normalAlertDialog(
+                          title: r['status'] ? 'Deleted!' : alertErrorTitle,
+                          description: r['data'],
+                          context: context,
+                          onTap: () async {
+                            if (r['status']) {
+                              await Auth().logout(false);
+                              Get.off(() => Home());
+                            } else {
+                              Get.back();
+                            }
+                          },
+                        );
+                      } else {
+                        Get.back();
+                        normalAlertDialog(
+                          title: alertErrorTitle,
+                          description: result['data'],
+                          context: context,
+                        );
+                      }
+                    },
+                  );
+                },
+              ),
+              CustomListTile(
+                title: "Logout",
+                subtitle: "You can always login again",
+                t: t,
+                borderRadius: borderRadius,
+                icon: FluentIcons.sign_out_24_filled,
+                bgColor: Colors.blue[700],
+                onTap: () async => {
+                  await Auth().logout(true),
+                  Get.off(() => Home()),
+                },
+              ),
+              ListViewHeader(title: 'Company'),
+              CustomListTile(
+                title: 'About Us',
+                subtitle: 'Find out more about us',
+                t: t,
+                borderRadius: borderRadius,
+                icon: FluentIcons.info_24_filled,
+                trailingIcon: FluentIcons.chevron_right_24_filled,
+                bgColor: Colors.green,
+                onTap: () => Get.to(() => AboutUs()),
+              ),
+              CustomListTile(
+                title: 'Feedback',
+                subtitle: 'Tell us if you encounter something odd',
+                t: t,
+                borderRadius: borderRadius,
+                icon: FluentIcons.person_feedback_24_filled,
+                trailingIcon: FluentIcons.open_24_filled,
+                bgColor: Colors.purple,
+                onTap: () => launchEmail(
+                  company_feedback_email,
+                  'Feedback on ProjectFlow',
                 ),
-                CustomListTile(
-                  title: "Logout",
-                  subtitle: "You can always login again",
-                  t: t,
-                  borderRadius: borderRadius,
-                  icon: FluentIcons.sign_out_24_filled,
-                  bgColor: Colors.blue[700],
-                  onTap: () async => {
-                    await Auth().logout(true),
-                    Get.off(() => Home()),
-                  },
-                ),
-                ListViewHeader(title: 'Company'),
-                CustomListTile(
-                  title: 'About Us',
-                  subtitle: 'Find out more about us',
-                  t: t,
-                  borderRadius: borderRadius,
-                  icon: FluentIcons.info_24_filled,
-                  trailingIcon: FluentIcons.chevron_right_24_filled,
-                  bgColor: Colors.green,
-                  onTap: () => Get.to(() => AboutUs()),
-                ),
-                CustomListTile(
-                  title: 'Feedback',
-                  subtitle: 'Tell us if you encounter something odd',
-                  t: t,
-                  borderRadius: borderRadius,
-                  icon: FluentIcons.person_feedback_24_filled,
-                  trailingIcon: FluentIcons.open_24_filled,
-                  bgColor: Colors.purple,
-                  onTap: () => launchEmail(
-                    company_feedback_email,
-                    'Feedback on ProjectFlow',
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

@@ -466,14 +466,33 @@ class Firestore {
   }
 
   Future<Map> deleteImage({@required String id}) async {
+    bool isUrl(String urlString) {
+      Uri uri = Uri.tryParse(urlString);
+      return uri != null && (uri.scheme == 'http' || uri.scheme == 'https');
+    }
+
     try {
+      if (isUrl(id)) {
+        firebase_storage.Reference ref =
+            firebase_storage.FirebaseStorage.instance.ref();
+        firebase_storage.ListResult data = await ref.listAll();
+        List<firebase_storage.Reference> allImg = data.items;
+
+        for (var img in allImg) {
+          if (await img.getDownloadURL() == id) {
+            firebase_storage.FullMetadata temp = await img.getMetadata();
+            id = temp.name;
+            break;
+          }
+        }
+      }
+
       firebase_storage.Reference ref =
           firebase_storage.FirebaseStorage.instance.ref(id);
       await ref.delete();
-
+      print("Image deleted based on ID");
       return {"status": true, "msg": "Image deleted"};
     } catch (e) {
-      // Handle any errors that occur during the image deletion process.
       print('Error deleting image: $e');
       return {"status": false, "msg": e.message};
     }

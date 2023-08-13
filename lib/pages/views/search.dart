@@ -34,22 +34,18 @@ class _SearchState extends State<Search> {
 
   @override
   Widget build(BuildContext context) {
-    return CustomScaffold(
-      layout: 2,
-      title: "Search",
-      subtitle: "All your task is here",
-      actionBtn: [
-        IconButton(
-          icon: Icon(FluentIcons.search_24_regular),
-          onPressed: () async {
-            await showSearch(
-              context: context,
-              delegate: TaskSearch(data: taskList),
-            );
-            startup();
-          },
-        ),
-      ],
+    return Scaffold(
+      floatingActionButton: FloatingActionButton.extended(
+        label: Icon(FluentIcons.search_24_regular),
+        backgroundColor: Theme.of(context).primaryColor,
+        onPressed: () async {
+          await showSearch(
+            context: context,
+            delegate: TaskSearch(data: taskList),
+          );
+          startup();
+        },
+      ),
       body: loading
           ? Loading()
           : taskList.length > 0
@@ -153,10 +149,20 @@ class TaskSearch extends SearchDelegate<String> {
           itemCount: search().length,
           itemBuilder: (context, index) {
             return CustomCard(
-              topTitle: searchData[index].status,
               title: searchData[index].title,
               description: searchData[index].description,
               pc: Theme.of(context).primaryColor,
+              rightSide: searchData[index].status != 'Created'
+                  ? Chip(
+                      backgroundColor: getTaskColor(searchData[index].status),
+                      padding: const EdgeInsets.all(3),
+                      label: Icon(
+                        getTaskIcon(searchData[index].status),
+                        color: Colors.white,
+                        size: 16,
+                      ),
+                    )
+                  : null,
               onTap: () {
                 close(context, null);
                 Get.to(

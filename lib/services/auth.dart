@@ -64,17 +64,26 @@ class Auth {
     }
   }
 
-  Future<Map<dynamic, dynamic>> updateProfilePic({@required String url}) async {
+  Future<Map<dynamic, dynamic>> updateProfilePic({
+    @required String url,
+    bool remove = false,
+  }) async {
     try {
       User currentUser = getCurrentUser();
-      await currentUser.updateProfile(photoURL: url);
-      print('Pofile Picture Updated!');
-      return {'status': true, 'data': 'Profile Picture Updated'};
+      if (remove) {
+        await currentUser.updateProfile(photoURL: ' ');
+        print('Profile Picture Removed!');
+        return {'status': true, 'data': 'Profile Picture Removed'};
+      } else {
+        await currentUser.updateProfile(photoURL: url);
+        print('Profile Picture Updated!');
+        return {'status': true, 'data': 'Profile Picture Updated'};
+      }
     } on FirebaseAuthException catch (e) {
       return {'status': false, 'data': e.message};
     } catch (e) {
-      print(e.message);
-      return {'status': false, 'data': e.message};
+      print(e.toString());
+      return {'status': false, 'data': e.toString()};
     }
   }
 

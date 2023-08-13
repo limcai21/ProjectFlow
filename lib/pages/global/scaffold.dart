@@ -9,6 +9,7 @@ class CustomScaffold extends StatelessWidget {
   final int layout;
   final Widget fab;
   final bool tab;
+  final Widget bottomNavigationBar;
 
   CustomScaffold({
     @required this.layout,
@@ -19,6 +20,7 @@ class CustomScaffold extends StatelessWidget {
     this.backgroundColor,
     this.fab,
     this.tab,
+    this.bottomNavigationBar,
   });
 
   titleWidget(title, context) {
@@ -57,6 +59,7 @@ class CustomScaffold extends StatelessWidget {
             : Theme.of(context).primaryColor,
       ),
       floatingActionButton: fab,
+      bottomNavigationBar: bottomNavigationBar,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

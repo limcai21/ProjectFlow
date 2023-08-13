@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 import 'package:ProjectFlow/model/task.dart';
 import 'package:ProjectFlow/services/auth.dart';
 import 'package:ProjectFlow/services/firestore.dart';
+import 'package:animations/animations.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -551,65 +552,36 @@ imagePreview({
   bool local = false,
   @required BuildContext context,
 }) {
+  EdgeInsets padding = const EdgeInsets.all(0);
   double br = 10;
 
-  return showModalBottomSheet(
-    backgroundColor: Colors.transparent,
+  return showModal(
     context: context,
     builder: (BuildContext context) {
-      return Container(
-        margin: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(br),
-          color: Colors.white,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              width: double.infinity,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(br),
-                    topRight: Radius.circular(br),
-                  ),
-                ),
-                padding: const EdgeInsets.only(
-                  left: 20,
-                  right: 20,
-                  top: 30,
-                  bottom: 20,
-                ),
-                child: Text(
-                  "Image Preview",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+      return Center(
+        child: AlertDialog(
+          titlePadding: padding,
+          buttonPadding: padding,
+          actionsPadding: padding,
+          contentPadding: padding,
+          insetPadding: const EdgeInsets.all(30),
+          backgroundColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(br)),
+          ),
+          content: AspectRatio(
+            aspectRatio: 1.0,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(br),
+                color: Colors.transparent,
+                image: DecorationImage(
+                  fit: BoxFit.cover,
+                  image: local ? AssetImage(url) : NetworkImage(url),
                 ),
               ),
             ),
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(br),
-                    bottomRight: Radius.circular(br),
-                  ),
-                  image: DecorationImage(
-                    fit: BoxFit.cover,
-                    image: local ? AssetImage(url) : NetworkImage(url),
-                  ),
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
       );
     },
@@ -624,8 +596,7 @@ simpleDialog({
   bool dismissable = true,
   Function(dynamic) then,
 }) {
-  showDialog(
-    barrierDismissible: dismissable,
+  showModal(
     context: context,
     builder: (BuildContext context) {
       return SimpleDialog(
@@ -648,7 +619,7 @@ simpleDialog({
         children: children,
       );
     },
-  ).then((value) => then != null ? then(value) : null);
+  );
 }
 
 simpleDialogOption({
@@ -675,9 +646,8 @@ normalAlertDialog({
   dynamic backResult,
   Function onTap,
 }) {
-  return showDialog(
+  showModal(
     context: context,
-    barrierDismissible: false, // user must tap button!
     builder: (BuildContext context) {
       return AlertDialog(
         insetPadding: const EdgeInsets.all(20),

@@ -3,6 +3,7 @@ import 'package:ProjectFlow/pages/global/constants.dart';
 import 'package:ProjectFlow/pages/global/scaffold.dart';
 import 'package:ProjectFlow/services/auth.dart';
 import 'package:ProjectFlow/services/firestore.dart';
+import 'package:animations/animations.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -202,9 +203,10 @@ class _NewEditProjectState extends State<NewEditProject> {
                     if (widget.edit) {
                       if (pImageController.text != widget.projectData.imageID) {
                         imagePreview(
-                            url: pImageController.text,
-                            local: true,
-                            context: context);
+                          url: pImageController.text,
+                          local: true,
+                          context: context,
+                        );
                       } else {
                         imagePreview(
                           url: widget.projectData.backgroundURL,

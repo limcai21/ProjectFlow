@@ -3,7 +3,6 @@ import 'package:ProjectFlow/pages/global/constants.dart';
 import 'package:ProjectFlow/pages/global/new_edit_project.dart';
 import 'package:ProjectFlow/pages/global/new_edit_task.dart';
 import 'package:ProjectFlow/pages/global/new_edit_topic.dart';
-import 'package:ProjectFlow/pages/global/scaffold.dart';
 import 'package:ProjectFlow/pages/views/project/project.dart';
 import 'package:ProjectFlow/services/auth.dart';
 import 'package:ProjectFlow/services/firestore.dart';
@@ -44,23 +43,19 @@ class _ProjectsState extends State<Projects> {
 
   @override
   Widget build(BuildContext context) {
-    return CustomScaffold(
-      layout: 2,
-      title: 'Projects',
-      subtitle: "Manage your project",
-      actionBtn: [
-        IconButton(
-          onPressed: () async {
-            final result = await Get.to(() => NewEditProject(edit: false));
-            if (result == 'reload') {
-              setState(() {
-                projectFuture = fetchProjects();
-              });
-            }
-          },
-          icon: Icon(FluentIcons.add_24_filled),
-        )
-      ],
+    return Scaffold(
+      floatingActionButton: FloatingActionButton.extended(
+        label: Icon(FluentIcons.add_24_filled),
+        backgroundColor: Theme.of(context).primaryColor,
+        onPressed: () async {
+          final result = await Get.to(() => NewEditProject(edit: false));
+          if (result == 'reload') {
+            setState(() {
+              projectFuture = fetchProjects();
+            });
+          }
+        },
+      ),
       body: FutureBuilder<List<Project>>(
         future: projectFuture,
         builder: (context, snapshot) {
