@@ -1,11 +1,9 @@
 import 'package:ProjectFlow/pages/global/constants.dart';
 import 'package:ProjectFlow/pages/global/contacts_launcher.dart';
-import 'package:ProjectFlow/pages/global/scaffold.dart';
 import 'package:ProjectFlow/pages/views/account/update-email.dart';
 import 'package:ProjectFlow/pages/views/account/update-password.dart';
 import 'package:ProjectFlow/services/auth.dart';
 import 'package:ProjectFlow/services/firestore.dart';
-import 'package:animations/animations.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
@@ -37,7 +35,7 @@ class _AccountState extends State<Account> {
   @override
   Widget build(BuildContext context) {
     const t = 1.0;
-    const borderRadius = 8.0;
+    const borderRadius = 10.0;
     Color bgColor = Color.lerp(
       Colors.white,
       Theme.of(context).primaryColor,
@@ -210,12 +208,13 @@ class _AccountState extends State<Account> {
               ),
               ListViewHeader(title: 'My Info'),
               CustomListTile(
+                t: t,
                 title: "Email",
                 subtitle: "Update your email address",
-                t: t,
-                borderRadius: borderRadius,
                 icon: FluentIcons.mail_24_filled,
+                iconColor: Colors.white,
                 trailingIcon: FluentIcons.chevron_right_24_regular,
+                borderRadius: borderRadius,
                 bgColor: Colors.orange,
                 onTap: () async {
                   await Get.to(
@@ -232,6 +231,7 @@ class _AccountState extends State<Account> {
                 icon: FluentIcons.password_24_filled,
                 trailingIcon: FluentIcons.chevron_right_24_regular,
                 bgColor: Colors.brown,
+                iconColor: Colors.white,
                 onTap: () {
                   Get.to(() => UpdatePassword());
                 },
@@ -243,6 +243,7 @@ class _AccountState extends State<Account> {
                 borderRadius: borderRadius,
                 icon: FluentIcons.delete_24_filled,
                 bgColor: Colors.red,
+                iconColor: Colors.white,
                 onTap: () async {
                   normalAlertDialog(
                     title: destructiveTitle,
@@ -309,6 +310,7 @@ class _AccountState extends State<Account> {
                 borderRadius: borderRadius,
                 icon: FluentIcons.sign_out_24_filled,
                 bgColor: Colors.blue[700],
+                iconColor: Colors.white,
                 onTap: () async => {
                   await Auth().logout(true),
                   Get.off(() => Home()),
@@ -323,6 +325,7 @@ class _AccountState extends State<Account> {
                 icon: FluentIcons.info_24_filled,
                 trailingIcon: FluentIcons.chevron_right_24_filled,
                 bgColor: Colors.green,
+                iconColor: Colors.white,
                 onTap: () => Get.to(() => AboutUs()),
               ),
               CustomListTile(
@@ -333,6 +336,7 @@ class _AccountState extends State<Account> {
                 icon: FluentIcons.person_feedback_24_filled,
                 trailingIcon: FluentIcons.open_24_filled,
                 bgColor: Colors.purple,
+                iconColor: Colors.white,
                 onTap: () => launchEmail(
                   company_feedback_email,
                   'Feedback on ProjectFlow',

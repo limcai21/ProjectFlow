@@ -2,7 +2,6 @@ import 'package:ProjectFlow/model/watch.dart';
 import 'package:ProjectFlow/pages/global/constants.dart';
 import 'package:ProjectFlow/pages/global/new_edit_task.dart';
 import 'package:ProjectFlow/pages/global/notification.dart';
-import 'package:ProjectFlow/pages/global/scaffold.dart';
 import 'package:ProjectFlow/pages/views/project/project.dart';
 import 'package:ProjectFlow/services/auth.dart';
 import 'package:ProjectFlow/services/firestore.dart';

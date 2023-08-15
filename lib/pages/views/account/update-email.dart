@@ -56,7 +56,9 @@ class UpdateEmail extends StatelessWidget {
                           .updateEmail(newEmail: emailController.text);
                       Get.back();
                       normalAlertDialog(
-                        title: result['status'] ? emailUpdateTitle : alertErrorTitle,
+                        title: result['status']
+                            ? emailUpdateTitle
+                            : alertErrorTitle,
                         description: result['data'],
                         context: context,
                         goBackTwice: result['status'] ? true : false,

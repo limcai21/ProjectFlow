@@ -154,9 +154,14 @@ class _ProjectSettingsState extends State<ProjectSettings> {
                                     result['status'] ? 'Done' : alertErrorTitle,
                                 description: result['data'],
                                 context: context,
-                                goBackTwice: result['status'] ? true : false,
+                                onTap: () {
+                                  if (result['status']) {
+                                    Get.offAll(() => MainSkeleton());
+                                  } else {
+                                    Get.back();
+                                  }
+                                },
                               );
-                              Get.offAll(() => MainSkeleton());
                             },
                           );
                         },

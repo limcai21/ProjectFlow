@@ -594,9 +594,8 @@ simpleDialog({
   @required List<Widget> children,
   Color bg,
   bool dismissable = true,
-  Function(dynamic) then,
-}) {
-  showModal(
+}) async {
+  await showModal(
     context: context,
     builder: (BuildContext context) {
       return SimpleDialog(
@@ -645,8 +644,8 @@ normalAlertDialog({
   bool goBackTwice = false,
   dynamic backResult,
   Function onTap,
-}) {
-  showModal(
+}) async {
+  await showModal(
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(

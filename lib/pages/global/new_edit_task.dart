@@ -124,15 +124,13 @@ class _NewEditTaskState extends State<NewEditTask> {
                     dismissable: false,
                     context: context,
                     children: generateAlertOption(widget.taskData, context),
-                    then: (v) {
-                      normalAlertDialog(
-                        title: result['status'] ? 'Updated!' : alertErrorTitle,
-                        description: result['data'],
-                        context: context,
-                        goBackTwice: result['status'] ? true : false,
-                        backResult: result['status'] ? 'reload' : null,
-                      );
-                    },
+                  );
+                  await normalAlertDialog(
+                    title: result['status'] ? 'Updated!' : alertErrorTitle,
+                    description: result['data'],
+                    context: context,
+                    goBackTwice: result['status'] ? true : false,
+                    backResult: result['status'] ? 'reload' : null,
                   );
                 } else {
                   Get.back();

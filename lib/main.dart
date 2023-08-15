@@ -6,25 +6,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-// import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:lottie/lottie.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'pages/views/login.dart';
 import 'pages/views/signup.dart';
-import 'services/ads.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // INIT FIREBASE
   await Firebase.initializeApp();
-
-  // INIT ADS
-  // final initAds = MobileAds.instance.initialize();
-  // final adState = AdState(initAds);
 
   // INIT NOTIFICATION
   tz.initializeTimeZones();
@@ -38,10 +31,6 @@ void main() async {
   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
 
   runApp(MyApp());
-  // runApp(Provider.value(
-  //   value: adState,
-  //   builder: (context, child) => MyApp(),
-  // ));
 }
 
 class MyApp extends StatelessWidget {
