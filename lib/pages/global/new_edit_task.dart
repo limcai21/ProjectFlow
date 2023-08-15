@@ -110,7 +110,11 @@ class _NewEditTaskState extends State<NewEditTask> {
               widget.taskData.startDateTime = Timestamp.fromDate(sDateTime);
               widget.taskData.endDateTime = Timestamp.fromDate(eDateTime);
               widget.taskData.topicID = topic.id;
-              var l = generateAlertOption(widget.taskData, context).length;
+              var l = generateAlertOption(
+                widget.taskData,
+                context,
+                insert: false,
+              ).length;
 
               if (n.id == int.parse(widget.taskData.uuidNum)) {
                 check = true;
@@ -123,7 +127,11 @@ class _NewEditTaskState extends State<NewEditTask> {
                     title: 'Alert',
                     dismissable: false,
                     context: context,
-                    children: generateAlertOption(widget.taskData, context),
+                    children: generateAlertOption(
+                      widget.taskData,
+                      context,
+                      insert: false,
+                    ),
                   );
                   await normalAlertDialog(
                     title: result['status'] ? 'Updated!' : alertErrorTitle,

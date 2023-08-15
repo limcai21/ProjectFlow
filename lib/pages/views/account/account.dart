@@ -284,7 +284,10 @@ class _AccountState extends State<Account> {
                           context: context,
                           onTap: () async {
                             if (r['status']) {
+                              Get.back();
+                              loadingCircle(context: context);
                               await Auth().logout(false);
+                              Get.back();
                               Get.off(() => Home());
                             } else {
                               Get.back();

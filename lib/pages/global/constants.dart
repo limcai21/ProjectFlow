@@ -26,7 +26,7 @@ const company_number = "+65 64515115";
 const company_feedback_email = "feedback@arnet.com.sg";
 const company_name = "arnet";
 const company_developer = 'Lim Cai';
-const company_website = "arnet.com.sg";
+const company_website = "https://wwww.arnet.com.sg";
 
 // DESTRUCTIVE STUFF
 const destructiveTitle = 'Hold On';
@@ -215,7 +215,8 @@ IconData getTaskIcon(String statusV) {
   return null;
 }
 
-List<Widget> generateAlertOption(Task content, BuildContext context) {
+List<Widget> generateAlertOption(Task content, BuildContext context,
+    {bool insert = true}) {
   List<Widget> output = [];
 
   alert_duration.forEach((v) {
@@ -229,38 +230,40 @@ List<Widget> generateAlertOption(Task content, BuildContext context) {
       output.add(simpleDialogOption(
         child: Text(v['name']),
         onPressed: () async {
-          var r = await scheduleNotification(
-            id: content.uuidNum.toString(),
-            endDate: content.endDateTime.toDate().toString(),
-            minutes: v['min'],
-            projectID: content.projectID,
-            title: content.title,
-            description: 'Due ' + v['msg'],
-          );
-
-          if (r['status']) {
-            var rr = await Firestore().watchTask(
-              minute: v['min'],
+          if (insert) {
+            var r = await scheduleNotification(
+              id: content.uuidNum.toString(),
+              endDate: content.endDateTime.toDate().toString(),
+              minutes: v['min'],
               projectID: content.projectID,
-              taskID: content.id,
-              userID: Auth().getCurrentUser().uid,
-              uuidNum: content.uuidNum,
+              title: content.title,
+              description: 'Due ' + v['msg'],
             );
 
-            Get.back();
-            if (!rr['status']) {
+            if (r['status']) {
+              var rr = await Firestore().watchTask(
+                minute: v['min'],
+                projectID: content.projectID,
+                taskID: content.id,
+                userID: Auth().getCurrentUser().uid,
+                uuidNum: content.uuidNum,
+              );
+
+              Get.back();
+              if (!rr['status']) {
+                normalAlertDialog(
+                  title: alertErrorTitle,
+                  description: rr['msg'],
+                  context: context,
+                );
+              }
+            } else {
               normalAlertDialog(
                 title: alertErrorTitle,
-                description: rr['msg'],
+                description: r['msg'],
                 context: context,
               );
             }
-          } else {
-            normalAlertDialog(
-              title: alertErrorTitle,
-              description: r['msg'],
-              context: context,
-            );
           }
         },
       ));
