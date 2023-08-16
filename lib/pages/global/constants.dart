@@ -624,7 +624,7 @@ simpleDialog({
   );
 }
 
-simpleDialogOption({
+ simpleDialogOption({
   IconData icon,
   @required Widget child,
   @required Function onPressed,

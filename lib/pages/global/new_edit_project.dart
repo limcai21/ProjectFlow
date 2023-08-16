@@ -215,6 +215,7 @@ class _NewEditProjectState extends State<NewEditProject> {
                       }
                     } else {
                       if (pImageController.text != "") {
+                        print("local create");
                         imagePreview(
                           url: pImageController.text,
                           local: true,

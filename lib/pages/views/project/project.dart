@@ -113,18 +113,20 @@ class _ProjectPageState extends State<ProjectPage> {
           ),
         ],
         fab: SpeedDial(
-          backgroundColor: pc,
-          overlayColor: pc,
           marginBottom: 20,
           marginEnd: 20,
+          overlayColor: Theme.of(context).primaryColor,
+          backgroundColor: Theme.of(context).primaryColor,
           icon: FluentIcons.add_24_filled,
+          foregroundColor: Colors.white,
           activeIcon: FluentIcons.dismiss_24_filled,
           openCloseDial: isDialOpen,
           children: [
             if (projectTopics.length > 0)
               SpeedDialChild(
                 label: 'Task',
-                labelStyle: TextStyle(color: Colors.white),
+                backgroundColor: Colors.white,
+                labelStyle: TextStyle(color: Colors.black),
                 child: Icon(task_icon),
                 onTap: () async {
                   final result = await Get.to(
@@ -135,7 +137,8 @@ class _ProjectPageState extends State<ProjectPage> {
               ),
             SpeedDialChild(
               label: 'Topic',
-              labelStyle: TextStyle(color: Colors.white),
+              backgroundColor: Colors.white,
+              labelStyle: TextStyle(color: Colors.black),
               child: Icon(topic_icon),
               onTap: () async {
                 final result = await Get.to(
